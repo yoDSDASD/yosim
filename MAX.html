@@ -29,7 +29,7 @@
   .input-group {
     display: flex;
     flex-direction: column;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.6rem;
   }
 
   label {
@@ -38,7 +38,7 @@
     margin-bottom: 0.25rem;
   }
 
-  input {
+  input, select {
     padding: 0.4em 0.6em;
     font-size: 1.05rem;
     border: 1px solid #bbb;
@@ -49,7 +49,7 @@
     transition: 0.15s;
   }
 
-  input:focus {
+  input:focus, select:focus {
     border-color: #000;
     outline: none;
   }
@@ -68,26 +68,18 @@
   }
 
   .series {
-    margin-top: 0.6rem;
+    margin-top: 0.8rem;
     background: #efefef;
     border-radius: 0.4em;
-    padding: 0.5em 0.6em;
+    padding: 0.6em;
     font-family: monospace;
     font-size: 1.05rem;
-    overflow-x: auto;
-    white-space: nowrap;
-    text-align: left;
+    max-height: 200px;
+    overflow-y: auto;
     direction: ltr;
+    text-align: left;
     display: none;
     border: 1px solid #ccc;
-  }
-
-  .series::-webkit-scrollbar {
-    height: 6px;
-  }
-  .series::-webkit-scrollbar-thumb {
-    background: #aaa;
-    border-radius: 3px;
   }
 
   .highlight { color: #c00000; }
@@ -121,7 +113,7 @@
   @media (max-width: 480px) {
     .container { padding: 2.5vh 5vw; }
     .title { font-size: 1.25rem; }
-    input { font-size: 1rem; }
+    input, select { font-size: 1rem; }
     .result, .series { font-size: 1rem; }
   }
 </style>
@@ -146,6 +138,16 @@
     <input type="number" step="any" id="lowerTol" inputmode="decimal">
   </div>
 
+  <div class="input-group">
+    <label for="stepValue">קפיצה בין ערכים (מ״מ)</label>
+    <select id="stepValue">
+      <option value="0.001">0.001</option>
+      <option value="0.002">0.002</option>
+      <option value="0.005">0.005</option>
+      <option value="0.010">0.010</option>
+    </select>
+  </div>
+
   <div class="result" id="result"></div>
   <div class="series" id="series"></div>
 
@@ -159,7 +161,7 @@ function format(v) {
 }
 
 function blurAllInputs() {
-  document.querySelectorAll("input").forEach(inp => inp.blur());
+  document.querySelectorAll("input, select").forEach(inp => inp.blur());
 }
 
 function calculate() {
@@ -167,6 +169,7 @@ function calculate() {
   const nominal = parseFloat(document.getElementById("nominal").value);
   const upperInput = document.getElementById("upperTol").value;
   const lowerInput = document.getElementById("lowerTol").value;
+  const stepInput = parseFloat(document.getElementById("stepValue").value);
   const resultEl = document.getElementById("result");
   const seriesEl = document.getElementById("series");
 
@@ -196,14 +199,10 @@ function calculate() {
   resultEl.innerHTML = output;
   resultEl.style.display = "block";
 
-  // יצירת הסדרה בפועל
-  const steps = 100; // מספר הערכים שיראה
-  const stepSize = range / steps;
+  // יצירת סדרה אנכית לפי קפיצה
   let seriesOutput = "";
-  for (let i = 0; i <= steps; i++) {
-    const val = min + (i * stepSize);
-    seriesOutput += format(val);
-    if (i < steps) seriesOutput += " | ";
+  for (let val = min; val <= max + 0.0001; val += stepInput) {
+    seriesOutput += format(val) + "<br>";
   }
 
   seriesEl.innerHTML = seriesOutput;
