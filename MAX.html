@@ -87,7 +87,7 @@
   button {
     width: 100%;
     padding: 0.55em;
-    margin-top: 0.45rem;
+    margin-top: 0.6rem;
     font-size: 1.05rem;
     font-weight: 600;
     border: none;
@@ -138,7 +138,12 @@
     <input type="number" step="any" id="lowerTol" inputmode="decimal">
   </div>
 
-  <div class="input-group">
+  <button class="calc-btn" onclick="calculate()">חשב</button>
+  <button class="reset-btn" onclick="resetCalc()">איפוס</button>
+
+  <div class="result" id="result"></div>
+
+  <div class="input-group" id="stepGroup" style="display:none;">
     <label for="stepValue">קפיצה בין ערכים (מ״מ)</label>
     <select id="stepValue">
       <option value="0.001">0.001</option>
@@ -148,11 +153,7 @@
     </select>
   </div>
 
-  <div class="result" id="result"></div>
   <div class="series" id="series"></div>
-
-  <button class="calc-btn" onclick="calculate()">חשב</button>
-  <button class="reset-btn" onclick="resetCalc()">איפוס</button>
 </div>
 
 <script>
@@ -169,17 +170,19 @@ function calculate() {
   const nominal = parseFloat(document.getElementById("nominal").value);
   const upperInput = document.getElementById("upperTol").value;
   const lowerInput = document.getElementById("lowerTol").value;
-  const stepInput = parseFloat(document.getElementById("stepValue").value);
+  const stepSelect = document.getElementById("stepValue");
   const resultEl = document.getElementById("result");
   const seriesEl = document.getElementById("series");
+  const stepGroup = document.getElementById("stepGroup");
 
   let upper = parseFloat(upperInput);
   let lower = parseFloat(lowerInput);
 
   if (isNaN(nominal)) {
     resultEl.style.display = "block";
-    seriesEl.style.display = "none";
     resultEl.innerHTML = "יש להזין ערך נומינלי תקין";
+    seriesEl.style.display = "none";
+    stepGroup.style.display = "none";
     return;
   }
 
@@ -198,15 +201,18 @@ function calculate() {
 
   resultEl.innerHTML = output;
   resultEl.style.display = "block";
+  stepGroup.style.display = "block";
 
-  // יצירת סדרה אנכית לפי קפיצה
-  let seriesOutput = "";
-  for (let val = min; val <= max + 0.0001; val += stepInput) {
-    seriesOutput += format(val) + "<br>";
-  }
-
-  seriesEl.innerHTML = seriesOutput;
-  seriesEl.style.display = "block";
+  // יצירת סדרה רק אחרי בחירת קפיצה
+  stepSelect.onchange = () => {
+    const stepInput = parseFloat(stepSelect.value);
+    let seriesOutput = "";
+    for (let val = min; val <= max + 0.0001; val += stepInput) {
+      seriesOutput += format(val) + "<br>";
+    }
+    seriesEl.innerHTML = seriesOutput;
+    seriesEl.style.display = "block";
+  };
 }
 
 function resetCalc() {
@@ -216,6 +222,7 @@ function resetCalc() {
   document.getElementById("result").style.display = "none";
   document.getElementById("series").innerHTML = "";
   document.getElementById("series").style.display = "none";
+  document.getElementById("stepGroup").style.display = "none";
 }
 </script>
 
