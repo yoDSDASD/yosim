@@ -3,50 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MAX + - </title>
+<title>מכשירי יצור</title>
 <style>
   * { box-sizing: border-box; }
   body {
     margin: 0;
     font-family: "Heebo", sans-serif;
-    background: #f5f5f5;
+    background: #f6f6f6;
     color: #111;
   }
 
   .container {
-    max-width: 400px;
+    max-width: 360px;
     margin: 0 auto;
-    padding: 4vh 5vw;
+    padding: 2.5vh 4vw;
   }
 
   .title {
     text-align: center;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 700;
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
   }
 
   .input-group {
     display: flex;
     flex-direction: column;
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.5rem;
   }
 
   label {
     font-weight: 600;
-    font-size: 0.95rem;
-    margin-bottom: 0.2rem;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
   }
 
   input {
-    padding: 0.6em 0.7em;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 0.4em;
+    padding: 0.4em 0.6em;
+    font-size: 1.05rem;
+    border: 1px solid #bbb;
+    border-radius: 0.3em;
     text-align: center;
     direction: ltr;
     background: #fff;
-    transition: 0.2s;
+    transition: 0.15s;
   }
 
   input:focus {
@@ -56,27 +56,27 @@
 
   .result {
     background: #fff;
-    border: 1px solid #aaa;
-    border-radius: 0.6em;
-    padding: 0.8em;
-    margin-top: 1rem;
+    border: 1px solid #999;
+    border-radius: 0.4em;
+    padding: 0.6em;
+    margin-top: 0.8rem;
     font-family: monospace;
-    font-size: 1rem;
+    font-size: 1.1rem;
     display: none;
     direction: ltr;
     text-align: left;
   }
 
-  .highlight { color: #d40000; }
+  .highlight { color: #c00000; }
 
   button {
     width: 100%;
-    padding: 0.8em;
-    margin-top: 0.6rem;
-    font-size: 1rem;
+    padding: 0.55em;
+    margin-top: 0.45rem;
+    font-size: 1.05rem;
     font-weight: 600;
     border: none;
-    border-radius: 0.5em;
+    border-radius: 0.4em;
     cursor: pointer;
     transition: 0.2s;
   }
@@ -89,22 +89,24 @@
   .calc-btn:hover { background: #222; }
 
   .reset-btn {
-    background: #ddd;
+    background: #d7d7d7;
     color: #000;
   }
 
-  .reset-btn:hover { background: #bbb; }
+  .reset-btn:hover { background: #aaa; }
 
   @media (max-width: 480px) {
-    .container { padding: 3vh 6vw; }
-    input { font-size: 0.95rem; }
+    .container { padding: 2.5vh 5vw; }
+    .title { font-size: 1.25rem; }
+    input { font-size: 1rem; }
+    .result { font-size: 1.05rem; }
   }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="title">MAX + - </div>
+  <div class="title">מכשירי יצור</div>
 
   <div class="input-group">
     <label for="nominal">NOM</label>
