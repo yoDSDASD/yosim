@@ -42,16 +42,22 @@ h2 {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 18px;
+  padding: 20px;
   box-shadow: 0 8px 25px rgba(0,0,0,0.35);
   width: 100%;
   max-width: 380px;
   margin-bottom: 20px;
 }
-input, select {
-  width: 100%;
-  padding: 14px;
+.input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 10px;
+}
+input, select {
+  flex: 1;
+  padding: 14px 12px;
   font-size: 1.05rem;
   text-align: center;
   color: var(--ink);
@@ -59,6 +65,11 @@ input, select {
   border-radius: 10px;
   border: 1px solid var(--border);
   outline: none;
+  height: 52px;
+  box-sizing: border-box;
+}
+select {
+  max-width: 130px;
 }
 input:focus, select:focus {
   border-color: var(--accent);
@@ -74,7 +85,7 @@ button {
   color: #fff;
   font-size: 1.05rem;
   cursor: pointer;
-  margin-top: 5px;
+  margin-top: 8px;
 }
 button:hover { filter: brightness(1.2); }
 
@@ -83,10 +94,10 @@ button:hover { filter: brightness(1.2); }
   text-align: center;
 }
 .bigN {
-  font-size: 2.4rem;
+  font-size: 2.6rem;
   font-weight: 900;
   color: var(--ok);
-  margin: 10px 0;
+  margin: 12px 0;
   letter-spacing: 1px;
 }
 .result-details {
@@ -132,11 +143,13 @@ tr.active {
   <div class="sub">הזן ערך Ra וקבל את דרגת ה־N והטווח לפי תקן ISO 1302</div>
 
   <div class="card fade">
-    <input id="ra" type="number" inputmode="decimal" placeholder="לדוגמה 2.5">
-    <select id="unit">
-      <option value="um">(µm) מיקרון</option>
-      <option value="uin">(µin) מיקרו־אינץ׳</option>
-    </select>
+    <div class="input-row">
+      <input id="ra" type="number" inputmode="decimal" placeholder="לדוגמה 2.5">
+      <select id="unit">
+        <option value="um">(µm)</option>
+        <option value="uin">(µin)</option>
+      </select>
+    </div>
     <button onclick="calc()">חשב</button>
 
     <div class="result" id="res">
