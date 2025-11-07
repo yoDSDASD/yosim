@@ -1,12 +1,5 @@
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <title>אודות</title>
-</head>
-<body>
-  <h1>עמוד האודות</h1>
-  <p>זהו דף נפרד באתר שלי.</p>
-  <a href="index.html">חזרה לדף הבית</a>
-</body>
-</html>
+<h2>קישורים לכל הדפים</h2>
+<ul>
+  <li><a href="N6.html">מחשבון N6</a></li>
+  <li><a href="MAX.html">דף MAX</a></li>
+</ul>
