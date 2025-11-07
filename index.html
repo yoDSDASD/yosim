@@ -1,22 +1,96 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="he" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>האתר שלי</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f7f7f7;
-      text-align: center;
-      padding: 50px;
-    }
-    h1 { color: #333; }
-    p { color: #666; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מחשבון דרגות טיב פני שטח – גרסה מקצועית</title>
+<style>
+:root{--bg:#0b0c10;--card:#121418;--ink:#e8e8e8;--accent:#35d07f;--muted:#a7a7a7;--border:#222833;--danger:#ff4961}
+body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink);}
+header{text-align:center;padding:20px}
+h1{margin:0;font-size:1.5rem}
+.container{max-width:840px;margin:auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:0 4px 18px rgba(0,0,0,.3)}
+input,select,button{width:100%;padding:12px;border-radius:8px;border:1px solid var(--border);background:#0f1116;color:var(--ink);font-size:1rem}
+button{background:var(--accent);color:#001b0d;font-weight:bold;cursor:pointer}
+button:hover{filter:brightness(1.1)}
+.result{margin-top:20px;text-align:center;padding:20px;border-radius:12px;background:#0e141f;border:1px dashed var(--border)}
+.bigN{font-size:3.5rem;font-weight:900;color:var(--accent);margin:0}
+.range{font-size:1.1rem;margin:6px 0}
+.sub{color:var(--muted);font-size:.9rem}
+table{width:100%;border-collapse:collapse;margin-top:20px}
+th,td{text-align:center;padding:6px;border-bottom:1px solid var(--border)}
+tr.highlight{background:#102217}
+</style>
 </head>
 <body>
-  <h1>ברוך הבא!</h1>
-  <p>זה האתר הראשון שלי ב-GitHub Pages</p>
+<header>
+<h1>מחשבון דרגת טיב פני שטח (N) – גרסה מקצועית</h1>
+<div class="sub">הקלד ערך Ra והמחשבון יקבע את דרגת N, יציג טווח מדויק וערכי Rz/Ry תואמים.</div>
+</header>
+<div class="container">
+<div class="card">
+<label>ערך Ra (חספוס ממוצע):</label>
+<input id="ra" type="number" placeholder="לדוגמה: 0.45" step="0.001" min="0">
+<label>יחידות:</label>
+<select id="unit">
+<option value="um">מיקרון (µm)</option>
+<option value="uin">מיקרו-אינטש (µin)</option>
+</select>
+<button id="calc">חשב</button>
+<div id="out" class="result">
+<p class="sub">עדיין לא הוזן ערך</p>
+</div>
+<div style="overflow:auto;max-height:350px">
+<table id="tbl">
+<thead><tr><th>דרגת N</th><th>Ra [µm]</th><th>טווח [µm]</th><th>Rz/Ry ≈ 4×Ra</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+</div>
+<script>
+const data=[
+{n:1,ra:0.025},{n:2,ra:0.05},{n:3,ra:0.1},{n:4,ra:0.2},{n:5,ra:0.4},{n:6,ra:0.8},{n:7,ra:1.6},{n:8,ra:3.2},{n:9,ra:6.3},{n:10,ra:12.5},{n:11,ra:25},{n:12,ra:50}
+];
+const UIN=39.37007874;
+function fmt(x,d=3){return Number(x).toLocaleString('he-IL',{maximumFractionDigits:d})}
+function build(){
+let tb=document.querySelector("#tbl tbody");tb.innerHTML="";
+for(let i=0;i<data.length;i++){
+let lo=i==0?0:Math.sqrt(data[i-1].ra*data[i].ra);
+let hi=i==data.length-1?Infinity:Math.sqrt(data[i].ra*data[i+1].ra);
+let tr=document.createElement("tr");
+tr.dataset.n=data[i].n;
+tr.innerHTML=`<td>N${data[i].n}</td><td>${fmt(data[i].ra)}</td><td>${fmt(lo)}–${fmt(hi)}</td><td>${fmt(data[i].ra*4)}</td>`;
+tb.appendChild(tr);
+}
+}
+build();
+function classify(ra,unit){
+let ra_um=unit==="uin"?ra/UIN:ra;
+for(let g of data){if(ra_um<=g.ra+1e-12)return g;}
+return null;
+}
+document.getElementById("calc").onclick=()=>{
+let val=parseFloat(document.getElementById("ra").value);
+if(!val||val<=0)return alert("אנא הזן ערך חוקי");
+let unit=document.getElementById("unit").value;
+let ra_um=unit==="uin"?val/UIN:val;
+let g=classify(val,unit);
+let out=document.getElementById("out");
+document.querySelectorAll("tr").forEach(r=>r.classList.remove("highlight"));
+if(!g){out.innerHTML="<p style='color:var(--danger)'>הערך מחוץ לטווח (גדול מ‑N12)</p>";return;}
+let i=data.findIndex(x=>x.n===g.n);
+let lo=i==0?0:Math.sqrt(data[i-1].ra*data[i].ra);
+let hi=i==data.length-1?Infinity:Math.sqrt(data[i].ra*data[i+1].ra);
+document.querySelector(`tr[data-n='${g.n}']`).classList.add("highlight");
+let rz=g.ra*4;
+out.innerHTML=`<p class="bigN">N${g.n}</p>
+<p class="range">Ra = ${fmt(ra_um)} µm</p>
+<p class="range">טווח דרגה: ${fmt(lo)} – ${Number.isFinite(hi)?fmt(hi):"∞"} µm</p>
+<p class="range">Rz / Ry ≈ ${fmt(rz)} µm</p>`;
+};
+</script>
 </body>
 </html>
