@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מכשירי יצור</title>
+  <style>
+    html {
+      font-size: 14px;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 320px;
+      padding: 1vmin;
+      margin: 0 auto;
+    }
+
+    .title {
+      font-size: 1.4em;
+      font-weight: bold;
+      margin-bottom: 1vmin;
+      color: black;
+      text-align: center;
+    }
+
+    .result {
+      width: 100%;
+      background: #ffffff;
+      border-radius: 0.5em;
+      padding: 1em;
+      margin-bottom: 1em;
+      font-size: 1.1em;
+      font-weight: bold;
+      color: black;
+      text-align: left;
+      direction: ltr;
+      font-family: monospace;
+      display: none;
+      border: 1px solid #000;
+      box-sizing: border-box;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .highlight {
+      color: red;
+    }
+
+    .input-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0.5vmin 0;
+      width: 100%;
+    }
+
+    label {
+      flex: 1;
+      margin-left: 1vmin;
+      font-weight: bold;
+      color: black;
+      font-size: 1em;
+    }
+
+    input {
+      flex: 2;
+      padding: 0.5em;
+      font-size: 1em;
+      border-radius: 0.5em;
+      border: 1px solid black;
+      text-align: center;
+      direction: ltr;
+      min-width: 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.8em;
+      margin-top: 1vmin;
+      font-size: 1em;
+      font-weight: bold;
+      background-color: black;
+      color: white;
+      border: none;
+      border-radius: 0.5em;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #222;
+    }
+
+    .reset-btn {
+      background-color: #cccccc;
+      color: black;
+    }
+
+    .reset-btn:hover {
+      background-color: #999;
+    }
+
+    @media screen and (max-width: 480px) {
+      html {
+        font-size: 4.2vw;
+      }
+
+      body {
+        padding: 0;
+        margin: 0;
+      }
+
+      .container {
+        max-width: 95vw;
+        padding: 2vw;
+        margin: 0 auto;
+      }
+
+      .result {
+        font-size: 1em;
+        padding: 0.8em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="title">מכשירי יצור</div>
+
+  <div class="input-row">
+    <label>NOM</label>
+    <input type="number" step="any" id="nominal" inputmode="decimal">
+  </div>
+  <div class="input-row">
+    <label>TOL+</label>
+    <input type="number" step="any" id="upperTol" inputmode="decimal">
+  </div>
+  <div class="input-row">
+    <label>TOL−</label>
+    <input type="number" step="any" id="lowerTol" inputmode="decimal">
+  </div>
+
+  <div class="result" id="result"></div>
+
+  <button onclick="calculate()">חשב</button>
+  <button class="reset-btn" onclick="resetCalc()">איפוס</button>
+</div>
+
+<script>
+function format(v) {
+  return parseFloat(v).toFixed(3);
+}
+
+function calculate() {
+  const nominal = parseFloat(document.getElementById("nominal").value);
+  const upperInput = document.getElementById("upperTol").value;
+  const lowerInput = document.getElementById("lowerTol").value;
+
+  let upper = parseFloat(upperInput);
+  let lower = parseFloat(lowerInput);
+
+  const resultEl = document.getElementById("result");
+
+  if (isNaN(nominal)) {
+    resultEl.style.display = "block";
+    resultEl.innerHTML = "יש להזין ערך נומינלי תקין";
+    return;
+  }
+
+  if (isNaN(upper)) upper = 0;
+  if (isNaN(lower)) lower = 0;
+
+  const max = nominal + upper;
+  const min = nominal - lower;
+  const range = max - min;
+
+  let output = "";
+  if (upper > 0) {
+    output += <div><strong class="highlight">MAX:</strong> <span class="highlight">+${format(max)}</span></div>;
+  }
+  if (lower > 0) {
+    output += <div><strong class="highlight">MIN:</strong> <span class="highlight">−${format(min)}</span></div>;
+  }
+  if (upper > 0 && lower > 0) {
+    output += <hr><div><strong>RANGE:</strong> ${format(range)}</div>;
+  }
+
+  resultEl.style.display = output ? "block" : "none";
+  resultEl.innerHTML = output;
+}
+
+function handleDelete(e) {
+  const active = document.activeElement;
+  if (e.key === 'Delete' && active.tagName === 'INPUT') {
+    const start = active.selectionStart;
+    const end = active.selectionEnd;
+    if (start === end && start > 0) {
+      const val = active.value;
+      active.value = val.substring(0, start - 1) + val.substring(end);
+      active.setSelectionRange(start - 1, start - 1);
+      e.preventDefault();
+    }
+  }
+  if (e.key === 'Enter') {
+    calculate();
+  }
+}
+
+document.addEventListener('keydown', handleDelete);
+
+document.addEventListener("DOMContentLoaded", function() {
+  const inputs = document.querySelectorAll("input");
+  inputs.forEach(input => {
+    input.addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        calculate();
+      }
+    });
+  });
+});
+
+function resetCalc() {
+  document.getElementById("nominal").value = "";
+  document.getElementById("upperTol").value = "";
+  document.getElementById("lowerTol").value = "";
+  const resultEl = document.getElementById("result");
+  resultEl.innerHTML = "";
+  resultEl.style.display = "none";
+}
+</script>
+
+</body>
+</html>
