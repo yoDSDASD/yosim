@@ -1,108 +1,85 @@
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>מכשירי יצור - קדחים</title>
-<style>
-  *{box-sizing:border-box}
-  body{margin:0;font-family:"Heebo",system-ui,Arial;background:#f6f6f6;color:#111}
-  .wrap{max-width:380px;margin:0 auto;padding:2.5vh 4vw}
-  .title{text-align:center;font-size:1.3rem;font-weight:800;margin:0 0 .9rem}
-  .row{display:flex;flex-direction:column;margin:.55rem 0}
-  label{font-size:.9rem;font-weight:700;margin-bottom:.25rem}
-  input{padding:.5em .6em;font-size:1.05rem;border:1px solid #bbb;border-radius:.35em;text-align:center;direction:ltr;background:#fff}
-  input:focus{outline:none;border-color:#000}
-  .btn{width:100%;padding:.6em;margin-top:.6rem;font-size:1.05rem;font-weight:700;border:0;border-radius:.45em;cursor:pointer}
-  .primary{background:#000;color:#fff}
-  .primary:hover{background:#222}
-  .secondary{background:#ddd}
-  .secondary:hover{background:#bbb}
-  .resultBox, .seriesBox{
-    display:none;
-    background:#fff;
-    border:1px solid #ccc;
-    border-radius:.5em;
-    padding:.7em;
-    margin-top:.9rem;
-    font-family:monospace;
-    font-size:1.05rem;
-    direction:ltr;
-    text-align:center;
-  }
-  .seriesBox{max-height:220px;overflow:auto;text-align:left;direction:ltr}
-  .pin{padding:.22em .35em;border-radius:.3em;display:inline-block;width:80px}
-  .go{background:#e8f9ed;font-weight:700}
-  .go b{color:#0a7f3f}
-  .nogo{background:#fdeaea;font-weight:700}
-  .nogo b{color:#b10808}
-  .legend{display:flex;gap:.6rem;align-items:center;font-size:.9rem;margin-top:.6rem}
-  .dot{width:.8em;height:.8em;display:inline-block;border-radius:2px;margin-inline-end:.35em;vertical-align:middle}
-  .dot.go{background:#0a7f3f}
-  .dot.nogo{background:#b10808}
-  @media(max-width:480px){
-    .wrap{padding:2.5vh 5vw}
-    input{font-size:1rem}
-    .resultBox,.seriesBox{font-size:1rem}
-  }
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="title">מכשירי יצור - קדחים</div>
-
-  <div class="row">
-    <label for="nominal">NOM</label>
-    <input id="nominal" type="number" step="any" inputmode="decimal" />
-  </div>
-
-  <div class="row">
-    <label for="tolp">+TOL</label>
-    <input id="tolp" type="number" step="any" inputmode="decimal" />
-  </div>
-
-  <div class="row">
-    <label for="tolm">−TOL</label>
-    <input id="tolm" type="number" step="any" inputmode="decimal" />
-  </div>
-
-  <button class="btn primary" onclick="calc()">חשב</button>
-  <button class="btn secondary" onclick="resetAll()">איפוס</button>
-
-  <div class="resultBox" id="resultBox"></div>
-
-  <div class="legend">
-    <span><span class="dot go"></span>Go (פין קטן)</span>
-    <span><span class="dot nogo"></span>No-Go (פין גדול)</span>
-  </div>
-
-  <div class="seriesBox" id="series"></div>
-</div>
-
 <script>
-const fmt = v => parseFloat(v).toFixed(3);
-function blurInputs(){document.querySelectorAll('input').forEach(el=>el.blur());}
+const fmt = v => Number(v).toFixed(3);
+
+// מקריאים מספר בבטחה: תומך בפסיקים/רווחים
+function readNum(id){
+  const el = document.getElementById(id);
+  if(!el) return NaN;
+  const raw = String(el.value).trim().replace(/,/g,'.');
+  const n = parseFloat(raw);
+  return isNaN(n) ? NaN : n;
+}
+
+function blurInputs(){ document.querySelectorAll('input').forEach(el=>el.blur()); }
 
 function calc(){
   blurInputs();
-  const nom = parseFloat(document.getElementById('nominal').value);
-  const tp = parseFloat(document.getElementById('tolp').value);
-  const tm = parseFloat(document.getElementById('tolm').value);
-  const box = document.getElementById('series');
+
+  const nom = readNum('nominal');
+  const tp  = readNum('tolp');   // +TOL
+  const tm  = readNum('tolm');   // -TOL
+
+  const seriesBox = document.getElementById('series');
   const resultBox = document.getElementById('resultBox');
 
-  if(isNaN(nom)){
+  // ניקוי קודם
+  seriesBox.innerHTML = '';
+  seriesBox.style.display = 'none';
+
+  if (isNaN(nom)) {
     resultBox.style.display='block';
     resultBox.innerHTML='יש להזין ערך נומינלי תקין';
-    box.style.display='none';
     return;
   }
 
-  const up = isNaN(tp)?0:tp;
-  const lo = isNaN(tm)?0:tm;
+  const up = isNaN(tp) ? 0 : tp;
+  const lo = isNaN(tm) ? 0 : tm;
+
+  // חישוב גבולות
   const max = nom + up;
   const min = nom - lo;
 
-  // תוצאה ברורה בשורה אחת
-  resultBox.innerHTML = `<strong>תוצאה:</strong><br><span style="font-size:1.1rem"><b>${fmt(max)}</b> ⇐ קדח ⇒ <b>${fmt(min)}</b></span>`;
-  re
+  // הצגה ברורה בשורה אחת
+  resultBox.innerHTML =
+    `<strong>תוצאה:</strong><br>` +
+    `<span style="font-size:1.1rem"><b>${fmt(max)}</b> ⇐ קדח ⇒ <b>${fmt(min)}</b></span>`;
+  resultBox.style.display = 'block';
+
+  // יצירת סדרת פינים בתקינה 0.01 מ״מ
+  const step = 0.01;
+
+  // עיגול לדרגת פינים (למעלה למינימום, למטה למקסימום)
+  const start = Math.ceil(min * 100) / 100;
+  const end   = Math.floor(max * 100) / 100;
+
+  let html = '';
+  if (start > end) {
+    html = 'אין פינים בתחום זה';
+  } else {
+    const goVal   = start; // לקדח: Go = הקטן
+    const noGoVal = end;   // No-Go = הגדול
+
+    // לולאה יציבה מתמטית למניעת שגיאות ציפה
+    for (let i = Math.round(start*100); i <= Math.round(end*100); i += 1) {
+      const v = i / 100;
+      const val = fmt(v);
+      if (i === Math.round(goVal*100))   html += `<div class="pin go">${val} <b>Go</b></div>`;
+      else if (i === Math.round(noGoVal*100)) html += `<div class="pin nogo">${val} <b>No-Go</b></div>`;
+      else html += `<div class="pin">${val}</div>`;
+    }
+  }
+
+  seriesBox.innerHTML = html;
+  seriesBox.style.display = 'block';
+}
+
+function resetAll(){
+  blurInputs();
+  ['nominal','tolp','tolm'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('resultBox').style.display='none';
+  document.getElementById('resultBox').innerHTML='';
+  const box=document.getElementById('series');
+  box.innerHTML='';
+  box.style.display='none';
+}
+</script>
