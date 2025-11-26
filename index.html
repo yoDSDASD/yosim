@@ -1,29 +1,155 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>מחשבונים – אתר מקצועי</title>
-<style>
-  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto; background:#0b0c10; color:#f2f2f2}
-  .wrap{max-width:720px;margin:0 auto;padding:32px}
-  h1{margin:0 0 18px;font-size:1.6rem}
-  ul{list-style:none;padding:0;margin:0}
-  li{margin:10px 0}
-  a{display:block;padding:14px 16px;border:1px solid #1f232b;border-radius:12px;
-     background:#14171d;text-decoration:none;color:#eaeaea}
-  a:hover{background:#1a1f27}
-  .muted{color:#a7a7a7;font-size:.9rem;margin:10px 0 20px}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מחשבון מידה לפני צבע</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      color: #fff;
+    }
+
+    .wrapper {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 20px 14px;
+    }
+
+    .card {
+      background-color: #111;
+      padding: 22px;
+      border-radius: 18px;
+      box-shadow: 0 0 14px rgba(0,0,0,0.7);
+    }
+
+    .title {
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.82rem;
+      color: #cfcfcf;
+      margin-bottom: 22px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #333;
+      background-color: #1a1a1a;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    .field input:focus {
+      border-color: #00baff;
+      box-shadow: 0 0 0 1px #00baff66;
+      outline: none;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px 0;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #00c3ff, #0077ff);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.05rem;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .results {
+      margin-top: 18px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .value {
+      font-weight: 700;
+      font-family: "Courier New", monospace;
+      font-size: 1.1rem;
+    }
+
+    .green {
+      color: #00e676;
+    }
+  </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>מחשבונים מקצועיים</h1>
-    <div class="muted">בחר מחשבון:</div>
-    <ul>
-      <li><a href="N6.html">מחשבון N6</a></li>
-      <li><a href="MAX.html">מחשבון דרגות MAX</a></li>
-      <li><a href="PRO.html">בלוקי ג׳ונסון PRO+</a></li>
-    </ul>
+
+  <div class="wrapper">
+    <div class="card">
+
+      <div class="title">מחשבון מידה לפני צבע</div>
+      <div class="subtitle">מחשב עובי צבע כפול 2 ומידת עיבוד לפני צבע</div>
+
+      <div class="field">
+        <label>עובי צבע נדרש (מ״מ)</label>
+        <input id="paint" type="number" step="0.001" placeholder="לדוגמה: 0.008">
+      </div>
+
+      <div class="field">
+        <label>מידה בשרטוט (מ״מ)</label>
+        <input id="drawing" type="number" step="0.001" placeholder="לדוגמה: 23.625">
+      </div>
+
+      <button class="btn" onclick="calc()">חשב</button>
+
+      <div class="results">
+        <div><span class="value" id="res1">—</span> :עובי צבע כפול 2 (מ״מ)</div>
+        <div><span class="value green" id="res2">—</span> :מידה לעיבוד לפני צבע (מ״מ)</div>
+      </div>
+
+    </div>
   </div>
+
+  <script>
+    function calc() {
+      const p = parseFloat(document.getElementById("paint").value.replace(",", "."));
+      const d = parseFloat(document.getElementById("drawing").value.replace(",", "."));
+
+      if (isNaN(p) || isNaN(d)) {
+        document.getElementById("res1").textContent = "—";
+        document.getElementById("res2").textContent = "—";
+        return;
+      }
+
+      const paint2 = (p * 2).toFixed(3);
+      const beforePaint = (d - (p * 2)).toFixed(3);
+
+      document.getElementById("res1").textContent = paint2;
+      document.getElementById("res2").textContent = beforePaint;
+    }
+  </script>
+
 </body>
 </html>
