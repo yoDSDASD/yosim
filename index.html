@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>מחשבון מידה לפני צבע</title>
+  <title>תפריט האתר</title>
 
   <style>
     * {
@@ -12,164 +12,82 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    html, body {
+    body {
       margin: 0;
       padding: 0;
       background-color: #000;
       color: #fff;
-      height: 100%;
-      overflow-x: hidden;
-    }
-
-    body {
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      padding-top: 25px;
+      padding-top: 40px;
     }
 
-    .card {
-      background-color: #111;
-      padding: 26px;
+    .wrap {
       width: 92%;
       max-width: 430px;
+      background-color: #111;
       border-radius: 20px;
-      box-shadow: 0 0 14px rgba(0,0,0,0.7);
+      padding: 28px;
+      box-shadow: 0 0 18px rgba(0,0,0,0.6);
     }
 
     .title {
       text-align: center;
-      font-weight: 700;
-      font-size: 1.35rem;
-      margin-bottom: 4px;
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 26px;
     }
 
-    .subtitle {
-      text-align: center;
-      font-size: 0.82rem;
-      color: #cfcfcf;
-      margin-bottom: 22px;
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
 
-    .field {
-      margin-bottom: 16px;
-    }
-
-    .field label {
+    a.item {
       display: block;
-      font-size: 0.9rem;
-      margin-bottom: 4px;
-    }
-
-    .field input {
-      width: 100%;
-      padding: 13px;
-      border-radius: 12px;
-      border: 1px solid #333;
-      background-color: #1a1a1a;
-      color: #fff;
-      font-size: 1rem;
-    }
-
-    .field input:focus {
-      border-color: #00baff;
-      box-shadow: 0 0 0 1px #00baff66;
-      outline: none;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 15px 0;
-      border: none;
+      background-color: #1b1b1b;
+      padding: 16px;
       border-radius: 14px;
-      background: linear-gradient(135deg, #00c3ff, #0077ff);
+      text-decoration: none;
       color: #fff;
-      font-weight: 700;
       font-size: 1.05rem;
-      cursor: pointer;
-      margin-top: 4px;
+      font-weight: 600;
+      border: 1px solid #333;
+      transition: 0.15s;
     }
 
-    .btn:active {
-      transform: scale(0.97);
+    a.item:hover {
+      background-color: #222;
+      border-color: #00baff;
     }
 
-    .results {
-      margin-top: 22px;
-      line-height: 1.7;
-    }
-
-    .result-label {
-      font-size: 0.9rem;
-      color: #bbb;
-      margin-bottom: 4px;
-    }
-
-    .result-value {
+    a.git {
+      text-align: center;
+      margin-top: 18px;
       display: block;
-      font-weight: 700;
-      font-family: "Courier New", monospace;
-      font-size: 1.15rem;
-      margin-bottom: 12px;
+      color: #00c3ff;
+      font-size: 0.9rem;
+      text-decoration: none;
     }
-
-    /* התוצאה הסופית – מוגדלת כמו שביקשת */
-    .final {
-      font-size: 1.75rem;
-      color: #00e676;
-      margin-top: 6px;
-      font-weight: 900;
-    }
-
   </style>
 </head>
 <body>
 
-  <div class="card">
+  <div class="wrap">
+    <div class="title">תפריט האתר</div>
 
-    <div class="title">מחשבון מידה לפני צבע</div>
-    <div class="subtitle">עובי צבע × 2 ומידת עיבוד לפני צבע</div>
-
-    <div class="field">
-      <label>עובי צבע נדרש (מ״מ)</label>
-      <input id="paint" type="number" step="0.001" placeholder="לדוגמה: 0.008">
+    <div class="list">
+      <a class="item" href="John.html">John</a>
+      <a class="item" href="MAX.html">MAX</a>
+      <a class="item" href="N6.html">N6</a>
+      <a class="item" href="Paintsection.html">מחשבון צבע</a>
     </div>
 
-    <div class="field">
-      <label>מידה בשרטוט (מ״מ)</label>
-      <input id="drawing" type="number" step="0.001" placeholder="לדוגמה: 23.625">
-    </div>
-
-    <button class="btn" onclick="calc()">חשב</button>
-
-    <div class="results">
-      <div class="result-label">עובי צבע × 2 (מ״מ)</div>
-      <span class="result-value" id="res1">—</span>
-
-      <div class="result-label">מידה לעיבוד לפני צבע (מ״מ)</div>
-      <span class="result-value final" id="res2">—</span>
-    </div>
-
+    <a class="git" href="https://github.com/yoDSDASD" target="_blank">GitHub Repository</a>
   </div>
-
-  <script>
-    function calc() {
-      const p = parseFloat(document.getElementById("paint").value.replace(",", "."));
-      const d = parseFloat(document.getElementById("drawing").value.replace(",", "."));
-
-      if (isNaN(p) || isNaN(d)) {
-        document.getElementById("res1").textContent = "—";
-        document.getElementById("res2").textContent = "—";
-        return;
-      }
-
-      const paint2 = (p * 2).toFixed(3);
-      const beforePaint = (d - (p * 2)).toFixed(3);
-
-      document.getElementById("res1").textContent = paint2;
-      document.getElementById("res2").textContent = beforePaint;
-    }
-  </script>
 
 </body>
 </html>
