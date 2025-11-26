@@ -30,7 +30,7 @@
       border-radius: 14px;
       padding: 18px 16px;
       width: 100%;
-      max-width: 430px;
+      max-width: 420px;
       box-shadow: 0 0 12px rgba(0,0,0,0.6);
     }
 
@@ -49,7 +49,7 @@
     }
 
     .field {
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .field label {
@@ -60,7 +60,7 @@
 
     .field input[type="number"] {
       width: 100%;
-      padding: 9px;
+      padding: 10px;
       border-radius: 8px;
       border: 1px solid #333333;
       background-color: #1b1b1b;
@@ -72,15 +72,6 @@
       outline: none;
       border-color: #00c3ff;
       box-shadow: 0 0 0 1px #00c3ff33;
-    }
-
-    .field-row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .field-row .field {
-      flex: 1;
     }
 
     .btn {
@@ -106,20 +97,12 @@
       border-top: 1px solid #333333;
     }
 
-    .result-group-title {
-      font-size: 0.88rem;
-      color: #aaaaaa;
-      margin: 6px 0 2px;
-      border-bottom: 1px solid #222222;
-      padding-bottom: 2px;
-    }
-
     .result-row {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      margin-bottom: 4px;
-      font-size: 0.9rem;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
     }
 
     .result-label {
@@ -141,7 +124,6 @@
       font-size: 0.75rem;
       color: #888888;
       text-align: center;
-      line-height: 1.4;
     }
   </style>
 </head>
@@ -149,109 +131,65 @@
   <div class="wrapper">
     <div class="card">
       <div class="title">מחשבון מידה לפני צבע</div>
-      <div class="subtitle">עובי צבע ×2 + טולרנס לעובי הצבע ומידת עיבוד לפני צבע</div>
+      <div class="subtitle">מחשב עובי צבע כפול 2 ומידת עיבוד לפני צבע</div>
 
       <div class="field">
-        <label for="paint">עובי צבע נדרש (נומינלי, מ״מ)</label>
+        <label for="paint">עובי צבע נדרש (מ״מ)</label>
         <input id="paint" type="number" step="0.001" placeholder="לדוגמה: 0.008">
       </div>
 
-      <div class="field-row">
-        <div class="field">
-          <label for="tolMinus">טולרנס מינוס לעובי הצבע (מ״מ)</label>
-          <input id="tolMinus" type="number" step="0.001" placeholder="לדוגמה: 0.002">
-        </div>
-        <div class="field">
-          <label for="tolPlus">טולרנס פלוס לעובי הצבע (מ״מ)</label>
-          <input id="tolPlus" type="number" step="0.001" placeholder="לדוגמה: 0.002">
-        </div>
-      </div>
-
       <div class="field">
-        <label for="drawing">מידה בשרטוט אחרי צבע (מ״מ)</label>
+        <label for="drawing">מידה בשרטוט (מ״מ)</label>
         <input id="drawing" type="number" step="0.001" placeholder="לדוגמה: 20.000">
       </div>
 
       <button class="btn" onclick="calculate()">חשב</button>
 
       <div class="results">
-        <div class="result-group-title">עובי צבע ×2</div>
         <div class="result-row">
-          <div class="result-label">נומינלי (מ״מ):</div>
-          <div class="result-value" id="paint2_nom">—</div>
+          <div class="result-label">עובי צבע כפול 2 (מ״מ):</div>
+          <div class="result-value" id="paint2">—</div>
         </div>
         <div class="result-row">
-          <div class="result-label">מינימום (מ״מ):</div>
-          <div class="result-value" id="paint2_min">—</div>
-        </div>
-        <div class="result-row">
-          <div class="result-label">מקסימום (מ״מ):</div>
-          <div class="result-value" id="paint2_max">—</div>
-        </div>
-
-        <div class="result-group-title">מידה לפני צבע (מתכת)</div>
-        <div class="result-row">
-          <div class="result-label">מינימום (מ״מ):</div>
-          <div class="result-value" id="dim_min">—</div>
-        </div>
-        <div class="result-row">
-          <div class="result-label">נומינלי (מ״מ):</div>
-          <div class="result-value result-main" id="dim_nom">—</div>
-        </div>
-        <div class="result-row">
-          <div class="result-label">מקסימום (מ״מ):</div>
-          <div class="result-value" id="dim_max">—</div>
+          <div class="result-label">מידה לעיבוד לפני צבע (מ״מ):</div>
+          <div class="result-value result-main" id="finalDim">—</div>
         </div>
       </div>
 
       <div class="note">
-        החישוב: עובי צבע מינימום = נומינלי − טולרנס מינוס<br>
-        עובי צבע מקסימום = נומינלי + טולרנס פלוס<br>
-        מידה לפני צבע = מידה בשרטוט − (עובי צבע × 2)<br>
-        כך שהמידה המינימלית היא עם עובי צבע מקסימלי, והמקסימלית עם עובי צבע מינימלי.
+        החישוב: מידה לפני צבע = מידה בשרטוט − (עובי צבע × 2)
       </div>
     </div>
   </div>
 
   <script>
-    function parseOrZero(val) {
-      if (!val && val !== 0) return 0;
-      const v = parseFloat(val.toString().replace(",", "."));
-      return isNaN(v) ? 0 : v;
-    }
-
     function formatNumber(value) {
       if (isNaN(value)) return "—";
       return value.toFixed(3);
     }
 
     function calculate() {
-      const paintInput = document.getElementById("paint").value;
-      const tolMinusInput = document.getElementById("tolMinus").value;
-      const tolPlusInput = document.getElementById("tolPlus").value;
-      const drawingInput = document.getElementById("drawing").value;
+      const paintInput = document.getElementById("paint").value.replace(",", ".");
+      const drawingInput = document.getElementById("drawing").value.replace(",", ".");
 
-      const paint = parseFloat(paintInput.toString().replace(",", "."));
-      const tolMinus = parseOrZero(tolMinusInput);
-      const tolPlus = parseOrZero(tolPlusInput);
-      const drawing = parseFloat(drawingInput.toString().replace(",", "."));
+      const paint = parseFloat(paintInput);
+      const drawing = parseFloat(drawingInput);
 
-      const paint2NomEl = document.getElementById("paint2_nom");
-      const paint2MinEl = document.getElementById("paint2_min");
-      const paint2MaxEl = document.getElementById("paint2_max");
-      const dimMinEl = document.getElementById("dim_min");
-      const dimNomEl = document.getElementById("dim_nom");
-      const dimMaxEl = document.getElementById("dim_max");
+      const paint2El = document.getElementById("paint2");
+      const finalDimEl = document.getElementById("finalDim");
 
       if (isNaN(paint) || isNaN(drawing)) {
-        paint2NomEl.textContent = "—";
-        paint2MinEl.textContent = "—";
-        paint2MaxEl.textContent = "—";
-        dimMinEl.textContent = "—";
-        dimNomEl.textContent = "—";
-        dimMaxEl.textContent = "—";
+        paint2El.textContent = "—";
+        finalDimEl.textContent = "—";
         return;
       }
 
-      // עובי צבע
-      const paintMin = paint - tolMinus
+      const paint2 = paint * 2;
+      const finalDim = drawing - paint2;
+
+      paint2El.textContent = formatNumber(paint2);
+      finalDimEl.textContent = formatNumber(finalDim);
+    }
+  </script>
+</body>
+</html>
