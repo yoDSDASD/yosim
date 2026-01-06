@@ -23,6 +23,7 @@
       <li><a href="N6.html">מחשבון N6</a></li>
       <li><a href="MAX.html">מחשבון דרגות MAX</a></li>
       <li><a href="PRO.html">בלוקי ג׳ונסון PRO+</a></li>
+      <li><a href="H1H2H3.html">מחשבון קדחים מדויקים PRO+</a></li>
     </ul>
   </div>
 </body>
