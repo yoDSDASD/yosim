@@ -3,50 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WorkTime Pro</title>
+    <title>WorkTime PRO Elite</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        :root { --bg: #050505; --card: #121212; --accent: #3d8bff; --text: #fff; --border: #222; }
-        body { background: var(--bg); color: var(--text); font-family: system-ui; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 25px; width: 100%; max-width: 400px; margin-bottom: 20px; text-align: center; }
-        .timer { font-size: 4rem; font-weight: 200; margin: 20px 0; font-variant-numeric: tabular-nums; }
-        button { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; margin: 5px 0; }
-        .btn-in { background: #fff; color: #000; }
-        .btn-out { background: transparent; color: #fff; border: 1px solid var(--border); }
-        .history-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-        input { background: #1a1a1a; border: 1px solid var(--border); color: #fff; padding: 8px; border-radius: 8px; width: 60px; text-align: center; }
-        #loginOverlay { position: fixed; inset: 0; background: #000; z-index: 100; display: flex; align-items: center; justify-content: center; }
+        :root { --bg: #090909; --card: #151515; --accent: #3d8bff; --text: #fff; --border: #282828; --success: #00e676; --danger: #ff5252; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 500px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; }
+        .timer { font-size: 3.5rem; font-weight: 200; text-align: center; margin: 15px 0; font-variant-numeric: tabular-nums; }
+        
+        .main-btn { width: 100%; padding: 20px; border-radius: 15px; border: none; font-size: 1.2rem; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .btn-start { background: var(--text); color: #000; }
+        .btn-stop { background: var(--danger); color: #fff; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        th { text-align: right; color: #888; padding: 10px; border-bottom: 1px solid var(--border); }
+        td { padding: 12px 10px; border-bottom: 1px solid var(--border); }
+        
+        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        input { background: #222; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 10px; width: 100%; box-sizing: border-box; }
+        
+        .action-icon { cursor: pointer; opacity: 0.6; transition: 0.2s; }
+        .action-icon:hover { opacity: 1; color: var(--danger); }
+        
+        #loginOverlay { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
 <div id="loginOverlay">
-    <button onclick="login()" style="width: auto; padding: 15px 40px;">התחבר עם Google</button>
+    <h2>WorkTime PRO</h2>
+    <button onclick="login()" class="main-btn btn-start" style="width:auto; padding: 15px 40px;">התחבר עם Google</button>
 </div>
 
-<div class="card">
-    <div id="greeting" style="font-size: 1.2rem; margin-bottom: 10px;">שלום</div>
-    <div class="timer" id="display">00:00:00</div>
-    <button class="btn-in" onclick="punchIn()">כניסה</button>
-    <button class="btn-out" onclick="punchOut()">סיום</button>
-</div>
-
-<div class="card">
-    <div style="display:flex; justify-content: space-around; margin-bottom: 15px;">
-        <div>₪/שעה: <input type="number" id="rate" value="50" onchange="updateSettings()"></div>
-        <div>תקן: <input type="number" id="std" value="9.5" onchange="updateSettings()"></div>
+<div class="container">
+    <div class="card">
+        <div id="greeting" style="font-size: 1.1rem; opacity: 0.8;">טוען...</div>
+        <div class="timer" id="display">00:00:00</div>
+        <button id="shiftBtn" class="main-btn btn-start" onclick="toggleShift()">כניסה למשמרת</button>
     </div>
-    <div id="historyList"></div>
-    <div style="margin-top: 15px; font-weight: bold;">סה"כ חודשי: <span id="totalPay">₪0</span></div>
+
+    <div class="card">
+        <div class="settings-grid">
+            <div><label>₪ לשעה</label><input type="number" id="rate" onchange="updateSettings()"></div>
+            <div><label>תקן (9.5)</label><input type="number" id="std" onchange="updateSettings()"></div>
+        </div>
+        <button class="main-btn" style="background:#222; color:var(--accent); font-size:0.9rem; padding:10px;" onclick="manualAdd()">+ הוספה ידנית</button>
+    </div>
+
+    <div class="card" style="padding: 10px;">
+        <h3 style="margin: 10px;">דו"ח נוכחות חודשי</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>תאריך</th>
+                    <th>שעות</th>
+                    <th>שכר</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="logBody"></tbody>
+        </table>
+        <div style="padding: 15px; text-align: left; font-size: 1.2rem;">
+            סה"כ חודשי: <span id="totalPay" style="color:var(--success); font-weight:700;">₪0</span>
+        </div>
+    </div>
 </div>
 
 <script>
     const firebaseConfig = { apiKey: "AIzaSyB6k04PIDrtH0lN1mMH8d4mrQbU_Wd6EPY", authDomain: "clooc-87768.firebaseapp.com", projectId: "clooc-87768", storageBucket: "clooc-87768.firebasestorage.app", messagingSenderId: "446568496274", appId: "1:446568496274:web:c1aead85e32d21d0e5ba4b" };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth(); const db = firebase.firestore();
-    let user = null;
+    let user = null; let timerInt;
 
     async function login() { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
 
@@ -62,57 +92,89 @@
     });
 
     async function updateSettings() {
-        if(!user) return;
-        const rate = document.getElementById('rate').value;
-        const std = document.getElementById('std').value;
-        await db.collection('users').doc(user.uid).set({ rate, std }, { merge: true });
+        await db.collection('users').doc(user.uid).set({
+            rate: document.getElementById('rate').value,
+            std: document.getElementById('std').value
+        }, { merge: true });
+        loadData();
     }
 
     async function loadSettings() {
         const doc = await db.collection('users').doc(user.uid).get();
-        if(doc.exists) {
-            document.getElementById('rate').value = doc.data().rate || 50;
-            document.getElementById('std').value = doc.data().std || 9.5;
+        const data = doc.data() || { rate: 50, std: 9.5 };
+        document.getElementById('rate').value = data.rate;
+        document.getElementById('std').value = data.std;
+    }
+
+    function toggleShift() {
+        const start = localStorage.getItem('active_start');
+        if(!start) {
+            localStorage.setItem('active_start', new Date().toISOString());
+            checkActive();
+        } else {
+            const hours = (new Date() - new Date(start)) / 3600000;
+            saveToDB(new Date().toLocaleDateString('en-CA'), hours);
+            localStorage.removeItem('active_start');
+            location.reload();
         }
     }
 
-    function punchIn() {
-        localStorage.setItem('start_time', new Date().toISOString());
-        checkActive();
-    }
-
-    async function punchOut() {
-        const start = localStorage.getItem('start_time');
-        if(!start) return;
-        const hours = (new Date() - new Date(start)) / 3600000;
-        const rate = document.getElementById('rate').value;
-        const pay = Math.round(hours * rate);
+    async function saveToDB(dateStr, hours) {
+        const rate = parseFloat(document.getElementById('rate').value);
+        const std = parseFloat(document.getElementById('std').value);
+        const isThur = new Date(dateStr).getDay() === 4;
+        const currentStd = isThur ? std - 1 : std;
+        
+        let pay = hours <= currentStd ? hours * rate : (currentStd * rate) + ((hours - currentStd) * rate * 1.25);
         
         await db.collection('users').doc(user.uid).collection('logs').add({
-            date: new Date().toLocaleDateString('he-IL'),
-            hours: hours.toFixed(2),
-            pay: pay,
-            timestamp: Date.now()
+            date: dateStr,
+            hours: parseFloat(hours.toFixed(2)),
+            pay: Math.round(pay),
+            timestamp: new Date(dateStr).getTime()
         });
-        localStorage.removeItem('start_time');
-        location.reload();
+        loadData();
     }
 
     async function loadData() {
-        const snap = await db.collection('users').doc(user.uid).collection('logs').orderBy('timestamp', 'desc').limit(10).get();
+        const snap = await db.collection('users').doc(user.uid).collection('logs').orderBy('timestamp', 'desc').get();
         let total = 0;
-        document.getElementById('historyList').innerHTML = snap.docs.map(doc => {
+        const currentMonth = new Date().getMonth();
+
+        document.getElementById('logBody').innerHTML = snap.docs.map(doc => {
             const d = doc.data();
-            total += d.pay;
-            return `<div class="history-item"><span>${d.date}</span><span>${d.hours} ש'</span><span>₪${d.pay}</span></div>`;
+            const logDate = new Date(d.date);
+            if(logDate.getMonth() === currentMonth) total += d.pay;
+            
+            return `<tr>
+                <td>${logDate.getDate()}/${logDate.getMonth()+1}</td>
+                <td>${d.hours} ש'</td>
+                <td>₪${d.pay}</td>
+                <td><span class="action-icon" onclick="deleteLog('${doc.id}')">🗑️</span></td>
+            </tr>`;
         }).join('');
-        document.getElementById('totalPay').innerText = `₪${total}`;
+        document.getElementById('totalPay').innerText = `₪${total.toLocaleString()}`;
+    }
+
+    async function deleteLog(id) {
+        if(confirm('למחוק רשומה זו?')) {
+            await db.collection('users').doc(user.uid).collection('logs').doc(id).delete();
+            loadData();
+        }
+    }
+
+    function manualAdd() {
+        const date = prompt("תאריך (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
+        const hours = prompt("כמות שעות:");
+        if(date && hours) saveToDB(date, parseFloat(hours));
     }
 
     function checkActive() {
-        const start = localStorage.getItem('start_time');
+        const start = localStorage.getItem('active_start');
         if(start) {
-            setInterval(() => {
+            document.getElementById('shiftBtn').innerText = "סיום משמרת";
+            document.getElementById('shiftBtn').className = "main-btn btn-stop";
+            timerInt = setInterval(() => {
                 const s = Math.floor((new Date() - new Date(start)) / 1000);
                 document.getElementById('display').innerText = new Date(s * 1000).toISOString().substr(11, 8);
             }, 1000);
