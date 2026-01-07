@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WorkTime Smart Exit</title>
+    <title>WorkTime PRO</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -12,9 +12,10 @@
         * { box-sizing: border-box; font-family: system-ui; margin: 0; padding: 0; touch-action: manipulation; }
         body { background: var(--bg); color: var(--text); padding: 15px; display: flex; flex-direction: column; align-items: center; }
         .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; width: 100%; max-width: 400px; margin-bottom: 12px; }
+        .header-info { text-align: center; font-size: 0.9rem; margin-bottom: 5px; color: var(--accent); font-weight: bold; }
         .timer { font-size: 4.5rem; text-align: center; margin: 5px 0; font-variant-numeric: tabular-nums; font-weight: 200; color: var(--accent); }
         .timer.overtime { color: var(--danger); }
-        .exit-info { text-align: center; font-size: 1.1rem; font-weight: 600; color: var(--success); margin-bottom: 10px; min-height: 1.5rem; }
+        .exit-info { text-align: center; font-size: 1.1rem; font-weight: 600; color: var(--success); min-height: 1.5rem; margin-bottom: 10px; }
         .btn { width: 100%; padding: 16px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; font-size: 1rem; }
         .btn-start { background: #fff; color: #000; }
         .btn-stop { background: var(--danger); color: #fff; }
@@ -30,22 +31,19 @@
 </div>
 
 <div class="card">
-    <div id="dayDisplay" style="color:var(--accent); font-weight:700; text-align:center; font-size:1.1rem;"></div>
+    <div class="header-info" id="currentInfo"></div>
     <div class="timer" id="display">00:00:00</div>
     <div id="exitTimeDisplay" class="exit-info"></div>
     <button id="shiftBtn" class="btn btn-start" onclick="toggleShift()">כניסה למשמרת</button>
 </div>
 
 <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <b style="font-size:1.1rem">דוח נוכחות</b>
-        <span onclick="manualAdd()" style="color:var(--accent); cursor:pointer; font-weight:600;">+ ידני</span>
-    </div>
+    <b style="display:block; margin-bottom:10px; font-size:1.1rem">דוח נוכחות</b>
     <table><tbody id="logBody"></tbody></table>
 </div>
 
 <div class="card" style="opacity: 0.8;">
-    <label style="font-size:0.7rem; display:block; margin-bottom:5px;">תקן יומי (א'-ד')</label>
+    <label style="font-size:0.7rem; display:block; margin-bottom:5px;">תקן יומי (חמישי אוטומטית פחות שעה)</label>
     <input type="number" id="std" value="9" step="0.5" style="background:#1c1c1e; border:1px solid var(--border); color:#fff; padding:10px; border-radius:8px; width:100%; text-align:center;">
     <button class="btn" style="background:var(--border); color:#fff; font-size:0.8rem; padding:10px; margin-top:10px" onclick="updateSettings()">שמור תקן</button>
 </div>
@@ -56,8 +54,15 @@
     const auth = firebase.auth(); const db = firebase.firestore();
     let user = null; let timerInt;
 
-    const daysName = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
-    document.getElementById('dayDisplay').innerText = "יום " + daysName[new Date().getDay()];
+    function updateClock() {
+        const now = new Date();
+        const days = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+        const dateStr = now.toLocaleDateString('he-IL', {day:'2-digit', month:'2-digit', year:'numeric'});
+        const timeStr = now.toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+        document.getElementById('currentInfo').innerText = `יום ${days[now.getDay()]} | ${dateStr} | ${timeStr}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
 
     async function login() { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
 
@@ -67,13 +72,13 @@
 
     async function updateSettings() {
         await db.collection('users').doc(user.uid).set({ std: document.getElementById('std').value }, { merge: true });
-        location.reload();
+        alert("נשמר");
+        loadData();
     }
 
     async function loadSettings() {
         const doc = await db.collection('users').doc(user.uid).get();
-        const d = doc.data() || { std: 9 };
-        document.getElementById('std').value = d.std;
+        if(doc.exists) document.getElementById('std').value = doc.data().std;
     }
 
     async function toggleShift() {
@@ -83,11 +88,16 @@
             checkActive();
         } else {
             const hours = (new Date() - new Date(start)) / 3600000;
-            await db.collection('users').doc(user.uid).collection('logs').doc(new Date().toISOString().split('T')[0]).set({
-                date: new Date().toISOString().split('T')[0], hours: parseFloat(hours.toFixed(2)), timestamp: Date.now()
+            const dateStr = new Date().toISOString().split('T')[0];
+            
+            // תיקון: הבטחת שמירה לפני רענון
+            await db.collection('users').doc(user.uid).collection('logs').doc(dateStr).set({
+                date: dateStr, hours: parseFloat(hours.toFixed(2)), timestamp: Date.now()
             });
+            
             localStorage.removeItem('active_start');
-            location.reload();
+            clearInterval(timerInt);
+            location.reload(); 
         }
     }
 
@@ -97,11 +107,9 @@
             document.getElementById('shiftBtn').innerText = "סיום משמרת";
             document.getElementById('shiftBtn').className = "btn btn-stop";
             const baseStd = parseFloat(document.getElementById('std').value) || 9;
-            const isThur = new Date().getDay() === 4;
-            const targetHours = isThur ? baseStd - 1 : baseStd;
-            
+            const targetHours = new Date().getDay() === 4 ? baseStd - 1 : baseStd;
             const exitTime = new Date(new Date(start).getTime() + targetHours * 3600000);
-            document.getElementById('exitTimeDisplay').innerText = "שעת יציאה: " + exitTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('exitTimeDisplay').innerText = "יציאה בתקן: " + exitTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
             timerInt = setInterval(() => {
                 const s = Math.floor((new Date() - new Date(start)) / 1000);
@@ -116,21 +124,17 @@
     }
 
     async function loadData() {
-        const snap = await db.collection('users').doc(user.uid).collection('logs').orderBy('timestamp', 'desc').get();
+        const snap = await db.collection('users').doc(user.uid).collection('logs').orderBy('timestamp', 'desc').limit(31).get();
         const baseStd = parseFloat(document.getElementById('std').value);
         document.getElementById('logBody').innerHTML = snap.docs.map(doc => {
             const d = doc.data();
-            const diff = (d.hours - (new Date(d.date).getDay() === 4 ? baseStd - 1 : baseStd)).toFixed(1);
+            const dailyStd = new Date(d.date).getDay() === 4 ? baseStd - 1 : baseStd;
+            const diff = (d.hours - dailyStd).toFixed(1);
             return `<tr><td>${d.date.split('-').reverse().slice(0,2).join('/')}</td><td>${d.hours} ש'</td><td style="color:${diff >= 0 ? 'var(--success)' : 'var(--danger)'}">${diff > 0 ? '+' : ''}${diff}</td><td onclick="deleteLog('${doc.id}')" style="opacity:0.2">🗑️</td></tr>`;
         }).join('');
     }
 
     async function deleteLog(id) { if(confirm('למחוק?')) { await db.collection('users').doc(user.uid).collection('logs').doc(id).delete(); loadData(); } }
-    async function manualAdd() {
-        const d = prompt("תאריך (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
-        const h = prompt("שעות:");
-        if(d && h) { await db.collection('users').doc(user.uid).collection('logs').doc(d).set({date:d, hours:parseFloat(h), timestamp:Date.now()}); loadData(); }
-    }
 </script>
 </body>
 </html>
