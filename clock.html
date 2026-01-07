@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WorkTime Static</title>
+    <title>WorkTime Monitor</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        :root { --bg: #000; --card: #111; --accent: #007aff; --text: #fff; --border: #222; --danger: #ff3b30; }
+        :root { --bg: #000; --card: #111; --accent: #007aff; --text: #fff; --border: #222; --danger: #ff3b30; --success: #34c759; }
         * { box-sizing: border-box; font-family: system-ui; margin: 0; padding: 0; touch-action: manipulation; }
         body { background: var(--bg); color: var(--text); padding: 15px; display: flex; flex-direction: column; align-items: center; }
         .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; width: 100%; max-width: 400px; margin-bottom: 12px; }
@@ -16,11 +16,12 @@
         .btn { width: 100%; padding: 16px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; font-size: 1rem; }
         .btn-start { background: #fff; color: #000; }
         .btn-stop { background: var(--danger); color: #fff; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
-        td, th { padding: 10px 5px; border-bottom: 1px solid var(--border); text-align: center; font-size: 0.85rem; overflow: hidden; }
-        input { background: #1c1c1e; border: 1px solid var(--border); color: #fff; padding: 8px; border-radius: 8px; width: 100%; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        td, th { padding: 12px 5px; border-bottom: 1px solid var(--border); text-align: center; font-size: 0.85rem; }
+        .diff-pos { color: var(--success); font-weight: bold; }
+        .diff-neg { color: var(--danger); font-weight: bold; }
+        input { background: #1c1c1e; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 8px; width: 100%; text-align: center; }
         #loginOverlay { position: fixed; inset: 0; background: #000; z-index: 100; display: flex; align-items: center; justify-content: center; }
-        .trash-btn { cursor: pointer; color: #666; font-size: 1.1rem; border: none; background: none; }
     </style>
 </head>
 <body>
@@ -30,34 +31,35 @@
 </div>
 
 <div class="card">
-    <div id="dayDisplay" style="color:var(--accent); font-weight:700; text-align:center;"></div>
+    <div id="dayDisplay" style="color:var(--accent); font-weight:700; text-align:center; font-size:1.1rem;"></div>
     <div class="timer" id="display">00:00:00</div>
     <button id="shiftBtn" class="btn btn-start" onclick="toggleShift()">כניסה למשמרת</button>
 </div>
 
 <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <b style="font-size:1.1rem">דוח נוכחות - <span id="monthName"></span></b>
+        <b style="font-size:1.1rem">דוח נוכחות</b>
         <span onclick="manualAdd()" style="color:var(--accent); cursor:pointer; font-weight:600;">+ ידני</span>
     </div>
     <table>
         <thead>
             <tr>
-                <th style="width:15%">יום</th>
-                <th style="width:50%">שעות</th>
-                <th style="width:15%"></th>
+                <th>תאריך</th>
+                <th>שעות</th>
+                <th>+/- חריגה</th>
+                <th></th>
             </tr>
         </thead>
         <tbody id="logBody"></tbody>
     </table>
 </div>
 
-<div class="card" style="opacity: 0.5;">
+<div class="card" style="opacity: 0.6;">
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-        <div><label style="font-size:0.6rem">₪/שעה</label><input type="number" id="rate"></div>
-        <div><label style="font-size:0.6rem">תקן יומי</label><input type="number" id="std"></div>
+        <div><label style="font-size:0.7rem">₪/שעה</label><input type="number" id="rate"></div>
+        <div><label style="font-size:0.7rem">תקן יומי</label><input type="number" id="std"></div>
     </div>
-    <button class="btn" style="background:var(--border); color:#fff; font-size:0.8rem; padding:8px; margin-top:8px;" onclick="updateSettings()">עדכן הגדרות</button>
+    <button class="btn" style="background:var(--border); color:#fff; font-size:0.8rem; padding:10px; margin-top:10px" onclick="updateSettings()">שמור הגדרות</button>
 </div>
 
 <script>
@@ -68,22 +70,16 @@
 
     const daysName = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
     document.getElementById('dayDisplay').innerText = "יום " + daysName[new Date().getDay()];
-    document.getElementById('monthName').innerText = (new Date().getMonth() + 1) + "/" + new Date().getFullYear();
 
     async function login() { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
 
     auth.onAuthStateChanged(async u => {
-        if(u) {
-            user = u;
-            document.getElementById('loginOverlay').style.display = 'none';
-            await loadSettings();
-            await loadData();
-            checkActive();
-        }
+        if(u) { user = u; document.getElementById('loginOverlay').style.display = 'none'; await loadSettings(); await loadData(); checkActive(); }
     });
 
     async function updateSettings() {
         await db.collection('users').doc(user.uid).set({ rate: document.getElementById('rate').value, std: document.getElementById('std').value }, { merge: true });
+        alert("נשמר");
     }
 
     async function loadSettings() {
@@ -100,51 +96,48 @@
             checkActive();
         } else {
             const hours = (new Date() - new Date(start)) / 3600000;
-            await saveToDB(new Date().getDate(), hours);
+            await saveToDB(new Date().toISOString().split('T')[0], hours);
             localStorage.removeItem('active_start');
+            clearInterval(timerInt);
             document.getElementById('display').innerText = "00:00:00";
             document.getElementById('shiftBtn').innerText = "כניסה למשמרת";
             document.getElementById('shiftBtn').className = "btn btn-start";
-            clearInterval(timerInt);
             await loadData();
         }
     }
 
-    async function saveToDB(day, hours) {
-        await db.collection('users').doc(user.uid).collection('logs').doc(day.toString()).set({
-            day: day, hours: parseFloat(hours.toFixed(2)), timestamp: Date.now()
+    async function saveToDB(dateStr, hours) {
+        await db.collection('users').doc(user.uid).collection('logs').doc(dateStr).set({
+            date: dateStr, hours: parseFloat(hours.toFixed(2)), timestamp: Date.now()
         });
     }
 
     async function loadData() {
-        const snap = await db.collection('users').doc(user.uid).collection('logs').get();
-        const logs = {};
-        snap.forEach(doc => logs[doc.id] = doc.data());
-        
+        const snap = await db.collection('users').doc(user.uid).collection('logs').orderBy('timestamp', 'desc').get();
+        const std = parseFloat(document.getElementById('std').value) || 9.5;
         let html = '';
-        const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
         
-        for (let i = 1; i <= daysInMonth; i++) {
-            const log = logs[i];
+        snap.forEach(doc => {
+            const d = doc.data();
+            const diff = (d.hours - std).toFixed(1);
+            const diffClass = diff >= 0 ? 'diff-pos' : 'diff-neg';
+            const displayDate = d.date.split('-').reverse().slice(0,2).join('/');
+            
             html += `<tr>
-                <td style="font-weight:bold">${i}</td>
-                <td style="color:${log ? 'var(--accent)' : '#333'}">${log ? log.hours + " שעות" : "-"}</td>
-                <td>${log ? `<button class="trash-btn" onclick="deleteLog('${i}')">🗑️</button>` : ""}</td>
+                <td>${displayDate}</td>
+                <td>${d.hours} ש'</td>
+                <td class="${diffClass}">${diff > 0 ? '+' : ''}${diff}</td>
+                <td onclick="deleteLog('${doc.id}')" style="cursor:pointer; opacity:0.3">🗑️</td>
             </tr>`;
-        }
+        });
         document.getElementById('logBody').innerHTML = html;
     }
 
-    async function deleteLog(id) {
-        if(confirm('למחוק?')) {
-            await db.collection('users').doc(user.uid).collection('logs').doc(id).delete();
-            await loadData();
-        }
-    }
+    async function deleteLog(id) { if(confirm('למחוק?')) { await db.collection('users').doc(user.uid).collection('logs').doc(id).delete(); await loadData(); } }
 
     async function manualAdd() {
-        const d = prompt("יום בחודש (1-31):", new Date().getDate());
-        const h = prompt("כמה שעות עבדת?");
+        const d = prompt("תאריך (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
+        const h = prompt("שעות עבודה:");
         if(d && h) { await saveToDB(d, parseFloat(h)); await loadData(); }
     }
 
