@@ -1,14 +1,34 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
-<head><meta charset="UTF-8"><title>תפריט ראשי</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>Portfolio Dashboard</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; padding: 50px; }
+        table { border-collapse: collapse; width: 80%; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        th, td { padding: 15px; text-align: right; border-bottom: 1px solid #ddd; }
+        th { background-color: #2c3e50; color: white; }
+        tr:hover { background-color: #f1f1f1; }
+        a { color: #3498db; text-decoration: none; font-weight: bold; }
+        .status { color: #27ae60; font-weight: bold; }
+    </style>
+</head>
 <body>
-    <h1>תפריט האתר</h1>
-    <ul>
-        <li><a href="H1H2H3.html">H1H2H3</a></li>
-        <li><a href="John.html">John</a></li>
-        <li><a href="MAX.html">MAX</a></li>
-        <li><a href="N6.html">N6</a></li>
-        <li><a href="Paintsection.html">Paintsection</a></li>
-    </ul>
+    <table>
+        <thead>
+            <tr>
+                <th>שם הדף</th>
+                <th>קישור ישיר</th>
+                <th>סטטוס</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>H1H2H3</td><td><a href="H1H2H3.html">🔗 צפה בדף</a></td><td class="status">✅ באוויר</td></tr>
+            <tr><td>John</td><td><a href="John.html">🔗 צפה בדף</a></td><td class="status">✅ באוויר</td></tr>
+            <tr><td>MAX</td><td><a href="MAX.html">🔗 צפה בדף</a></td><td class="status">✅ באוויר</td></tr>
+            <tr><td>N6</td><td><a href="N6.html">🔗 צפה בדף</a></td><td class="status">✅ באוויר</td></tr>
+            <tr><td>Paintsection</td><td><a href="Paintsection.html">🔗 צפה בדף</a></td><td class="status">✅ באוויר</td></tr>
+        </tbody>
+    </table>
 </body>
 </html>
