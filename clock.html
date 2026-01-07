@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>שעון נוכחות - גרסת עריכה</title>
+    <style>
+        :root { --primary: #3498db; --success: #27ae60; --danger: #e74c3c; --bg: #1a1a1a; --card: #2d2d2d; --text: #ecf0f1; }
+        body { font-family: 'Segoe UI', system-ui; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .card { background: var(--card); padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 400px; text-align: center; border-top: 5px solid var(--primary); margin-bottom: 20px; }
+        .timer { font-size: 3rem; font-weight: 800; color: var(--danger); margin: 15px 0; }
+        button { padding: 12px; font-size: 1rem; cursor: pointer; border: none; border-radius: 8px; font-weight: bold; transition: 0.3s; margin: 5px; }
+        .btn-in { background: var(--success); color: white; }
+        .btn-out { background: var(--danger); color: white; }
+        .btn-add { background: #8e44ad; color: white; width: 100%; }
+        .edit-panel { background: var(--card); padding: 15px; border-radius: 10px; margin-top: 15px; display: none; }
+        input { padding: 8px; margin: 5px; border-radius: 5px; border: none; width: 80%; }
+        table { width: 100%; max-width: 700px; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; margin-top: 20px; }
+        th, td { padding: 10px; text-align: center; border-bottom: 1px solid #444; }
+        th { background: #3d3d3d; color: var(--primary); }
+        .delete-btn { color: var(--danger); cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>⏱️ נוכחות בזמן אמת</h2>
+        <div id="status">סטטוס: בהמתנה</div>
+        <div class="timer" id="countdown">09:00:00</div>
+        <button class="btn-in" onclick="punchIn()">▶️ כניסה</button>
+        <button class="btn-out" onclick="punchOut()">⏹️ יציאה</button>
+        <hr>
+        <button class="btn-add" onclick="document.getElementById('manualInput').style.display='block'">✍️ שכחתי להחתים? הוספה ידנית</button>
+        
+        <div id="manualInput" class="edit-panel">
+            <input type="date" id="mDate"><br>
+            <input type="time" id="mIn" title="זמן כניסה">
+            <input type="time" id="mOut" title="זמן יציאה"><br>
+            <button onclick="addManual()">שמור משמרת</button>
+        </div>
+    </div>
+
+    <h3>📊 פירוט וסיכום</h3>
+    <table id="logTable">
+        <thead><tr><th>תאריך</th><th>כניסה</th><th>יציאה</th><th>סה"כ</th><th>פעולה</th></tr></thead>
+        <tbody id="logBody"></tbody>
+    </table>
+
+    <script>
+        let startTime;
+        const workDaySeconds = 9 * 3600;
+
+        function updateTimer() {
+            if (!startTime) return;
+            const diff = Math.floor((new Date() - startTime) / 1000);
+            const remaining = Math.max(0, workDaySeconds - diff);
+            const h = Math.floor(remaining / 3600).toString().padStart(2, '0');
+            const m = Math.floor((remaining % 3600) / 60).toString().padStart(2, '0');
+            const s = (remaining % 60).toString().padStart(2, '0');
+            document.getElementById('countdown').innerText = `${h}:${m}:${s}`;
+        }
+
+        function punchIn() {
+            if (startTime) return;
+            startTime = new Date();
+            localStorage.setItem('activeSession', startTime);
+            document.getElementById('status').innerText = "עובד עכשיו...";
+            setInterval(updateTimer, 1000);
+        }
+
+        function punchOut() {
+            if (!startTime) return;
+            const endTime = new Date();
+            addEntry(startTime, endTime);
+            startTime = null;
+            localStorage.removeItem('activeSession');
+            location.reload();
+        }
+
+        function addManual() {
+            const d = document.getElementById('mDate').value;
+            const i = document.getElementById('mIn').value;
+            const o = document.getElementById('mOut').value;
+            if(!d || !i || !o) return alert("מלא את כל השדות");
+            
+            const start = new Date(`${d}T${i}`);
+            const end = new Date(`${d}T${o}`);
+            addEntry(start, end);
+            location.reload();
+        }
+
+        function addEntry(start, end) {
+            const diffMs = end - start;
+            if (diffMs < 0) return alert("זמן יציאה חייב להיות אחרי כניסה");
+            const duration = new Date(diffMs).toISOString().substr(11, 8);
+            const log = {
+                id: Date.now(),
+                date: start.toLocaleDateString('he-IL'),
+                in: start.toLocaleTimeString('he-IL', {hour: '2-digit', minute:'2-digit'}),
+                out: end.toLocaleTimeString('he-IL', {hour: '2-digit', minute:'2-digit'}),
+                dur: duration
+            };
+            let logs = JSON.parse(localStorage.getItem('workLogs') || "[]");
+            logs.push(log);
+            localStorage.setItem('workLogs', JSON.stringify(logs));
+        }
+
+        function deleteLog(id) {
+            let logs = JSON.parse(localStorage.getItem('workLogs') || "[]");
+            logs = logs.filter(l => l.id !== id);
+            localStorage.setItem('workLogs', JSON.stringify(logs));
+            location.reload();
+        }
+
+        window.onload = () => {
+            const logs = JSON.parse(localStorage.getItem('workLogs') || "[]");
+            document.getElementById('logBody').innerHTML = logs.map(l => 
+                `<tr><td>${l.date}</td><td>${l.in}</td><td>${l.out}</td><td>${l.dur}</td><td class="delete-btn" onclick="deleteLog(${l.id})">❌</td></tr>`).join('');
+            
+            const saved = localStorage.getItem('activeSession');
+            if (saved) { startTime = new Date(saved); setInterval(updateTimer, 1000); document.getElementById('status').innerText = "עובד עכשיו..."; }
+        };
+    </script>
+</body>
+</html>
