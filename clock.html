@@ -3,55 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WorkTime PRO</title>
+    <title>WorkTime PRO v6</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         :root { --bg: #000; --card: #111; --accent: #007aff; --text: #fff; --border: #222; --success: #34c759; --danger: #ff3b30; }
         * { box-sizing: border-box; font-family: system-ui; margin: 0; padding: 0; }
-        body { background: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; width: 100%; max-width: 400px; margin-bottom: 15px; }
-        .timer { font-size: 4rem; text-align: center; margin: 15px 0; font-variant-numeric: tabular-nums; font-weight: 200; }
-        .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; margin-top: 10px; font-size: 1rem; }
+        body { background: var(--bg); color: var(--text); padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; width: 100%; max-width: 400px; margin-bottom: 12px; }
+        .timer { font-size: 4.5rem; text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; font-weight: 200; }
+        .btn { width: 100%; padding: 16px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; margin-top: 10px; font-size: 1rem; }
         .btn-start { background: #fff; color: #000; }
         .btn-stop { background: var(--danger); color: #fff; }
-        .btn-save { background: var(--accent); color: #fff; padding: 10px; font-size: 0.9rem; }
-        table { width: 100%; margin-top: 15px; border-collapse: collapse; }
-        td, th { padding: 10px; border-bottom: 1px solid var(--border); text-align: right; font-size: 0.9rem; }
-        input { background: #1c1c1e; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 8px; width: 100%; text-align: center; }
+        table { width: 100%; margin-top: 10px; border-collapse: collapse; }
+        td { padding: 12px 8px; border-bottom: 1px solid var(--border); text-align: right; font-size: 0.9rem; }
+        input { background: #1c1c1e; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 8px; width: 100%; text-align: center; outline: none; }
         #loginOverlay { position: fixed; inset: 0; background: #000; z-index: 100; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
 <div id="loginOverlay">
-    <button onclick="login()" class="btn btn-start" style="width:auto; padding: 15px 40px;">התחבר עם Google</button>
+    <button onclick="login()" class="btn btn-start" style="width:auto; padding: 15px 50px;">התחבר עם Google</button>
 </div>
 
 <div class="card">
-    <div id="dayDisplay" style="color:var(--accent); font-weight:700; text-align:center;"></div>
+    <div id="dayDisplay" style="color:var(--accent); font-weight:700; text-align:center; font-size: 1.2rem;"></div>
     <div class="timer" id="display">00:00:00</div>
     <button id="shiftBtn" class="btn btn-start" onclick="toggleShift()">כניסה למשמרת</button>
 </div>
 
 <div class="card">
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-        <div><label style="font-size:0.7rem">₪/שעה</label><input type="number" id="rate"></div>
-        <div><label style="font-size:0.7rem">תקן יומי</label><input type="number" id="std"></div>
+        <div><label style="font-size:0.7rem; opacity:0.6;">₪/שעה</label><input type="number" id="rate"></div>
+        <div><label style="font-size:0.7rem; opacity:0.6;">תקן יומי</label><input type="number" id="std"></div>
     </div>
-    <button class="btn btn-save" onclick="updateSettings()">שמור הגדרות</button>
+    <button class="btn" style="background:var(--accent); color:#fff; font-size:0.9rem; padding:10px;" onclick="updateSettings()">שמור הגדרות</button>
 </div>
 
 <div class="card">
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-        <b>דוח חודשי</b>
-        <span onclick="manualAdd()" style="color:var(--accent); cursor:pointer; font-size:0.9rem;">+ הוספה ידנית</span>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <b style="font-size:1.1rem">דוח נוכחות</b>
+        <span onclick="manualAdd()" style="color:var(--accent); cursor:pointer; font-weight:600;">+ הוספה</span>
     </div>
     <table>
         <tbody id="logBody"></tbody>
     </table>
-    <div style="margin-top:15px; font-weight:bold; font-size:1.2rem;">סה"כ: <span id="totalPay" style="color:var(--success)">₪0</span></div>
+    <div style="margin-top:15px; font-weight:700; font-size:1.3rem; display:flex; justify-content:space-between;">
+        <span>סה"כ חודשי:</span>
+        <span id="totalPay" style="color:var(--success)">₪0</span>
+    </div>
 </div>
 
 <script>
@@ -63,21 +65,22 @@
     const days = ["יום ראשון", "יום שני", "יום שלישי", "יום רביעי", "יום חמישי", "יום שישי", "שבת"];
     document.getElementById('dayDisplay').innerText = days[new Date().getDay()];
 
-    async function login() { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+    async function login() { try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); } catch(e) { alert("שגיאת התחברות"); } }
 
     auth.onAuthStateChanged(async u => {
         if(u) {
             user = u;
             document.getElementById('loginOverlay').style.display = 'none';
             await loadSettings();
-            loadData();
+            await loadData();
             checkActive();
         }
     });
 
     async function updateSettings() {
+        if(!user) return;
         await db.collection('users').doc(user.uid).set({ rate: document.getElementById('rate').value, std: document.getElementById('std').value }, { merge: true });
-        alert("נשמר!");
+        alert("הגדרות נשמרו!");
     }
 
     async function loadSettings() {
@@ -96,7 +99,11 @@
             const hours = (new Date() - new Date(start)) / 3600000;
             await saveToDB(new Date().toISOString().split('T')[0], hours);
             localStorage.removeItem('active_start');
-            location.reload();
+            clearInterval(timerInt);
+            document.getElementById('display').innerText = "00:00:00";
+            document.getElementById('shiftBtn').innerText = "כניסה למשמרת";
+            document.getElementById('shiftBtn').className = "btn btn-start";
+            await loadData();
         }
     }
 
@@ -108,7 +115,7 @@
         const pay = hours <= currentStd ? hours * rate : (currentStd * rate) + ((hours - currentStd) * rate * 1.25);
         
         await db.collection('users').doc(user.uid).collection('logs').add({
-            date: dateStr, hours: hours.toFixed(2), pay: Math.round(pay), timestamp: Date.now()
+            date: dateStr, hours: parseFloat(hours.toFixed(2)), pay: Math.round(pay), timestamp: Date.now()
         });
     }
 
@@ -117,16 +124,17 @@
         let total = 0;
         document.getElementById('logBody').innerHTML = snap.docs.map(doc => {
             const d = doc.data(); total += d.pay;
-            return `<tr><td>${d.date.split('-').reverse().slice(0,2).join('/')}</td><td>${d.hours} ש'</td><td>₪${d.pay}</td><td onclick="deleteLog('${doc.id}')">🗑️</td></tr>`;
+            const dateStr = d.date.split('-').reverse().slice(0,2).join('/');
+            return `<tr><td>${dateStr}</td><td>${d.hours} ש'</td><td>₪${d.pay}</td><td style="cursor:pointer" onclick="deleteLog('${doc.id}')">🗑️</td></tr>`;
         }).join('');
         document.getElementById('totalPay').innerText = `₪${total.toLocaleString()}`;
     }
 
-    async function deleteLog(id) { if(confirm('למחוק?')) { await db.collection('users').doc(user.uid).collection('logs').doc(id).delete(); loadData(); } }
+    async function deleteLog(id) { if(confirm('למחוק?')) { await db.collection('users').doc(user.uid).collection('logs').doc(id).delete(); await loadData(); } }
 
     async function manualAdd() {
         const h = prompt("כמה שעות עבדת?");
-        if(h) { await saveToDB(new Date().toISOString().split('T')[0], parseFloat(h)); loadData(); }
+        if(h && !isNaN(h)) { await saveToDB(new Date().toISOString().split('T')[0], parseFloat(h)); await loadData(); }
     }
 
     function checkActive() {
