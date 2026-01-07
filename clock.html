@@ -2,122 +2,210 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>שעון נוכחות - גרסת עריכה</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WorkTime Premium</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --primary: #3498db; --success: #27ae60; --danger: #e74c3c; --bg: #1a1a1a; --card: #2d2d2d; --text: #ecf0f1; }
-        body { font-family: 'Segoe UI', system-ui; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .card { background: var(--card); padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 400px; text-align: center; border-top: 5px solid var(--primary); margin-bottom: 20px; }
-        .timer { font-size: 3rem; font-weight: 800; color: var(--danger); margin: 15px 0; }
-        button { padding: 12px; font-size: 1rem; cursor: pointer; border: none; border-radius: 8px; font-weight: bold; transition: 0.3s; margin: 5px; }
-        .btn-in { background: var(--success); color: white; }
-        .btn-out { background: var(--danger); color: white; }
-        .btn-add { background: #8e44ad; color: white; width: 100%; }
-        .edit-panel { background: var(--card); padding: 15px; border-radius: 10px; margin-top: 15px; display: none; }
-        input { padding: 8px; margin: 5px; border-radius: 5px; border: none; width: 80%; }
-        table { width: 100%; max-width: 700px; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; margin-top: 20px; }
-        th, td { padding: 10px; text-align: center; border-bottom: 1px solid #444; }
-        th { background: #3d3d3d; color: var(--primary); }
-        .delete-btn { color: var(--danger); cursor: pointer; font-weight: bold; }
+        :root { --bg: #050505; --card: #121212; --accent: #3d8bff; --text: #ffffff; --text-dim: #a0a0a0; --border: #252525; --success: #00c853; --danger: #ff3d00; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        body { background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        
+        .header { width: 100%; max-width: 480px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .user-profile { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; font-weight: 500; }
+        .user-img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); }
+
+        .main-card { background: var(--card); width: 100%; max-width: 480px; border-radius: 28px; padding: 32px; border: 1px solid var(--border); text-align: center; }
+        .status-badge { background: #1e1e1e; color: var(--text-dim); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; display: inline-block; }
+        .timer { font-size: 4.5rem; font-weight: 200; font-variant-numeric: tabular-nums; margin: 10px 0 30px 0; letter-spacing: -2px; }
+
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        button { border-radius: 18px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); font-size: 1rem; padding: 20px; }
+        .btn-in { background: var(--text); color: var(--bg); }
+        .btn-in:active { transform: scale(0.96); opacity: 0.9; }
+        .btn-out { background: transparent; color: var(--text); border: 1px solid var(--border); }
+        .btn-out:active { background: #1a1a1a; }
+
+        .config-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 25px; }
+        .config-item { text-align: right; }
+        .config-label { font-size: 0.75rem; color: var(--text-dim); display: block; margin-bottom: 5px; }
+        .config-input { background: transparent; border: none; color: var(--text); font-size: 1.1rem; font-weight: 600; width: 60px; outline: none; border-bottom: 1px solid transparent; }
+        .config-input:focus { border-bottom: 1px solid var(--accent); }
+
+        .chart-section { width: 100%; max-width: 480px; margin-top: 30px; }
+        .section-title { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 15px; font-weight: 500; }
+        
+        .history-list { width: 100%; max-width: 480px; margin-top: 20px; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
+        .history-date { font-weight: 500; font-size: 0.95rem; }
+        .history-details { text-align: left; }
+        .history-hours { color: var(--text-dim); font-size: 0.85rem; }
+        
+        .login-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
+        .btn-google { background: var(--text); color: var(--bg); width: 100%; max-width: 300px; display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 30px; padding: 16px; border-radius: 14px; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2>⏱️ נוכחות בזמן אמת</h2>
-        <div id="status">סטטוס: בהמתנה</div>
-        <div class="timer" id="countdown">09:00:00</div>
-        <button class="btn-in" onclick="punchIn()">▶️ כניסה</button>
-        <button class="btn-out" onclick="punchOut()">⏹️ יציאה</button>
-        <hr>
-        <button class="btn-add" onclick="document.getElementById('manualInput').style.display='block'">✍️ שכחתי להחתים? הוספה ידנית</button>
-        
-        <div id="manualInput" class="edit-panel">
-            <input type="date" id="mDate"><br>
-            <input type="time" id="mIn" title="זמן כניסה">
-            <input type="time" id="mOut" title="זמן יציאה"><br>
-            <button onclick="addManual()">שמור משמרת</button>
-        </div>
+
+<div id="loginScreen" class="login-overlay">
+    <h1 style="font-size: 2rem; font-weight: 700;">WorkTime Premium</h1>
+    <p style="color: var(--text-dim); margin-top: 10px;">נהל את זמן העבודה שלך בצורה מקצועית</p>
+    <button class="btn-google" onclick="login()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Reference_Icon.svg" width="18"> התחברות מאובטחת
+    </button>
+</div>
+
+<div class="header">
+    <div class="user-profile" id="userDisplay">
+        <img src="" class="user-img" id="userImg">
+        <span id="userName">טוען...</span>
+    </div>
+    <div style="font-size: 0.75rem; color: var(--accent); font-weight: 600;">PRO PLAN</div>
+</div>
+
+<div class="main-card">
+    <div class="status-badge" id="status">OFF DUTY</div>
+    <div class="timer" id="countdown">00:00:00</div>
+    
+    <div class="controls">
+        <button class="btn-out" onclick="punchOut()">סיום</button>
+        <button class="btn-in" onclick="punchIn()">כניסה</button>
     </div>
 
-    <h3>📊 פירוט וסיכום</h3>
-    <table id="logTable">
-        <thead><tr><th>תאריך</th><th>כניסה</th><th>יציאה</th><th>סה"כ</th><th>פעולה</th></tr></thead>
-        <tbody id="logBody"></tbody>
-    </table>
+    <div class="config-bar">
+        <div class="config-item">
+            <span class="config-label">₪ לשעה</span>
+            <input type="number" class="config-input" id="hourlyRate" value="50" onchange="saveConfig()">
+        </div>
+        <div class="config-item" style="text-align: left;">
+            <span class="config-label">תקן יומי</span>
+            <input type="number" class="config-input" id="quota" value="9" onchange="saveConfig()" style="text-align: left;">
+        </div>
+    </div>
+</div>
 
-    <script>
-        let startTime;
-        const workDaySeconds = 9 * 3600;
+<div class="chart-section">
+    <div class="section-title">פעילות שבועית</div>
+    <canvas id="workChart" height="150"></canvas>
+</div>
 
-        function updateTimer() {
-            if (!startTime) return;
-            const diff = Math.floor((new Date() - startTime) / 1000);
-            const remaining = Math.max(0, workDaySeconds - diff);
-            const h = Math.floor(remaining / 3600).toString().padStart(2, '0');
-            const m = Math.floor((remaining % 3600) / 60).toString().padStart(2, '0');
-            const s = (remaining % 60).toString().padStart(2, '0');
-            document.getElementById('countdown').innerText = `${h}:${m}:${s}`;
+<div class="history-list" id="logBody">
+    </div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyB6k04PIDrtH0lN1mMH8d4mrQbU_Wd6EPY",
+        authDomain: "clooc-87768.firebaseapp.com",
+        projectId: "clooc-87768",
+        storageBucket: "clooc-87768.firebasestorage.app",
+        messagingSenderId: "446568496274",
+        appId: "1:446568496274:web:c1aead85e32d21d0e5ba4b"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    let currentUser = null;
+
+    async function login() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        await auth.signInWithPopup(provider);
+    }
+
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            currentUser = user;
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('userName').innerText = user.displayName;
+            document.getElementById('userImg').src = user.photoURL;
+            loadData();
         }
+    });
 
-        function punchIn() {
-            if (startTime) return;
-            startTime = new Date();
-            localStorage.setItem('activeSession', startTime);
-            document.getElementById('status').innerText = "עובד עכשיו...";
-            setInterval(updateTimer, 1000);
+    function punchIn() {
+        localStorage.setItem('active_start', new Date().toISOString());
+        location.reload();
+    }
+
+    async function punchOut() {
+        const startStr = localStorage.getItem('active_start');
+        if(!startStr || !currentUser) return;
+        
+        const start = new Date(startStr);
+        const hours = (new Date() - start) / 3600000;
+        const rate = parseFloat(document.getElementById('hourlyRate').value);
+
+        await db.collection('users').doc(currentUser.uid).collection('logs').add({
+            date: new Date().toLocaleDateString('he-IL', {day:'2-digit', month:'2-digit'}),
+            timestamp: Date.now(),
+            duration: hours.toFixed(2),
+            pay: (hours * rate).toFixed(0)
+        });
+        
+        localStorage.removeItem('active_start');
+        location.reload();
+    }
+
+    async function loadData() {
+        const snap = await db.collection('users').doc(currentUser.uid).collection('logs').orderBy('timestamp', 'desc').limit(5).get();
+        const logs = snap.docs.map(doc => doc.data());
+        
+        document.getElementById('logBody').innerHTML = logs.map(l => `
+            <div class="history-item">
+                <div class="history-date">${l.date}</div>
+                <div class="history-details">
+                    <span class="history-hours">${l.duration} שעות</span>
+                    <span style="font-weight:600; margin-right:10px;">₪${l.pay}</span>
+                </div>
+            </div>
+        `).join('');
+
+        initChart(logs);
+    }
+
+    function initChart(logs) {
+        const ctx = document.getElementById('workChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: logs.map(l => l.date).reverse(),
+                datasets: [{
+                    data: logs.map(l => l.duration).reverse(),
+                    borderColor: '#3d8bff',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    fill: true,
+                    backgroundColor: 'rgba(61, 139, 255, 0.05)'
+                }]
+            },
+            options: { 
+                plugins: { legend: { display: false } },
+                scales: { 
+                    x: { grid: { display: false }, ticks: { color: '#555' } },
+                    y: { display: false }
+                }
+            }
+        });
+    }
+
+    window.onload = () => {
+        const saved = localStorage.getItem('active_start');
+        if(saved) {
+            const start = new Date(saved);
+            document.getElementById('status').innerText = "ON DUTY";
+            document.getElementById('status').style.color = "var(--success)";
+            setInterval(() => {
+                const diff = Math.floor((new Date() - start) / 1000);
+                const h = Math.floor(diff/3600).toString().padStart(2,'0');
+                const m = Math.floor((diff%3600)/60).toString().padStart(2,'0');
+                const s = (diff%60).toString().padStart(2,'0');
+                document.getElementById('countdown').innerText = `${h}:${m}:${s}`;
+            }, 1000);
         }
-
-        function punchOut() {
-            if (!startTime) return;
-            const endTime = new Date();
-            addEntry(startTime, endTime);
-            startTime = null;
-            localStorage.removeItem('activeSession');
-            location.reload();
-        }
-
-        function addManual() {
-            const d = document.getElementById('mDate').value;
-            const i = document.getElementById('mIn').value;
-            const o = document.getElementById('mOut').value;
-            if(!d || !i || !o) return alert("מלא את כל השדות");
-            
-            const start = new Date(`${d}T${i}`);
-            const end = new Date(`${d}T${o}`);
-            addEntry(start, end);
-            location.reload();
-        }
-
-        function addEntry(start, end) {
-            const diffMs = end - start;
-            if (diffMs < 0) return alert("זמן יציאה חייב להיות אחרי כניסה");
-            const duration = new Date(diffMs).toISOString().substr(11, 8);
-            const log = {
-                id: Date.now(),
-                date: start.toLocaleDateString('he-IL'),
-                in: start.toLocaleTimeString('he-IL', {hour: '2-digit', minute:'2-digit'}),
-                out: end.toLocaleTimeString('he-IL', {hour: '2-digit', minute:'2-digit'}),
-                dur: duration
-            };
-            let logs = JSON.parse(localStorage.getItem('workLogs') || "[]");
-            logs.push(log);
-            localStorage.setItem('workLogs', JSON.stringify(logs));
-        }
-
-        function deleteLog(id) {
-            let logs = JSON.parse(localStorage.getItem('workLogs') || "[]");
-            logs = logs.filter(l => l.id !== id);
-            localStorage.setItem('workLogs', JSON.stringify(logs));
-            location.reload();
-        }
-
-        window.onload = () => {
-            const logs = JSON.parse(localStorage.getItem('workLogs') || "[]");
-            document.getElementById('logBody').innerHTML = logs.map(l => 
-                `<tr><td>${l.date}</td><td>${l.in}</td><td>${l.out}</td><td>${l.dur}</td><td class="delete-btn" onclick="deleteLog(${l.id})">❌</td></tr>`).join('');
-            
-            const saved = localStorage.getItem('activeSession');
-            if (saved) { startTime = new Date(saved); setInterval(updateTimer, 1000); document.getElementById('status').innerText = "עובד עכשיו..."; }
-        };
-    </script>
+    };
+</script>
 </body>
 </html>
