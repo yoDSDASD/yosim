@@ -3,36 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
-<title>QC BIG RESULTS</title>
+<title>QC SIMPLE 0.000</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500;700&family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #000000;
-    --panel: #141414;
+    --panel: #111;
     --primary: #2979ff;
     --danger: #ff1744;
     --success: #00e676;
     --text: #ffffff;
     --border: #333;
-    --placeholder: #444;
+    --placeholder: #333; /* צבע אפור כהה וברור ל-0.000 */
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-  /* נעילת מסך מוחלטת */
+  /* נעילת מסך מוחלטת לאייפון */
   html, body {
     margin: 0;
     padding: 0;
     background-color: var(--bg);
     color: var(--text);
     font-family: "Heebo", sans-serif;
-    height: 100%; 
-    width: 100%;
+    height: 100%; width: 100%;
     overflow: hidden; 
     position: fixed;
   }
 
-  /* מבנה האפליקציה */
   #app-root {
     display: flex;
     flex-direction: column;
@@ -42,21 +40,22 @@
     top: 0; left: 0; right: 0; bottom: 0;
   }
 
-  /* --- כותרת קבועה עם תוצאות ענקיות --- */
+  /* --- כותרת קבועה --- */
   header {
     flex: 0 0 auto;
     background: var(--panel);
     border-bottom: 1px solid var(--border);
-    padding-bottom: 12px;
+    padding-bottom: 10px;
     z-index: 100;
-    box-shadow: 0 5px 25px rgba(0,0,0,0.6);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.8);
   }
 
+  /* גריד תוצאות */
   .hud {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 1px;
-    background: #333; /* קוים מפרידים */
+    background: #333;
     margin-bottom: 10px;
   }
 
@@ -64,27 +63,22 @@
     background: var(--panel);
     padding: 10px 2px;
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
   }
 
   .hud-label {
     font-size: 0.75rem;
-    color: #888;
+    color: #666;
     font-weight: 700;
     margin-bottom: 0;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
   }
 
-  /* השינוי הגדול: טקסט ענק וברור */
   .hud-val { 
     font-family: 'Roboto Mono', monospace; 
-    font-size: 2.2rem; /* גודל מקסימלי שנכנס במסך */
-    font-weight: 900; /* הכי עבה שיש */
+    font-size: 2rem; 
+    font-weight: 900; 
     direction: ltr;
     line-height: 1.1;
-    letter-spacing: -1px;
   }
 
   .c-max { color: var(--danger); }
@@ -107,40 +101,41 @@
     font-weight: 900;
     cursor: pointer;
   }
-
   .btn-calc { background: var(--primary); color: white; }
-  .btn-reset { background: #333; color: #ccc; }
+  .btn-reset { background: #222; color: #888; border: 1px solid #333; }
 
 
-  /* --- אזור גלילה (מוגן מהמקלדת) --- */
+  /* --- אזור גלילה --- */
   main {
     flex: 1;
     overflow-y: auto;
     padding: 20px;
-    position: relative;
-    padding-bottom: 55vh; /* כרית ביטחון למקלדת */
+    padding-bottom: 50vh; /* שטח מת למקלדת */
   }
 
   .field-block {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     position: relative;
   }
 
   .label-text {
-    font-size: 0.9rem;
-    color: #888;
+    font-size: 0.8rem;
+    color: #666;
     font-weight: 700;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
     display: block;
     text-align: right;
   }
 
+  /* אינפוטים */
   input {
     width: 100%;
     background: #000;
     border: 1px solid #333;
-    border-radius: 10px;
-    padding: 15px;
+    border-radius: 8px;
+    padding: 0;
+    height: 60px;
+    line-height: 60px;
     font-size: 2rem;
     color: #fff;
     font-family: 'Roboto Mono', monospace;
@@ -148,12 +143,16 @@
     direction: ltr;
     outline: none;
     font-weight: bold;
-    height: 65px;
   }
 
-  input::placeholder { color: var(--placeholder); opacity: 1; }
-  input:focus { border-color: #fff; background: #0a0a0a; border-width: 2px; }
-  
+  /* עיצוב ה-PLACEHOLDER שייראה בדיוק כמו 0.000 */
+  input::placeholder { 
+    color: var(--placeholder); 
+    opacity: 1; 
+    letter-spacing: 1px;
+  }
+
+  input:focus { border-color: #fff; background: #080808; border-width: 2px; }
   .inp-red:focus { border-color: var(--danger); }
   .inp-blue:focus { border-color: var(--primary); }
 
@@ -173,7 +172,6 @@
     font-weight: 900;
     pointer-events: none;
   }
-
   .sym-plus { color: var(--danger); }
   .sym-minus { color: var(--primary); }
 
@@ -229,23 +227,26 @@
   </div>
 
 <script>
-  function getVal(id) {
-    const v = document.getElementById(id).value;
-    return v ? parseFloat(v) : 0;
-  }
-
-  function fmt(n) {
-    return (Math.round((n + Number.EPSILON) * 1000) / 1000).toFixed(3);
+  // מנוע חישוב מדויק (Integer Math) למניעת שגיאות 0.000001
+  function getInt(id) {
+    const val = document.getElementById(id).value;
+    if (!val) return 0;
+    return Math.round((parseFloat(val) + Number.EPSILON) * 1000);
   }
 
   function calc() {
-    const nom = getVal('nominal');
-    const up = Math.abs(getVal('upper'));
-    const low = Math.abs(getVal('lower'));
+    const nom = getInt('nominal');
+    const up = Math.abs(getInt('upper'));
+    const low = Math.abs(getInt('lower'));
 
-    document.getElementById('dispMax').innerText = fmt(nom + up);
-    document.getElementById('dispMin').innerText = fmt(nom - low);
-    document.getElementById('dispRng').innerText = fmt((nom + up) - (nom - low));
+    const maxInt = nom + up;
+    const minInt = nom - low;
+    const rngInt = maxInt - minInt;
+
+    // המרה חזרה ל-3 ספרות
+    document.getElementById('dispMax').innerText = (maxInt / 1000).toFixed(3);
+    document.getElementById('dispMin').innerText = (minInt / 1000).toFixed(3);
+    document.getElementById('dispRng').innerText = (rngInt / 1000).toFixed(3);
   }
 
   function commit() {
@@ -257,7 +258,11 @@
     document.getElementById('nominal').value = '';
     document.getElementById('upper').value = '';
     document.getElementById('lower').value = '';
-    calc();
+    
+    document.getElementById('dispMax').innerText = "0.000";
+    document.getElementById('dispMin').innerText = "0.000";
+    document.getElementById('dispRng').innerText = "0.000";
+    
     document.getElementById('nominal').focus();
   }
 
@@ -265,7 +270,6 @@
     const el = document.getElementById(id);
     el.addEventListener('input', calc);
     
-    // גלילה חכמה למרכז החלון הפנוי
     el.addEventListener('focus', function() { 
       this.select();
       setTimeout(() => {
