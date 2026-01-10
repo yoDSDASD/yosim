@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>QC STATIC PRO</title>
+<title>QC FINAL FIX</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500;700&family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -15,40 +15,41 @@
     --text: #ffffff;
     --border: #333;
     --placeholder: #444;
+    /* גובה הכותרת הקבועה - מחושב מראש */
+    --header-h: 140px; 
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-  body {
+  /* נעילת הגוף - מונע מהעמוד כולו לזוז */
+  html, body {
     margin: 0;
+    padding: 0;
     background-color: var(--bg);
     color: var(--text);
     font-family: "Heebo", sans-serif;
-    height: 100dvh;
-    overflow: hidden; /* נועל את הגוף מתזוזה */
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* --- הכל עטוף בקונטיינר אחד שצמוד למעלה --- */
-  .app-container {
+    height: 100dvh; /* גובה דינמי למובייל */
+    overflow: hidden; /* קריטי! מונע גלילה של כל העמוד */
+    position: fixed; /* נועל את הגוף למסך */
     width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    /* זה הסוד: הכל צפוף למעלה, שום דבר לא צף */
-    justify-content: flex-start; 
-    gap: 10px;
-    padding-bottom: 20px;
   }
 
-  /* --- חלק 1: תוצאות + כפתורים (מקובע) --- */
-  .header-unit {
+  /* --- חלק עליון: תוצאות + כפתורים --- */
+  /* מוגדר כ-absolute וצמוד למעלה */
+  .fixed-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-h);
     background: var(--panel);
     border-bottom: 1px solid var(--border);
-    padding-bottom: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    z-index: 9999; /* תמיד מעל הכל */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    padding-bottom: 5px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.8);
   }
 
   /* גריד תוצאות */
@@ -57,19 +58,19 @@
     grid-template-columns: 1fr 1fr 1fr;
     gap: 1px;
     background: #333;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
   }
 
   .hud-cell {
     background: var(--panel);
-    padding: 8px 2px;
+    padding: 6px 2px;
     text-align: center;
   }
 
-  .hud-label { font-size: 0.65rem; color: #777; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 0; }
+  .hud-label { font-size: 0.65rem; color: #888; font-weight: 700; letter-spacing: 0.5px; }
   .hud-val { 
     font-family: 'Roboto Mono', monospace; 
-    font-size: 1.4rem; 
+    font-size: 1.5rem; 
     font-weight: 700; 
     direction: ltr;
     line-height: 1.1;
@@ -82,53 +83,66 @@
   /* כפתורים */
   .actions {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     padding: 0 10px;
+    height: 45px; /* גובה כפתור קבוע */
   }
 
   button {
     flex: 1;
     border: none;
     border-radius: 6px;
-    padding: 10px;
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 900;
     cursor: pointer;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .btn-calc { background: var(--primary); color: white; flex: 2; }
   .btn-reset { background: #333; color: #ccc; flex: 1; }
 
 
-  /* --- חלק 2: אינפוטים (צמודים לראש, לא זזים) --- */
-  .inputs-unit {
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px; /* רווח קבוע בין נומינל לפלוס/מינוס */
+  /* --- חלק תחתון: אזור גלילה לאינפוטים --- */
+  .scroll-container {
+    position: absolute;
+    top: var(--header-h); /* מתחיל בדיוק איפה שהכותרת נגמרת */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow-y: auto; /* מאפשר גלילה פנימית */
+    padding: 15px;
+    
+    /* ה-Padding התחתון הענק הזה הוא הסוד.
+       הוא מאפשר לגלול את התוכן הרבה מעבר לגובה המקלדת */
+    padding-bottom: 60vh; 
   }
 
   .field-row {
     position: relative;
+    margin-bottom: 15px;
   }
 
-  .label-sm {
-    font-size: 0.75rem;
+  .label-text {
+    font-size: 0.8rem;
     color: #888;
     font-weight: 700;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
     display: block;
+    text-align: right;
   }
 
-  /* שדה הנומינל */
+  /* שדות קלט */
   input {
     width: 100%;
     background: #000;
     border: 1px solid #333;
     border-radius: 8px;
-    padding: 0; /* איפוס ריפוד */
-    height: 50px; /* גובה קבוע */
-    line-height: 50px;
+    padding: 0 15px; /* ריפוד צדדי */
+    height: 55px; /* גובה נוח לאצבע */
+    line-height: 55px;
     font-size: 1.8rem;
     color: #fff;
     font-family: 'Roboto Mono', monospace;
@@ -144,24 +158,26 @@
   .inp-red:focus { border-color: var(--danger); }
   .inp-blue:focus { border-color: var(--primary); }
 
-  /* אזור הפלוס מינוס */
+  /* סידור נומינל ופלוס/מינוס */
   .split {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 15px;
   }
 
-  .symbol-overlay {
+  /* אייקונים בתוך השדה */
+  .icon-inside {
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.5rem;
+    transform: translateY(-50%) translateY(3px); /* תיקון מרכוז קטן */
+    font-size: 1.6rem;
     font-weight: 900;
-    pointer-events: none; /* כדי שאפשר יהיה ללחוץ דרכו */
+    pointer-events: none;
+    z-index: 2;
   }
+
+  .right-side { right: 15px; } /* מיקום בצד ימין בתוך השדה */
   
-  /* מיקום הסימנים בתוך השדה כדי לחסוך מקום */
-  .sym-pos-right { right: 10px; } 
   .sym-plus { color: var(--danger); }
   .sym-minus { color: var(--primary); }
 
@@ -169,9 +185,7 @@
 </head>
 <body>
 
-<div class="app-container">
-  
-  <div class="header-unit">
+  <div class="fixed-header">
     <div class="hud">
       <div class="hud-cell">
         <div class="hud-label">MAX</div>
@@ -188,35 +202,31 @@
     </div>
 
     <div class="actions">
-      <button class="btn-calc" onclick="commit()">חשב</button>
       <button class="btn-reset" onclick="resetAll()">אפס</button>
+      <button class="btn-calc" onclick="commit()">חשב</button>
     </div>
   </div>
 
-  <div class="inputs-unit">
+  <div class="scroll-container">
     
     <div class="field-row">
-      <span class="label-sm">NOMINAL</span>
+      <span class="label-text">NOMINAL</span>
       <input type="number" id="nominal" inputmode="decimal" step="any" placeholder="0.000">
     </div>
 
     <div class="split">
       <div class="field-row">
-        <span class="symbol-overlay sym-pos-right sym-plus">+</span>
+        <span class="icon-inside right-side sym-plus">+</span>
         <input type="number" id="upper" class="inp-red" inputmode="decimal" step="any" placeholder="0.000">
       </div>
 
       <div class="field-row">
-        <span class="symbol-overlay sym-pos-right sym-minus">−</span>
+        <span class="icon-inside right-side sym-minus">−</span>
         <input type="number" id="lower" class="inp-blue" inputmode="decimal" step="any" placeholder="0.000">
       </div>
     </div>
 
   </div>
-  
-  <div style="flex: 1;"></div>
-
-</div>
 
 <script>
   function getVal(id) {
@@ -240,6 +250,7 @@
 
   function commit() {
     calc();
+    // הורדת מקלדת
     document.activeElement.blur(); 
   }
 
@@ -251,10 +262,19 @@
     document.getElementById('nominal').focus();
   }
 
+  // אירועים
   ['nominal', 'upper', 'lower'].forEach(id => {
     const el = document.getElementById(id);
     el.addEventListener('input', calc);
-    el.addEventListener('focus', function() { this.select(); });
+    
+    // ברגע שנכנסים לשדה, הוא גולל את עצמו למרכז ה"חלון הפנוי"
+    // זה מבטיח שהוא לא יתחבא מתחת לכותרת
+    el.addEventListener('focus', function() { 
+      this.select();
+      setTimeout(() => {
+        el.scrollIntoView({behavior: "smooth", block: "center"});
+      }, 300);
+    });
   });
 </script>
 
