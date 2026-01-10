@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>QC SAFE MODE</title>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
+<title>QC PRO FINAL</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500;700&family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #000000;
-    --card: #1c1c1e;
-    --primary: #0A84FF;
-    --danger: #FF453A;
-    --success: #30D158;
+    --panel: #141414;
+    --primary: #2979ff;
+    --danger: #ff1744;
+    --success: #00e676;
     --text: #ffffff;
     --border: #333;
   }
@@ -20,56 +20,66 @@
 
   body {
     margin: 0;
-    font-family: "Heebo", sans-serif;
     background-color: var(--bg);
     color: var(--text);
-    height: 100dvh;
+    font-family: "Heebo", sans-serif;
+    height: 100dvh; /* גובה מסך מלא מדוייק */
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: hidden; /* מונע גלילה של כל העמוד */
   }
 
-  /* --- אזור בטוח עליון (לעולם לא יוסתר) --- */
-  .safe-zone {
+  /* --- אזור פיקוד עליון (קבוע) --- */
+  /* זה החלק שלעולם לא יוסתר */
+  .control-center {
     flex: 0 0 auto;
-    background: var(--card);
+    background: var(--panel);
     border-bottom: 1px solid var(--border);
-    z-index: 100;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    z-index: 999;
     padding-bottom: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
   }
 
-  /* גריד תוצאות */
-  .res-grid {
+  /* תצוגת תוצאות */
+  .hud-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 1px;
-    background: #333; /* קוים מפרידים */
-    border-bottom: 1px solid #333;
+    background: #333; /* צבע הגבולות */
+    margin-bottom: 10px;
   }
 
-  .res-box {
-    background: var(--card);
-    padding: 8px 2px;
+  .hud-box {
+    background: var(--panel);
+    padding: 10px 2px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
-  .res-label { font-size: 0.7rem; color: #888; font-weight: 700; }
-  .res-val { font-family: monospace; font-size: 1.5rem; font-weight: 900; direction: ltr; line-height: 1; }
-  
+  .label { font-size: 0.7rem; color: #888; font-weight: 700; margin-bottom: 2px; }
+  .value { 
+    font-family: 'Roboto Mono', monospace; 
+    font-size: 1.6rem; 
+    font-weight: 700; 
+    direction: ltr;
+    line-height: 1;
+  }
+
   .c-max { color: var(--danger); }
   .c-min { color: var(--primary); }
   .c-rng { color: var(--success); }
 
-  /* שורת כפתורים עליונה - ממוקמת מיד מתחת לתוצאות */
-  .top-actions {
-    display: grid;
-    grid-template-columns: 2fr 1fr; /* כפתור חשב גדול יותר */
+  /* כפתורי פעולה - ממוקמים למעלה! */
+  .actions-bar {
+    display: flex;
     gap: 10px;
-    padding: 10px 12px 0 12px;
+    padding: 0 12px;
   }
 
   button {
+    flex: 1;
     border: none;
     border-radius: 8px;
     padding: 12px;
@@ -82,41 +92,44 @@
   .btn-calc {
     background: var(--primary);
     color: white;
+    flex: 2; /* כפתור חשב רחב פי 2 */
   }
-  
+
   .btn-reset {
     background: #333;
     color: #ccc;
+    flex: 1;
   }
 
-  /* --- אזור גלילה לאינפוטים (מתחת לכפתורים) --- */
-  main {
+  /* --- אזור אינפוטים (נגלל) --- */
+  .scroll-deck {
     flex: 1;
     overflow-y: auto;
-    padding: 20px 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    padding: 15px;
+    
+    /* הטריק: ריפוד תחתון ענק כדי שהמקלדת לא תכסה את השדה האחרון */
+    padding-bottom: 50vh; 
   }
 
-  .input-wrapper { display: flex; flex-direction: column; }
-  
-  label {
-    font-size: 0.9rem;
+  .input-row { margin-bottom: 15px; }
+
+  label.field-title {
+    display: block;
     color: #aaa;
-    margin-bottom: 5px;
+    font-size: 0.9rem;
     font-weight: bold;
+    margin-bottom: 6px;
   }
 
   input {
     width: 100%;
-    background: #111;
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    padding: 14px;
-    font-size: 1.6rem;
+    background: #000;
+    border: 2px solid #444;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 1.8rem; /* גדול מאוד ללחיצה נוחה */
     color: #fff;
-    font-family: monospace;
+    font-family: 'Roboto Mono', monospace;
     text-align: center;
     direction: ltr;
     outline: none;
@@ -125,107 +138,114 @@
 
   input:focus {
     border-color: var(--primary);
-    background: #000;
+    background: #0a0a0a;
   }
 
-  .split {
+  /* שדות מפוצלים */
+  .split-inputs {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
   }
 
-  /* צבעי מסגרת עדינים לאינפוטים */
-  #upper { color: var(--danger); }
-  #upper:focus { border-color: var(--danger); }
+  .inp-danger { color: var(--danger); }
+  .inp-danger:focus { border-color: var(--danger); }
   
-  #lower { color: var(--primary); }
-  #lower:focus { border-color: var(--primary); }
+  .inp-primary { color: var(--primary); }
+  .inp-primary:focus { border-color: var(--primary); }
 
 </style>
 </head>
 <body>
 
-  <div class="safe-zone">
-    
-    <div class="res-grid">
-      <div class="res-box">
-        <span class="res-label">MAX</span>
-        <div class="res-val c-max" id="dispMax">0.000</div>
+  <div class="control-center">
+    <div class="hud-grid">
+      <div class="hud-box">
+        <span class="label">MAX</span>
+        <span class="value c-max" id="dispMax">0.000</span>
       </div>
-      <div class="res-box">
-        <span class="res-label">MIN</span>
-        <div class="res-val c-min" id="dispMin">0.000</div>
+      <div class="hud-box">
+        <span class="label">MIN</span>
+        <span class="value c-min" id="dispMin">0.000</span>
       </div>
-      <div class="res-box">
-        <span class="res-label">RANGE</span>
-        <div class="res-val c-rng" id="dispRng">0.000</div>
+      <div class="hud-box">
+        <span class="label">RANGE</span>
+        <span class="value c-rng" id="dispRng">0.000</span>
       </div>
     </div>
 
-    <div class="top-actions">
-      <button class="btn-calc" onclick="commitCalc()">חשב</button>
+    <div class="actions-bar">
+      <button class="btn-calc" onclick="commit()">חשב</button>
       <button class="btn-reset" onclick="resetAll()">אפס</button>
+    </div>
+  </div>
+
+  <div class="scroll-deck">
+    
+    <div class="input-row">
+      <label class="field-title">NOMINAL</label>
+      <input type="number" id="nominal" inputmode="decimal" step="any" placeholder="נומינלי">
+    </div>
+
+    <div class="split-inputs">
+      <div class="input-row">
+        <label class="field-title" style="color: var(--danger);">UPPER +</label>
+        <input type="number" id="upper" class="inp-danger" inputmode="decimal" step="any" placeholder="0.000">
+      </div>
+      <div class="input-row">
+        <label class="field-title" style="color: var(--primary);">LOWER −</label>
+        <input type="number" id="lower" class="inp-primary" inputmode="decimal" step="any" placeholder="0.000">
+      </div>
     </div>
 
   </div>
 
-  <main>
-    <div class="input-wrapper">
-      <label>NOMINAL</label>
-      <input type="number" id="nominal" inputmode="decimal" step="any" placeholder="מידה">
-    </div>
-
-    <div class="split">
-      <div class="input-wrapper">
-        <label>+ UPPER</label>
-        <input type="number" id="upper" inputmode="decimal" step="any" placeholder="0.000">
-      </div>
-      <div class="input-wrapper">
-        <label>− LOWER</label>
-        <input type="number" id="lower" inputmode="decimal" step="any" placeholder="0.000">
-      </div>
-    </div>
-    
-    <div style="height: 200px;"></div>
-  </main>
-
 <script>
-  function safeVal(id) {
+  // פונקציות חישוב
+  function getVal(id) {
     const v = document.getElementById(id).value;
-    return v ? parseFloat(v) : 0;
+    return v === "" ? 0 : parseFloat(v);
   }
 
   function fmt(n) {
     return (Math.round((n + Number.EPSILON) * 1000) / 1000).toFixed(3);
   }
 
-  function runLogic() {
-    const n = safeVal('nominal');
-    const u = Math.abs(safeVal('upper'));
-    const l = Math.abs(safeVal('lower'));
+  function calc() {
+    const nom = getVal('nominal');
+    const up = Math.abs(getVal('upper'));
+    const low = Math.abs(getVal('lower'));
 
-    document.getElementById('dispMax').innerText = fmt(n + u);
-    document.getElementById('dispMin').innerText = fmt(n - l);
-    document.getElementById('dispRng').innerText = fmt((n + u) - (n - l));
+    document.getElementById('dispMax').innerText = fmt(nom + up);
+    document.getElementById('dispMin').innerText = fmt(nom - low);
+    document.getElementById('dispRng').innerText = fmt((nom + up) - (nom - low));
   }
 
-  function commitCalc() {
-    runLogic();
+  function commit() {
+    calc();
     // סגירת מקלדת
     document.activeElement.blur();
   }
 
   function resetAll() {
-    ['nominal', 'upper', 'lower'].forEach(id => document.getElementById(id).value = '');
-    runLogic(); // מאפס תצוגה
+    document.getElementById('nominal').value = '';
+    document.getElementById('upper').value = '';
+    document.getElementById('lower').value = '';
+    calc();
     document.getElementById('nominal').focus();
   }
 
-  // אירועים
+  // אירועים: חישוב אוטומטי בהקלדה + סלקט אוטומטי
   ['nominal', 'upper', 'lower'].forEach(id => {
     const el = document.getElementById(id);
-    el.addEventListener('input', runLogic);
-    el.addEventListener('focus', function() { this.select(); });
+    el.addEventListener('input', calc);
+    el.addEventListener('focus', function() { 
+      this.select(); 
+      // דואג שהשדה יגלול למרכז המסך כשהמקלדת נפתחת
+      setTimeout(() => {
+        el.scrollIntoView({behavior: "smooth", block: "center"});
+      }, 300);
+    });
   });
 </script>
 
