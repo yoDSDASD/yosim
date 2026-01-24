@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מתכנן תזונה PRO | 1200 קלוריות</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap');
+        body { font-family: 'Heebo', sans-serif; background-color: #f3f4f6; }
+        .meal-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; }
+        .meal-card:hover { transform: translateY(-2px); shadow-lg; }
+        .meal-card.active { border-color: #10b981; background-color: #ecfdf5; }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* סרגל גלילה מותאם */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="text-gray-800 pb-24">
+
+    <header class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-6 shadow-lg rounded-b-3xl mb-6">
+        <div class="max-w-3xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">תפריט חזרה לשגרה</h1>
+                <p class="text-emerald-100 text-sm opacity-90">תכנון יומי חכם • 1200 קלוריות</p>
+            </div>
+            <div class="text-center bg-white/20 p-2 rounded-xl backdrop-blur-sm">
+                <i class="fas fa-calendar-check text-2xl mb-1"></i>
+                <div class="text-xs font-medium">יום 1/3</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 space-y-6" id="app">
+        </main>
+
+    <div class="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] border-t z-50 p-4 transition-transform duration-300" id="stickyFooter">
+        <div class="max-w-3xl mx-auto flex justify-between items-center">
+            <div class="flex flex-col">
+                <span class="text-xs text-gray-500 font-medium">סה"כ יומי (משוער)</span>
+                <div class="flex items-baseline gap-1">
+                    <span id="totalCalories" class="text-2xl font-bold text-emerald-600">0</span>
+                    <span class="text-sm text-gray-400">/ 1200 קק"ל</span>
+                </div>
+            </div>
+            <div class="w-1/2 max-w-[150px]">
+                <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div id="progressBar" class="h-full bg-emerald-500 transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <div class="text-[10px] text-gray-400 text-center mt-1">צריכה יומית</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // נתונים (מבוסס על המסמך + הערכה קלורית מקצועית סטנדרטית לרכיבים)
+        const menuData = [
+            {
+                id: 'breakfast',
+                title: 'ארוחת בוקר',
+                icon: 'fa-mug-hot',
+                color: 'text-orange-500',
+                options: [
+                    { name: "2 כפות קוטג' 5% + אגס", cal: 160 },
+                    { name: "יוגורט 1.5% + תפוח", cal: 160 },
+                    { name: "מעדן חלבון + 1/3 רימון", cal: 130 },
+                    { name: "קפה הפוך (חלב 1%) + תמר", cal: 150 }
+                ]
+            },
+            {
+                id: 'snack1',
+                title: 'ביניים בוקר',
+                icon: 'fa-apple-alt',
+                color: 'text-green-500',
+                options: [
+                    { name: "יוגורט 1.5% + 2 כדורי תמרים", cal: 190 },
+                    { name: "מעדן חלבון + תפוח + 3 מקדמיה", cal: 180 },
+                    { name: "סלט ירוק + בולגרית + אגוזים", cal: 220 },
+                    { name: "שייק (כוס חלב, בננה, 7 שקדים)", cal: 240 }
+                ]
+            },
+            {
+                id: 'lunch',
+                title: 'ארוחת צהריים',
+                icon: 'fa-utensils',
+                color: 'text-red-500',
+                options: [
+                    { name: "חזה עוף צלוי + שעועית מוקפצת", cal: 400 },
+                    { name: "סלמון אפוי + אנטיפסטי", cal: 450 },
+                    { name: "5 קציצות בשר + טחינה + כרוב", cal: 420 }
+                ]
+            },
+            {
+                id: 'snack2',
+                title: 'ביניים אחה"צ',
+                icon: 'fa-cookie-bite',
+                color: 'text-yellow-500',
+                options: [
+                    { name: "2 קרקר לחמית + אגס + 5 לוז", cal: 170 },
+                    { name: "40 גרם ערמונים + בננה + פיסטוקים", cal: 190 },
+                    { name: "10 פריכיות ביס + סלט פירות", cal: 180 }
+                ]
+            },
+            {
+                id: 'dinner',
+                title: 'ארוחת ערב',
+                icon: 'fa-moon',
+                color: 'text-indigo-500',
+                options: [
+                    { name: "מג'דרה (מנה מדודה) + סלט", cal: 350 },
+                    { name: "4 פרוסות לחם קל + ביצה + ריקוטה", cal: 300 },
+                    { name: "2 לחמניות קלות + צפתית + גבנצ", cal: 320 },
+                    { name: "סלט טונה + תירס", cal: 280 },
+                    { name: "פשטידת ברוקולי + לחם קל", cal: 260 }
+                ]
+            }
+        ];
+
+        const state = {
+            selections: {},
+            totalCalories: 0
+        };
+
+        function renderApp() {
+            const app = document.getElementById('app');
+            app.innerHTML = menuData.map((meal, index) => `
+                <section class="animate-fade-in" style="animation-delay: ${index * 100}ms">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center ${meal.color}">
+                            <i class="fas ${meal.icon}"></i>
+                        </div>
+                        <h2 class="text-lg font-bold text-gray-700">${meal.title}</h2>
+                    </div>
+                    
+                    <div class="grid gap-3">
+                        ${meal.options.map((opt, optIndex) => `
+                            <div onclick="selectOption('${meal.id}', ${opt.cal}, this)" 
+                                 class="meal-card bg-white p-4 rounded-xl shadow-sm cursor-pointer relative overflow-hidden group">
+                                <div class="flex justify-between items-center z-10 relative">
+                                    <span class="font-medium text-gray-700 group-hover:text-emerald-700 transition-colors">${opt.name}</span>
+                                    <span class="text-xs font-bold bg-gray-100 text-gray-500 py-1 px-2 rounded-md">~${opt.cal} קל'</span>
+                                </div>
+                                <div class="absolute inset-0 bg-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </section>
+            `).join('');
+        }
+
+        function selectOption(mealId, calories, element) {
+            // הסרת בחירה קודמת באותה קטגוריה
+            const section = element.closest('section');
+            section.querySelectorAll('.meal-card').forEach(card => {
+                card.classList.remove('active', 'ring-2', 'ring-emerald-500', 'bg-emerald-50');
+                // איפוס אייקון וי
+                const existingCheck = card.querySelector('.check-icon');
+                if(existingCheck) existingCheck.remove();
+            });
+
+            // סימון בחירה חדשה
+            element.classList.add('active', 'ring-2', 'ring-emerald-500', 'bg-emerald-50');
+            
+            // הוספת אייקון וי
+            const checkIcon = document.createElement('i');
+            checkIcon.className = 'fas fa-check-circle text-emerald-500 absolute left-2 top-1/2 -translate-y-1/2 opacity-20 text-4xl check-icon';
+            element.appendChild(checkIcon);
+
+            // עדכון לוגיקה
+            state.selections[mealId] = calories;
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            const total = Object.values(state.selections).reduce((a, b) => a + b, 0);
+            const totalElement = document.getElementById('totalCalories');
+            const progressBar = document.getElementById('progressBar');
+            
+            // אנימציית מספרים
+            animateValue(totalElement, parseInt(totalElement.innerText), total, 500);
+            
+            // עדכון בר
+            const percentage = Math.min((total / 1200) * 100, 100);
+            progressBar.style.width = `${percentage}%`;
+            
+            // שינוי צבע בר בחריגה
+            if (total > 1250) {
+                progressBar.classList.remove('bg-emerald-500');
+                progressBar.classList.add('bg-red-500');
+            } else {
+                progressBar.classList.add('bg-emerald-500');
+                progressBar.classList.remove('bg-red-500');
+            }
+        }
+
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // אתחול
+        renderApp();
+    </script>
+</body>
+</html>
