@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Heli 1200 PRO V7 - Full Menu</title>
+    <title>Heli 1200 PRO V9 - Motivation</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
@@ -11,18 +11,37 @@
     <style>
         :root { 
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --text-muted: #94a3b8;
-            --accent: #3b82f6; --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+            --accent: #3b82f6; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --purple: #8b5cf6;
             --border: #334155; --radius: 16px;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; touch-action: manipulation; }
         body { font-family: 'Rubik', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 12px; padding-bottom: 100px; overflow-x: hidden; }
         
-        .date-trigger-wrapper { position: relative; display: flex; align-items: center; gap: 10px; background: var(--card); padding: 8px 12px; border-radius: 12px; border: 1px solid var(--border); }
+        .date-trigger-wrapper { position: relative; display: flex; align-items: center; gap: 8px; background: var(--card); padding: 6px 12px; border-radius: 12px; border: 1px solid var(--border); min-width: fit-content; }
         .native-date-input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 10; cursor: pointer; }
 
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .streak-badge { background: rgba(245, 158, 11, 0.2); color: var(--warning); padding: 6px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
+        .streak-badge { background: rgba(245, 158, 11, 0.2); color: var(--warning); padding: 6px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; min-width: fit-content; }
+
+        /* New Motivation Ticker Style */
+        .motivation-box {
+            flex: 1;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            font-style: italic;
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            border: 1px dashed var(--border);
+            animation: fadeIn 1.5s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .header-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .stat-card { background: var(--card); padding: 15px 5px; border-radius: var(--radius); text-align: center; border: 1px solid var(--border); }
@@ -32,8 +51,12 @@
 
         .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .report-box { background: #263346; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid var(--border); }
-        .report-value { font-size: 1.5rem; font-weight: bold; color: white; }
+        .report-value { font-size: 1.3rem; font-weight: bold; color: white; }
         .report-sub { font-size: 0.8rem; color: #aaa; margin-top: 2px; }
+
+        .workout-card { background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); padding: 16px; border-radius: 12px; margin-bottom: 20px; }
+        .workout-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .workout-list-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
 
         .cheat-meal-container { background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); padding: 16px; border-radius: 12px; margin-bottom: 20px; }
         .cheat-header { display: flex; justify-content: space-between; align-items: center; }
@@ -50,7 +73,6 @@
         .progress-fill { height: 100%; background: #60a5fa; width: 0%; transition: width 0.3s; }
         .water-btns { display: flex; gap: 12px; }
         .water-btn { flex: 1; background: rgba(255,255,255,0.25); border: none; color: white; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer; }
-        .water-btn:active { background: rgba(255,255,255,0.4); }
         
         .meal-card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); }
         .meal-card.completed { border-color: var(--success); background: rgba(16, 185, 129, 0.05); }
@@ -61,7 +83,6 @@
         .nav-item { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; height: 50px; color: var(--text-muted); background: none; border: none; font-size: 0.7rem; }
         .nav-item.active { color: var(--accent); }
         .nav-icon { font-size: 1.5rem; margin-bottom: 4px; }
-        .nav-item-calendar { position: relative; overflow: hidden; }
 
         #modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:3000; align-items: flex-end; }
         .modal-content { background: var(--card); width: 100%; height: 90vh; border-radius: 24px 24px 0 0; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; }
@@ -73,15 +94,15 @@
 <body>
 
 <div class="header-top">
+    <div class="streak-badge">🔥 <span id="streak-count">0</span></div>
+    
+    <div id="daily-quote" class="motivation-box">טוען משפט השראה...</div>
+
     <div class="date-trigger-wrapper">
         <input type="date" id="header-date-input" class="native-date-input" onchange="onDatePicked(this.value)">
-        <span style="font-size:1.5rem;">📅</span>
-        <div>
-            <div style="font-size:0.7rem; color:var(--text-muted);">תאריך מוצג</div>
-            <div id="cur-date-display" style="font-weight:bold; font-size:1.1rem;">היום</div>
-        </div>
+        <span style="font-size:1.3rem;">📅</span>
+        <div id="cur-date-display" style="font-weight:bold; font-size:0.9rem;">היום</div>
     </div>
-    <div class="streak-badge">🔥 <span id="streak-count">0</span></div>
 </div>
 
 <div class="header-grid">
@@ -112,6 +133,14 @@
         </div>
     </div>
 
+    <div id="daily-workout-summary" class="workout-card" style="display:none; border-color:var(--purple); background:rgba(139, 92, 246, 0.05);">
+        <div class="workout-header">
+            <div style="font-weight:bold; color:var(--purple);">💪 אימונים היום</div>
+            <div id="daily-burn" style="font-size:0.9rem; color:var(--text-muted);">0 קל' נשרפו</div>
+        </div>
+        <div id="main-workout-list"></div>
+    </div>
+
     <div class="cheat-meal-container">
         <div class="cheat-header">
             <div>
@@ -135,16 +164,15 @@
     <div id="meals-container"></div>
 </div>
 
-<div style="height:60px;"></div>
+<div style="height:70px;"></div>
 
 <div class="nav-bar">
     <button class="nav-item" onclick="changeDate(-1)">
         <span class="nav-icon">◀</span><span>אתמול</span>
     </button>
-    <div class="nav-item nav-item-calendar active">
-        <input type="date" id="nav-date-input" class="native-date-input" onchange="onDatePicked(this.value)">
-        <span class="nav-icon">📅</span><span>יומן</span>
-    </div>
+    <button class="nav-item" onclick="openWorkouts()">
+        <span class="nav-icon">💪</span><span>אימונים</span>
+    </button>
     <button class="nav-item" onclick="openReportMode()">
         <span class="nav-icon">📊</span><span>דוחות</span>
     </button>
@@ -165,39 +193,117 @@
 </div>
 
 <script>
-// --- FULL DATABASE EXTRACTED 100% FROM FILE ---
+// --- MOTIVATION QUOTES (100+) ---
+const quotes = [
+    "המסע של אלף קילומטרים מתחיל בצעד אחד קטן.",
+    "אל תוותר על מה שאתה רוצה ביותר בשביל מה שאתה רוצה עכשיו.",
+    "הצלחה היא סכום של מאמצים קטנים שנעשים יום אחר יום.",
+    "כוס מים לפני כל ארוחה - זה סוד ההצלחה!",
+    "לא ניתן לפצל או לדלג על ארוחות - הסדר הוא המפתח.",
+    "הירקות הם החברים הכי טובים שלך - תאכל אותם בשפע.",
+    "תאמין שאתה יכול, ואתה כבר בחצי הדרך.",
+    "הגוף שלך הוא המקדש שלך, שמור עליו.",
+    "התקדמות איטית היא עדיין התקדמות.",
+    "מנה מותרת פעם בשבוע היא פרס, לא עונש.",
+    "שתו לפחות 12 כוסות מים ביום - זה דלק לגוף.",
+    "אל תסתכל על כל המדרגות, תתמקד במדרגה הבאה.",
+    "הכאב של היום הוא הכוח של מחר.",
+    "תכנון מוקדם מונע ביצועים כושלים.",
+    "אם תעשה מה שתמיד עשית, תקבל מה שתמיד קיבלת.",
+    "השליטה בידיים שלך, בכל ביס מחדש.",
+    "לאכול לאט, ללעוס היטב, ליהנות מהטעם.",
+    "ההצלחה מחכה לך מחוץ לאזור הנוחות.",
+    "כל יום הוא דף נקי, תכתוב אותו נכון.",
+    "נפילה היא לא כישלון, היא חלק מהלמידה.",
+    "השינוי מתחיל בראש, הגוף יצטרף אחר כך.",
+    "וותר על התירוצים, אמץ את התוצאות.",
+    "משמעת עצמית היא הגשר בין מטרות להישגים.",
+    "האוכל הוא דלק, לא פיצוי רגשי.",
+    "תאהב את הגוף שלך מספיק כדי להזין אותו בבריאות.",
+    "אין קיצורי דרך למקום ששווה להגיע אליו.",
+    "היום הוא הזמן המושלם להתחיל.",
+    "זכור: מרווח של 3 שעות בין ארוחות שומר על איזון.",
+    "פעילות גופנית היא מתנה לגוף, לא עונש.",
+    "תהיה הגרסה הכי טובה של עצמך.",
+    "התוצאות יגיעו כשתפסיק לוותר לעצמך.",
+    "כל ירידה במשקל מתחילה בהחלטה אחת אמיצה.",
+    "אל תחכה למוטיבציה, צור אותה בעצמך.",
+    "ההתמדה היא המפתח להצלחה ארוכת טווח.",
+    "כוס חלב ביום לקפה - פינוק קטן ומותר.",
+    "תגוון בתחליפים, אל תשתעמם מהאוכל.",
+    "הצלחה בדיאטה היא 80% תזונה ו-20% ספורט.",
+    "תחגוג כל ניצחון קטן בדרך.",
+    "המשקל הוא רק מספר, ההרגשה היא העיקר.",
+    "אתה חזק יותר ממה שאתה חושב.",
+    "אל תיתן למעידה אחת להרוס לך את כל השבוע.",
+    "תכנן את הארוחות שלך מראש למניעת הפתעות.",
+    "השקילה היא כלי בקרה, לא מבחן אישיות.",
+    "תחליף 'אני לא יכול' ב'אני עדיין לא מצליח'.",
+    "הבריאות שלך היא ההשקעה הכי טובה שיש.",
+    "תרגיש את השינוי בבגדים, לא רק במשקל.",
+    "מים, מים ועוד מים - הנוסחה המנצחת.",
+    "היה סבלני עם עצמך, שינוי לוקח זמן.",
+    "אל תשווה את עצמך לאחרים, זה המסע שלך.",
+    "תתמקד בהרגלים, המשקל יסתדר מעצמו.",
+    "כל יום שעובר מקרב אותך למטרה.",
+    "תאכל בשביל לחיות, אל תחיה בשביל לאכול.",
+    "תמצא הנאה באוכל בריא וטרי.",
+    "ירקות חיים, מבושלים או מאודים - הכל הולך!",
+    "הגוף שלך מודה לך על כל בחירה בריאה.",
+    "תחלום בגדול, תעבוד קשה, תישאר צנוע.",
+    "הקושי הוא זמני, הגאווה היא נצחית.",
+    "אל תפחד מכישלון, תפחד לא לנסות.",
+    "הכוח לשנות נמצא בידיים שלך.",
+    "תקשיב לגוף שלך, הוא יודע מה הוא צריך.",
+    "ההצלחה היא לא יעד, היא דרך חיים.",
+    "תמיד יש מחר חדש לתיקון.",
+    "תאמין בתהליך, גם כשלא רואים תוצאות מיד.",
+    "המשמעת היא שריר, תאמן אותה כל יום.",
+    "תקיף את עצמך באנשים שתומכים בך.",
+    "תזכור למה התחלת.",
+    "הוויתור הוא האויב הגדול ביותר.",
+    "כל ארוחה בריאה היא ניצחון.",
+    "אל תיתן לרעב רגשי לנהל אותך.",
+    "תשתה כוס מים לפני כל ארוחה.",
+    "תקפיד על כמויות מדויקות - הדיוק משתלם.",
+    "מנה מותרת - תיהנה ממנה בלי ייסורי מצפון.",
+    "תזוזה היא חיים - תעלה במדרגות.",
+    "שנת לילה טובה עוזרת לירידה במשקל.",
+    "תכין קופסאות אוכל מראש.",
+    "אל תגיע לארוחה מורעב.",
+    "תלעס לאט, השובע מגיע אחרי 20 דקות.",
+    "תחליף שתייה מתוקה במים או סודה.",
+    "תבלינים הם הדרך להפוך בריא לטעים.",
+    "אל תאכל מול הטלוויזיה או המחשב.",
+    "תתרכז באוכל, תהנה מהרגע.",
+    "תלמד להגיד 'לא' לפיתויים.",
+    "הגוף שלך הוא המכונה הכי יקרה שיש לך.",
+    "תחזק את עצמך במילים טובות.",
+    "אל תעניש את עצמך על טעויות.",
+    "תמצא ספורט שאתה אוהב ומתמיד בו.",
+    "ההצלחה שלך תלויה רק בך.",
+    "תהיה גאה בכל גרם שירד.",
+    "תשמור על אופטימיות, זה מדבק.",
+    "הדרך ארוכה, אבל הנוף שווה את זה.",
+    "אין כמו ההרגשה של גוף קליל ובריא.",
+    "תאתגר את עצמך כל יום מחדש.",
+    "התמדה מנצחת כישרון.",
+    "תזונה נכונה היא אהבה עצמית.",
+    "אל תדחה למחר את מה שאפשר לאכול בריא היום.",
+    "הצלחה היא בחירה יומיומית.",
+    "תסמוך על השיטה, היא עובדת.",
+    "הגוף שלך יחזיר לך אהבה.",
+    "אתה בדרך הנכונה, תמשיך לצעוד!"
+];
+
+// --- FULL DATABASE ---
 const DB = {
-    carbs: [
-        "1 פיתה קלה (עד 80 קלוריות ליחידה)", "1 פרוסת לחם רגיל", "2 פרוסות לחם קל", "1/3 פיתה רגילה", "1 לחמנייה קלה (עד 80 קלוריות)", "30 גרם לחמנייה מכל סוג", "1/2 מצה", "1 מצה קלה", "3 פתית", "3 קרקרים דגנית בייגל בייגל", "2 פירכיות שיבולת שוער/אורז", "2 לחמית/קרקר זהב", "10 פירכיות ביס", "6 טוסטעים מלבניים", "1/2 טורטיה גדולה", "1 עלה סיגר גדול או 2 קטנים", "1 עלה סיגר גדול או קטנים", "5 דפי אורז", "1 כף שקדי מרק", "2 כפות קמח שטוחות", "2 כפות סולת שטוחות", "2 כפות פירורי לחם לא מטוגנים/שיבולת שועל/קורנפלור", "חצי דלורית קטנה", "1/2 כוס אפונה ירוקה", "1 סלק בינוני", "1 כוס נבטוטים", "1.5 כוס תרמילי אדממה", "1/3 דלעת ערמונים / דלעת ספגטי (קטנה)", "8 תחתיות ארטישוק", "100 גרם ארטישוק ירושלמי (2 קטנים או אחד גדול)",
-        "----מתוקים (אחד בלבד, עד פעם ביום)----", "2 פתי בר", "2 עוגיות ללא סוכר", "1 חטיף אנרגיה (עד 100 קלוריות)", "3/4 כוס קורנפלור/פייבר וואן/קראנצים/קורנפלקס ללא סוכר", "2 כפות גרנולה ללא סוכר",
-        "----פחמימות מבושלות----", "1/2 כוס לאחר בישול: אורז, בורגול, כוסמת, קוסקוס, חיטה, גריסים, פתיתים, פסטה, אפונה ירוקה, קינואה, תירס", "1/2 כוס לאחר בישול קטניות: חומוס, שעועית, פול, עדשים, אפונה", "1 תפוח אדמה בינוני", "1/2 בטטה מתוקה קטנה", "1 קלח תירס קטן", "3/4 כוס תירס קל", "5 מקלות צ'יפס רגיל", "3 יחידות עלי גפן", "7 ערמונים", "1/2 כוס פירה",
-        "----חטיפים (עד שלוש פעמים בשבוע)----", "1 שקית במבה קטנה (15 גרם)", "שקית פופקורן (עד מאה קלוריות לשקית)", "2 כוסות פופקורן מוכן ללא שמן", "1 כוס פופקורן מוכן עם שמן", "10 יח' בייגלה קטן", "1 שקית צ'יפס קידס"
-    ],
-    cheese: [
-        "----- גבינות וממרחים -----", "2 כפות גבינה 3%-5% מכל סוג (סימפוניה, קוטג', לבנה וכדומה)", "2 משולשי מון בלאן", "60 גרם גבינה קשה עד 5% (צפתית או בולגרית)", "2 כפות ממרח טופו (עד 5% שומן)", "1 אצבע מוצרלה", "1 פרוסת גבינה צהובה 9%", "2 פרוסות גבינה צהובה 9% דק-דק", "1 פרוסת גבינה צהובה 22% (פעם ביום)",
-        "----- מעדנים-----", "1 גביע מעדן/יוגורט 0% מכל סוג (עד 80 קלוריות)", "1 גביע יוגורט ללא תוספות עד 1.5% (עד 80 קלוריות)", "משקה בוקר 0% (עד 80 קלוריות)", "כוס שוקו 0% (עד 80 קלוריות)", "יחידת אקטימל 3%", "3/4 כוס רוויון",
-        "----גלידות----", "כוס גלידה דיאט 2%-5% שומן ללא סוכר", "1 שלגון חלבי (עד 80 קלוריות ליחידה- עד פעם ביום)",
-        "----שונות----", "1 כוס חלב מכל סוג 1%", "1 כוס חלב סויה ללא תוספות וללא סוכר", "1/2 כוס פולי סויה/קטניות", "60 גרם טופו", "1 ביצה", "חצי קופסא טונה במים", "1.5 כף טונה בשמן", "50 גרם ממרח טונה/סלמון", "3 כדורי פלאפל אפויים", "6 כדורי פלאפל חלי ממן אפויים", "80 גרם דג מבושל", "25 גרם שבבי סויה יבשים (לפני בישול)", "50 גרם/חצי קופסת סרדינים (ללא שמן)",
-        "----תחליפי חלבון המומלצים אך ורק עד פעמיים בשבוע----", "1/2 כוס חלב 3%", "100 מ\"ל שמנת אלפרו 5%", "2 פרוסות גבינה טוסטי (אדם)", "1 כף גבינה סימפוניה תשיעית", "2 פרוסות גבינה צהובה טוסטי טופו", "6 כפות (60 מ\"ל) שמנת לבישול 10%", "5 כפות (50 מ\"ל) שמנת לבישול 15%", "50 גרם סלמון מעושן", "1 פרוסת דג מלוח", "1 כף שטוחה ממרח חומוס", "4 פרוסות פסטרמה דלת שומן", "1 מעדן סויה אלפרו (100 קלוריות)", "1 גביע גיל 3%", "1 כוס חלב אורז", "1 רול סושי 6/8 יחידות (לא מטוגן, כתחליף לכל ארוחת הערב)", "1 כוס חלב שקדים ללא תוספות וללא סוכר", "1.5 בורקס פילו (כתחליף לכל ארוחת הערב)", "מיני טילון/מיני סנקור/סולרו (עד 80 קלוריות ליחידה)"
-    ],
-    meat: [
-        "----- בשר ועוף-----", "מנת בשר היא 150 גרם לפני בישול שהם 100 גרם לאחר בישול", "חזה עוף", "בקר ללא שומן (עגל או פילה)", "1/4 עוף בגריל או עוף מבושל (ללא עור)", "3 שוקי עוף (פולקע)", "שווארמה הודו 150 גרם", "3 קציצות בקר", "2 שיפודי עוף או פרגית", "3 כדורי בשר עוף או הודו או בשר רזה",
-        "----דגים----", "מנת דג היא מנת 200 גרם לפני בישול שהם 150 גרם דג אפוי או מבושל", "דגים מומלצים: מקרל, ורדון, זהבון, טונה, סול, הרינג (ללא שמן), סלמון, הליבוט, בקלה", "1.5 קופסאות טונה במים (200 גרם)", "1 קופסת טונה בשמן מסוננת היטב", "1 קופסת סרדינים מסוננים מהשמן",
-        "----קטניות----", "6 כדורי פלאפל אפויים בבית", "10 כדורי פלאפל חלי ממן אפויים", "1.5 כוסות קטניות מבושלות (אפונה יבשה, עדשים, שעועית יבשה, חומוס, פול, פולי סויה, קינואה)", "3 כפות שטוחות של חומוס (ביתי/מסעדה)", "150 גרם טופו", "60 גרם שבבי סויה יבשים (לפני בישול)", "3 כוסות גדושות של מרק קטניות",
-        "----תחליפי חלבון המומלצים אך ורק עד פעמיים בשבוע----", "200 גרם פסטרמה לייט (כ-100 קלוריות ל-100 גרם)- 9 פרוסות", "2 כנפיים", "שיפוד לבבות כ- 6 יחידות (מוגבל לפעם בשבוע)", "1 המבורגר עשוי בטוסטר אובן או בתנור (מוגבל לפעם בשבוע)", "3 נקניקיות רגילות (מוגבל לפעם בשבוע)", "2 יח' מוצרים מוכנים עד 5%", "2 שניצל תרד/ברוקולי טבעול (99 קלוריות)", "2 חזה בגריל מן הצומח טבעול (90 קלוריות)", "2 המבורגר מן הצומח/קבב מתובל מן הצומח טבעול (99 קלוריות)", "2 שניצל תירס לייט", "3 יחידות כבד עוף (מוגבל לפעם בשבוע)", "200 גרם קורקבנים כ-10 יחידות (מוגבל לפעם בשבוע)", "150 גרם סלמון מעושן"
-    ],
-    fat: [
-        "----שמן, טחינה, אבוקדו, זיתים, פיצוחים, מיונז, ועוד (עד 60 קלוריות למנה)----", "1 כפית שמן מכל סוג", "6 זיתים קטנים", "2 זיתים גדולים", "1 כף זרעי פשתן/ גרעיני צ'יה/שומשום/צנובר", "1 כף קוקוס טחון או 10 גר' קוקוס יבש", "כף נבט חיטה", "2 כפות מי קוקוס", "1 כף קרם קוקוס", "2 כפות שמנת חמוצה 15%", "4 כפות שמנת חמודה 9%", "1 כפית חמאה (רצוי לא כל יום)", "5 כפות (50 מ\"ל) שמנת אלפרו",
-        "----פיצוחים- רצוי לאכלם לא קלויים----", "7 שקדים", "3 פקאנים/אגוזי מלך", "10 בוטנים", "1 כף גרעיני חמניה", "10 יחידות פיסטוק", "4 יחידות קשיו", "3 יחידות מקדמיה", "5 יחידות אגוזי לוז", "2 יחידות אגוזי ברזיל", "7 יחידות בננה צ'יפס (עד פעמיים בשבוע)",
-        "----רטבים----", "3 כפות רוטב לייט", "1.5 כף רוטב רגיל",
-        "----ממרחים----", "1 כף סלט חצילים במיונז/בטחינה", "1 כפית ממרח בוטנים", "1 כפית טחינה גולמית", "1 כף טחינה מוכנה", "1 כפית מיונז", "1 כף כמויונז", "1 כף ממרח שומשום (עד פעמיים בשבוע)", "1 כף אבוקדו", "1 כפית חומוס מוכן", "1 כפית עריסה/פסטו/עגבניות מיובשות/ממרח זיתים", "1 כף שטוחה איקרה", "10 גרם חלווה (עד פעמיים בשבוע)"
-    ],
-    fruit: [
-        "אבטיח-1 כוס", "אגס-1 בינוני", "אוכמניות - 1 כוס", "אנונה-1 קטנה", "אננס טבעי-2 פרוסות", "אננס יבש - 2 יח'", "אננס מיובש מסוכר - 1/2 יח'", "אננס מקופסת שימורים - 1 יח'", "אפרסמון- 1 קטן", "אפרסק- 1 בינוני", "אשכולית - 1/2 קטנה", "בננה - 1 קטנה", "גוג'י ברי - 2 כפות", "גויאבה- 1 בינונית", "דובדבנים - 1 כוס", "חבוש- 1 קטן", "חמוציות-2 כפות ללא תוספת סוכר", "חרוב-2 יחידות", "ליפתן משומר-1/3 כוס בלי מיץ", "ליצ'י טרי - 7 יח'", "ליצ'י משומר - 4 יח'", "מיץ פרי הדר טבעי- 1/2 כוס", "מלון- 1 כוס", "מנגו- 1/2 יחידה", "משמש מיובש- 3 יחידות", "משמש- 3 קטנים", "נקטרינה- 1 יחידה בינונית", "סברס- 2 יחידות", "ענבים- 1 כוס", "פאפיה טריה - 1 כוס", "פאפיה יבשה - 1/4", "פומלה- 1/3", "פטל - 1 כוס", "פיג'ויה - 2 יחידות", "פיטאיה - 1/2 יח' בינונית", "פיטנגו- 1 כוס", "פירות יער- 1 כוס", "פסיפלורה- 4 יחידות", "צימוקים- 1 כף", "קיווי- 2 בינונים", "קלמנטינה- 2 בינוניות", "קרמבולה - 2 יח'", "רימון- 1/2 יחידה", "רסק תפוחים (לא ממותק) - 1/2 כוס ללא תוספת סוכר", "שורש זנגביל - 2 גדולים או 4 יח' קטנות", "שזיף יבש- 2 יחידה", "שזיפים- 2 בינוניים", "שסק- 4 יחידות", "שקית תפוחונים - עד פעמיים בשבוע", "תאנה טריה- 2 יחידות", "תאנה יבשה- 1 יחידה", "תות עץ- 1 כוס", "תות שדה מיובש - 20 גרם", "תות שדה- 1 כוס", "תמר יבש - 2 יח' קטנות", "תמר יבש (מג'הול) - 1 יחידה", "תמר לח- 2 יחידות", "תפוז סיני - 6 יחידות", "תפוז- 1 בינוני", "תפוח עץ מיובש - 3 טבעות", "תפוח עץ- 1 בינוני"
-    ],
-    half_cheese: [
-        "פרוסת גבינה צהובה 5%", "כף גבינה 5% או 3% מכל סוג", "חצי פרוסת גבינה צהובה 9%", "משולש מון בלאן", "30 גרם גבינה בולגרית/צפתית", "כפית חומוס", "כף ממרח טופו עד 5% שומן", "חצי כוס גלידה דיאט 40 קלוריות", "חצי כוס חלב 1%", "חצי כוס סויה 1.5% טבעי בלבד", "חצי משקה בוקר 0%", "חצי כוס שוקו 0%", "1/4 קופסת טונה במים", "50 גרם סרדינים מסוננים היטב", "40 גרם דג מבושל", "1/4 כוס פולי סויה", "30 גרם טופו", "חצי ביצה", "2 פרוסות פסטרמה", "1.5 פלאפל אפוי"
-    ]
+    carbs: ["1 פיתה קלה (עד 80 קלוריות ליחידה)", "1 פרוסת לחם רגיל", "2 פרוסות לחם קל", "1/3 פיתה רגילה", "1 לחמנייה קלה (עד 80 קלוריות)", "30 גרם לחמנייה מכל סוג", "1/2 מצה", "1 מצה קלה", "3 פתית", "3 קרקרים דגנית בייגל בייגל", "2 פירכיות שיבולת שוער/אורז", "2 לחמית/קרקר זהב", "10 פירכיות ביס", "6 טוסטעים מלבניים", "1/2 טורטיה גדולה", "1 עלה סיגר גדול או 2 קטנים", "1 עלה סיגר גדול או קטנים", "5 דפי אורז", "1 כף שקדי מרק", "2 כפות קמח שטוחות", "2 כפות סולת שטוחות", "2 כפות פירורי לחם לא מטוגנים/שיבולת שועל/קורנפלור", "חצי דלורית קטנה", "1/2 כוס אפונה ירוקה", "1 סלק בינוני", "1 כוס נבטוטים", "1.5 כוס תרמילי אדממה", "1/3 דלעת ערמונים / דלעת ספגטי (קטנה)", "8 תחתיות ארטישוק", "100 גרם ארטישוק ירושלמי (2 קטנים או אחד גדול)", "----מתוקים (אחד בלבד, עד פעם ביום)----", "2 פתי בר", "2 עוגיות ללא סוכר", "1 חטיף אנרגיה (עד 100 קלוריות)", "3/4 כוס קורנפלור/פייבר וואן/קראנצים/קורנפלקס ללא סוכר", "2 כפות גרנולה ללא סוכר", "----פחמימות מבושלות----", "1/2 כוס לאחר בישול: אורז, בורגול, כוסמת, קוסקוס, חיטה, גריסים, פתיתים, פסטה, אפונה ירוקה, קינואה, תירס", "1/2 כוס לאחר בישול קטניות: חומוס, שעועית, פול, עדשים, אפונה", "1 תפוח אדמה בינוני", "1/2 בטטה מתוקה קטנה", "1 קלח תירס קטן", "3/4 כוס תירס קל", "5 מקלות צ'יפס רגיל", "3 יחידות עלי גפן", "7 ערמונים", "1/2 כוס פירה", "----חטיפים (עד שלוש פעמים בשבוע)----", "1 שקית במבה קטנה (15 גרם)", "שקית פופקורן (עד מאה קלוריות לשקית)", "2 כוסות פופקורן מוכן ללא שמן", "1 כוס פופקורן מוכן עם שמן", "10 יח' בייגלה קטן", "1 שקית צ'יפס קידס"],
+    cheese: ["----- גבינות וממרחים -----", "2 כפות גבינה 3%-5% מכל סוג (סימפוניה, קוטג', לבנה וכדומה)", "2 משולשי מון בלאן", "60 גרם גבינה קשה עד 5% (צפתית או בולגרית)", "2 כפות ממרח טופו (עד 5% שומן)", "1 אצבע מוצרלה", "1 פרוסת גבינה צהובה 9%", "2 פרוסות גבינה צהובה 9% דק-דק", "1 פרוסת גבינה צהובה 22% (פעם ביום)", "----- מעדנים-----", "1 גביע מעדן/יוגורט 0% מכל סוג (עד 80 קלוריות)", "1 גביע יוגורט ללא תוספות עד 1.5% (עד 80 קלוריות)", "משקה בוקר 0% (עד 80 קלוריות)", "כוס שוקו 0% (עד 80 קלוריות)", "יחידת אקטימל 3%", "3/4 כוס רוויון", "----גלידות----", "כוס גלידה דיאט 2%-5% שומן ללא סוכר", "1 שלגון חלבי (עד 80 קלוריות ליחידה- עד פעם ביום)", "----שונות----", "1 כוס חלב מכל סוג 1%", "1 כוס חלב סויה ללא תוספות וללא סוכר", "1/2 כוס פולי סויה/קטניות", "60 גרם טופו", "1 ביצה", "חצי קופסא טונה במים", "1.5 כף טונה בשמן", "50 גרם ממרח טונה/סלמון", "3 כדורי פלאפל אפויים", "6 כדורי פלאפל חלי ממן אפויים", "80 גרם דג מבושל", "25 גרם שבבי סויה יבשים (לפני בישול)", "50 גרם/חצי קופסת סרדינים (ללא שמן)", "----תחליפי חלבון המומלצים אך ורק עד פעמיים בשבוע----", "1/2 כוס חלב 3%", "100 מ\"ל שמנת אלפרו 5%", "2 פרוסות גבינה טוסטי (אדם)", "1 כף גבינה סימפוניה תשיעית", "2 פרוסות גבינה צהובה טוסטי טופו", "6 כפות (60 מ\"ל) שמנת לבישול 10%", "5 כפות (50 מ\"ל) שמנת לבישול 15%", "50 גרם סלמון מעושן", "1 פרוסת דג מלוח", "1 כף שטוחה ממרח חומוס", "4 פרוסות פסטרמה דלת שומן", "1 מעדן סויה אלפרו (100 קלוריות)", "1 גביע גיל 3%", "1 כוס חלב אורז", "1 רול סושי 6/8 יחידות (לא מטוגן, כתחליף לכל ארוחת הערב)", "1 כוס חלב שקדים ללא תוספות וללא סוכר", "1.5 בורקס פילו (כתחליף לכל ארוחת הערב)", "מיני טילון/מיני סנקור/סולרו (עד 80 קלוריות ליחידה)"],
+    meat: ["----- בשר ועוף-----", "מנת בשר היא 150 גרם לפני בישול שהם 100 גרם לאחר בישול", "חזה עוף", "בקר ללא שומן (עגל או פילה)", "1/4 עוף בגריל או עוף מבושל (ללא עור)", "3 שוקי עוף (פולקע)", "שווארמה הודו 150 גרם", "3 קציצות בקר", "2 שיפודי עוף או פרגית", "3 כדורי בשר עוף או הודו או בשר רזה", "----דגים----", "מנת דג היא מנת 200 גרם לפני בישול שהם 150 גרם דג אפוי או מבושל", "דגים מומלצים: מקרל, ורדון, זהבון, טונה, סול, הרינג (ללא שמן), סלמון, הליבוט, בקלה", "1.5 קופסאות טונה במים (200 גרם)", "1 קופסת טונה בשמן מסוננת היטב", "1 קופסת סרדינים מסוננים מהשמן", "----קטניות----", "6 כדורי פלאפל אפויים בבית", "10 כדורי פלאפל חלי ממן אפויים", "1.5 כוסות קטניות מבושלות (אפונה יבשה, עדשים, שעועית יבשה, חומוס, פול, פולי סויה, קינואה)", "3 כפות שטוחות של חומוס (ביתי/מסעדה)", "150 גרם טופו", "60 גרם שבבי סויה יבשים (לפני בישול)", "3 כוסות גדושות של מרק קטניות", "----תחליפי חלבון המומלצים אך ורק עד פעמיים בשבוע----", "200 גרם פסטרמה לייט (כ-100 קלוריות ל-100 גרם)- 9 פרוסות", "2 כנפיים", "שיפוד לבבות כ- 6 יחידות (מוגבל לפעם בשבוע)", "1 המבורגר עשוי בטוסטר אובן או בתנור (מוגבל לפעם בשבוע)", "3 נקניקיות רגילות (מוגבל לפעם בשבוע)", "2 יח' מוצרים מוכנים עד 5%", "2 שניצל תרד/ברוקולי טבעול (99 קלוריות)", "2 חזה בגריל מן הצומח טבעול (90 קלוריות)", "2 המבורגר מן הצומח/קבב מתובל מן הצומח טבעול (99 קלוריות)", "2 שניצל תירס לייט", "3 יחידות כבד עוף (מוגבל לפעם בשבוע)", "200 גרם קורקבנים כ-10 יחידות (מוגבל לפעם בשבוע)", "150 גרם סלמון מעושן"],
+    fat: ["----שמן, טחינה, אבוקדו, זיתים, פיצוחים, מיונז, ועוד (עד 60 קלוריות למנה)----", "1 כפית שמן מכל סוג", "6 זיתים קטנים", "2 זיתים גדולים", "1 כף זרעי פשתן/ גרעיני צ'יה/שומשום/צנובר", "1 כף קוקוס טחון או 10 גר' קוקוס יבש", "כף נבט חיטה", "2 כפות מי קוקוס", "1 כף קרם קוקוס", "2 כפות שמנת חמוצה 15%", "4 כפות שמנת חמודה 9%", "1 כפית חמאה (רצוי לא כל יום)", "5 כפות (50 מ\"ל) שמנת אלפרו", "----פיצוחים- רצוי לאכלם לא קלויים----", "7 שקדים", "3 פקאנים/אגוזי מלך", "10 בוטנים", "1 כף גרעיני חמניה", "10 יחידות פיסטוק", "4 יחידות קשיו", "3 יחידות מקדמיה", "5 יחידות אגוזי לוז", "2 יחידות אגוזי ברזיל", "7 יחידות בננה צ'יפס (עד פעמיים בשבוע)", "----רטבים----", "3 כפות רוטב לייט", "1.5 כף רוטב רגיל", "----ממרחים----", "1 כף סלט חצילים במיונז/בטחינה", "1 כפית ממרח בוטנים", "1 כפית טחינה גולמית", "1 כף טחינה מוכנה", "1 כפית מיונז", "1 כף כמויונז", "1 כף ממרח שומשום (עד פעמיים בשבוע)", "1 כף אבוקדו", "1 כפית חומוס מוכן", "1 כפית עריסה/פסטו/עגבניות מיובשות/ממרח זיתים", "1 כף שטוחה איקרה", "10 גרם חלווה (עד פעמיים בשבוע)"],
+    fruit: ["אבטיח-1 כוס", "אגס-1 בינוני", "אוכמניות - 1 כוס", "אנונה-1 קטנה", "אננס טבעי-2 פרוסות", "אננס יבש - 2 יח'", "אננס מיובש מסוכר - 1/2 יח'", "אננס מקופסת שימורים - 1 יח'", "אפרסמון- 1 קטן", "אפרסק- 1 בינוני", "אשכולית - 1/2 קטנה", "בננה - 1 קטנה", "גוג'י ברי - 2 כפות", "גויאבה- 1 בינונית", "דובדבנים - 1 כוס", "חבוש- 1 קטן", "חמוציות-2 כפות ללא תוספת סוכר", "חרוב-2 יחידות", "ליפתן משומר-1/3 כוס בלי מיץ", "ליצ'י טרי - 7 יח'", "ליצ'י משומר - 4 יח'", "מיץ פרי הדר טבעי- 1/2 כוס", "מלון- 1 כוס", "מנגו- 1/2 יחידה", "משמש מיובש- 3 יחידות", "משמש- 3 קטנים", "נקטרינה- 1 יחידה בינונית", "סברס- 2 יחידות", "ענבים- 1 כוס", "פאפיה טריה - 1 כוס", "פאפיה יבשה - 1/4", "פומלה- 1/3", "פטל - 1 כוס", "פיג'ויה - 2 יחידות", "פיטאיה - 1/2 יח' בינונית", "פיטנגו- 1 כוס", "פירות יער- 1 כוס", "פסיפלורה- 4 יחידות", "צימוקים- 1 כף", "קיווי- 2 בינונים", "קלמנטינה- 2 בינוניות", "קרמבולה - 2 יח'", "רימון- 1/2 יחידה", "רסק תפוחים (לא ממותק) - 1/2 כוס ללא תוספת סוכר", "שורש זנגביל - 2 גדולים או 4 יח' קטנות", "שזיף יבש- 2 יחידה", "שזיפים- 2 בינוניים", "שסק- 4 יחידות", "שקית תפוחונים - עד פעמיים בשבוע", "תאנה טריה- 2 יחידות", "תאנה יבשה- 1 יחידה", "תות עץ- 1 כוס", "תות שדה מיובש - 20 גרם", "תות שדה- 1 כוס", "תמר יבש - 2 יח' קטנות", "תמר יבש (מג'הול) - 1 יחידה", "תמר לח- 2 יחידות", "תפוז סיני - 6 יחידות", "תפוז- 1 בינוני", "תפוח עץ מיובש - 3 טבעות", "תפוח עץ- 1 בינוני"],
+    half_cheese: ["פרוסת גבינה צהובה 5%", "כף גבינה 5% או 3% מכל סוג", "חצי פרוסת גבינה צהובה 9%", "משולש מון בלאן", "30 גרם גבינה בולגרית/צפתית", "כפית חומוס", "כף ממרח טופו עד 5% שומן", "חצי כוס גלידה דיאט 40 קלוריות", "חצי כוס חלב 1%", "חצי כוס סויה 1.5% טבעי בלבד", "חצי משקה בוקר 0%", "חצי כוס שוקו 0%", "1/4 קופסת טונה במים", "50 גרם סרדינים מסוננים היטב", "40 גרם דג מבושל", "1/4 כוס פולי סויה", "30 גרם טופו", "חצי ביצה", "2 פרוסות פסטרמה", "1.5 פלאפל אפוי"]
 };
 
 const mealsConfig = [
@@ -210,11 +316,11 @@ const mealsConfig = [
 ];
 
 let vDate = new Date();
-let appData = JSON.parse(localStorage.getItem('heli_pro_v7')) || { days: {}, weights: [] };
+let appData = JSON.parse(localStorage.getItem('heli_pro_v9')) || { days: {}, weights: [] };
 
 const getK = d => d.toLocaleDateString('he-IL').replace(/\./g, '-');
 const getISO = d => { const offset = d.getTimezoneOffset() * 60000; return new Date(d.getTime() - offset).toISOString().split('T')[0]; }
-const save = () => localStorage.setItem('heli_pro_v7', JSON.stringify(appData));
+const save = () => localStorage.setItem('heli_pro_v9', JSON.stringify(appData));
 
 function init() {
     const k = getK(vDate);
@@ -224,7 +330,10 @@ function init() {
     document.getElementById('cur-date-display').innerText = (k === todayK) ? "היום" : k;
     const iso = getISO(vDate);
     document.getElementById('header-date-input').value = iso;
-    document.getElementById('nav-date-input').value = iso;
+
+    // Set Random Quote
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    document.getElementById('daily-quote').innerText = randomQuote;
 
     let html = '';
     mealsConfig.forEach((m, i) => {
@@ -268,6 +377,23 @@ function init() {
     } else {
         details.style.display = 'none';
     }
+    
+    const workouts = day.workouts || [];
+    const woDiv = document.getElementById('daily-workout-summary');
+    const woList = document.getElementById('main-workout-list');
+    if(workouts.length > 0) {
+        woDiv.style.display = 'block';
+        let burn = 0;
+        let tpl = '';
+        workouts.forEach(wo => {
+            burn += wo.c;
+            tpl += `<div class="workout-list-item"><span>${wo.type} (${wo.m} דק')</span> <span>🔥 ${wo.c}</span></div>`;
+        });
+        document.getElementById('daily-burn').innerText = burn + " קל' נשרפו";
+        woList.innerHTML = tpl;
+    } else {
+        woDiv.style.display = 'none';
+    }
 
     updateStats(day);
     calculateStreak();
@@ -279,48 +405,29 @@ function upd(k, id, val) {
     save();
     init();
 }
-
 function addWater(n) {
-    const k = getK(vDate);
-    if(!appData.days[k]) appData.days[k]={};
-    const w = Math.max(0, (appData.days[k].water || 0) + n);
-    appData.days[k].water = w;
+    const k = getK(vDate); if(!appData.days[k]) appData.days[k]={};
+    const w = Math.max(0, (appData.days[k].water || 0) + n); appData.days[k].water = w;
     if(w===12 && n>0) confetti({particleCount:100, spread:70, origin:{y:0.6}});
-    save();
-    init();
+    save(); init();
 }
-
 function toggleCheat() {
-    const k = getK(vDate);
-    if(!appData.days[k]) appData.days[k]={};
+    const k = getK(vDate); if(!appData.days[k]) appData.days[k]={};
     const isOn = document.getElementById('cheat-toggle').checked;
-    appData.days[k].isCheatMeal = isOn;
-    if(isOn && !appData.days[k].cheatCal) appData.days[k].cheatCal = 600;
-    save();
-    init();
+    appData.days[k].isCheatMeal = isOn; if(isOn && !appData.days[k].cheatCal) appData.days[k].cheatCal = 600;
+    save(); init();
 }
-
 function saveCheat() {
-    const k = getK(vDate);
-    if(!appData.days[k]) appData.days[k]={};
+    const k = getK(vDate); if(!appData.days[k]) appData.days[k]={};
     appData.days[k].cheatDesc = document.getElementById('cheat-desc').value;
     appData.days[k].cheatCal = parseInt(document.getElementById('cheat-cal').value) || 0;
-    save();
-    updateStats(appData.days[k]);
+    save(); updateStats(appData.days[k]);
 }
-
 function checkCheatHistory() {
-    let found = false;
-    let d = new Date(vDate);
-    for(let i=1; i<=6; i++) {
-        d.setDate(d.getDate() - 1);
-        let k = getK(d);
-        if (appData.days[k] && appData.days[k].isCheatMeal) found = true;
-    }
-    const warn = document.getElementById('cheat-warning');
-    warn.style.display = found ? 'block' : 'none';
+    let found=false, d=new Date(vDate);
+    for(let i=1; i<=6; i++) { d.setDate(d.getDate()-1); if(appData.days[getK(d)]?.isCheatMeal) found=true; }
+    document.getElementById('cheat-warning').style.display = found ? 'block' : 'none';
 }
-
 function updateStats(day) {
     let t = 0;
     mealsConfig.forEach((m, i) => {
@@ -336,25 +443,14 @@ function updateStats(day) {
     const calCard = document.getElementById('cal-card');
     leftEl.innerText = left;
     
-    if(left < 0) {
-        leftEl.classList.add('danger-text');
-        calCard.style.borderColor = 'var(--danger)';
-    } else {
-        leftEl.classList.remove('danger-text');
-        calCard.style.borderColor = 'var(--border)';
-    }
-
+    if(left < 0) { leftEl.classList.add('danger-text'); calCard.style.borderColor = 'var(--danger)'; } 
+    else { leftEl.classList.remove('danger-text'); calCard.style.borderColor = 'var(--border)'; }
+    
     const lw = appData.weights.length ? appData.weights[appData.weights.length-1].w : '--';
     document.getElementById('weight-val').innerText = lw;
 }
-
-function onDatePicked(val) {
-    if(!val) return;
-    vDate = new Date(val);
-    init();
-}
+function onDatePicked(val) { if(!val) return; vDate = new Date(val); init(); }
 function changeDate(n) { vDate.setDate(vDate.getDate()+n); init(); }
-
 function calculateStreak() {
     let s=0, d=new Date();
     while(true) {
@@ -365,70 +461,103 @@ function calculateStreak() {
     document.getElementById('streak-count').innerText = s;
 }
 
+function openWorkouts() {
+    const k = getK(vDate);
+    const day = appData.days[k] || {};
+    const workouts = day.workouts || [];
+    let listHTML = '';
+    workouts.forEach((w, idx) => {
+        listHTML += `
+        <div style="background:#0f172a; padding:10px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+            <div><span style="color:#a78bfa;">${w.type}</span> <span style="font-size:0.8rem; color:#aaa;">(${w.m} דק')</span></div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <strong>${w.c} קל'</strong>
+                <button onclick="delWorkout(${idx})" style="background:#ef4444; border:none; color:white; border-radius:4px; padding:2px 6px;">x</button>
+            </div>
+        </div>`;
+    });
+    document.getElementById('modal-title').innerText = "תיעוד אימונים";
+    document.getElementById('modal-body').innerHTML = `
+        <div class="workout-card" style="border-color:var(--border); background:var(--card);">
+            <label>סוג האימון</label>
+            <select id="wo-type">
+                <option value="הליכה">הליכה</option>
+                <option value="ריצה">ריצה</option>
+                <option value="משקולות">משקולות</option>
+                <option value="אירובי">אירובי</option>
+                <option value="שחייה">שחייה</option>
+                <option value="אופניים">אופניים</option>
+                <option value="אחר">אחר</option>
+            </select>
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1"><label>משך (דק')</label><input type="number" id="wo-min" placeholder="0"></div>
+                <div style="flex:1"><label>קלוריות</label><input type="number" id="wo-cal" placeholder="0"></div>
+            </div>
+            <button class="btn-primary" style="background:#8b5cf6;" onclick="addWorkout()">+ הוסף אימון</button>
+        </div>
+        <h4 style="margin-bottom:10px;">היסטוריה להיום (${k}):</h4>
+        ${listHTML || '<div style="color:#666; text-align:center;">לא נרשמו אימונים היום</div>'}
+    `;
+    document.getElementById('modal').style.display = 'flex';
+}
+function addWorkout() {
+    const type = document.getElementById('wo-type').value;
+    const m = parseInt(document.getElementById('wo-min').value);
+    const c = parseInt(document.getElementById('wo-cal').value);
+    if(!m || !c) return alert('נא להזין דקות וקלוריות');
+    const k = getK(vDate);
+    if(!appData.days[k]) appData.days[k] = {};
+    if(!appData.days[k].workouts) appData.days[k].workouts = [];
+    appData.days[k].workouts.push({ type, m, c });
+    save(); openWorkouts(); init();
+}
+function delWorkout(idx) {
+    const k = getK(vDate);
+    if(appData.days[k] && appData.days[k].workouts) {
+        appData.days[k].workouts.splice(idx, 1);
+        save(); openWorkouts(); init();
+    }
+}
+
 function openReportMode() {
     const wArr = appData.weights;
     const curW = wArr.length ? wArr[wArr.length-1].w : 0;
     const startW = wArr.length ? wArr[0].w : 0;
     const diff = (startW && curW) ? (startW - curW).toFixed(1) : 0;
-    
-    let calSum=0, count=0, d=new Date();
-    for(let i=0; i<7; i++) {
+    let calSum=0, count=0, burnSum=0, d=new Date();
+    for(let i=0; i<30; i++) {
         const k = getK(d);
         if(appData.days[k]) {
-            let dayC = 0;
-            mealsConfig.forEach((m,idx) => {
-                let act = false;
-                m.p.forEach((_,pi) => { if(appData.days[k][`${idx}_${pi}`]) act=true; });
-                if(act) dayC += m.c;
-            });
-            if(appData.days[k].isCheatMeal) dayC += (appData.days[k].cheatCal || 0);
-            if(dayC > 0) { calSum+=dayC; count++; }
+            if(appData.days[k].workouts) { appData.days[k].workouts.forEach(w => burnSum += w.c); }
         }
         d.setDate(d.getDate()-1);
     }
-    const avg = count ? Math.round(calSum/count) : 0;
-
-    document.getElementById('modal-title').innerText = "דוח סיכום";
+    document.getElementById('modal-title').innerText = "דוח סיכום PRO";
     document.getElementById('modal-body').innerHTML = `
         <div class="report-grid">
-            <div class="report-box">
-                <div class="report-sub">ירדת סה"כ</div>
-                <div class="report-value" style="color:${diff>0?'#10b981':'white'}">${diff} ק"ג</div>
-            </div>
-            <div class="report-box">
-                <div class="report-sub">משקל נוכחי</div>
-                <div class="report-value">${curW || '--'}</div>
-            </div>
-            <div class="report-box">
-                <div class="report-sub">ממוצע קלוריות</div>
-                <div class="report-value" style="color:${avg>1250?'#ef4444':'white'}">${avg}</div>
-            </div>
+            <div class="report-box"><div class="report-sub">ירידה במשקל</div><div class="report-value" style="color:${diff>0?'#10b981':'white'}">${diff} ק"ג</div></div>
+            <div class="report-box"><div class="report-sub">קלוריות שרפת (30 יום)</div><div class="report-value" style="color:#8b5cf6;">🔥 ${burnSum}</div></div>
         </div>
-        <h3 style="margin:15px 0 10px 0;">גרף משקל</h3>
-        <div style="height:200px; background:#18212f; border-radius:12px; padding:10px;">
-            <canvas id="repChart"></canvas>
-        </div>
+        <h3 style="margin:15px 0 10px 0;">גרף משולב</h3>
+        <div style="height:220px; background:#18212f; border-radius:12px; padding:10px;"><canvas id="repChart"></canvas></div>
         <div style="margin-top:20px; display:flex; gap:10px;">
             <input type="number" id="w-input" placeholder="עדכן משקל..." step="0.1">
             <button class="btn-primary" style="margin:0; width:auto;" onclick="addW()">שמור</button>
         </div>
     `;
     document.getElementById('modal').style.display = 'flex';
-    
     setTimeout(() => {
-        if(wArr.length < 2) return;
+        if(wArr.length < 1) return;
         const ctx = document.getElementById('repChart').getContext('2d');
+        const labels = wArr.slice(-10).map(x=>x.d);
+        const weightData = wArr.slice(-10).map(x=>x.w);
         new Chart(ctx, {
             type: 'line',
-            data: {
-                labels: wArr.slice(-10).map(x=>x.d),
-                datasets: [{ label:'משקל', data:wArr.slice(-10).map(x=>x.w), borderColor:'#3b82f6', tension:0.3, fill:true, backgroundColor:'rgba(59,130,246,0.1)' }]
-            },
-            options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false}, y:{grid:{color:'#334155'}}} }
+            data: { labels: labels, datasets: [{ label:'משקל', data:weightData, borderColor:'#3b82f6', tension:0.3 }] },
+            options: { responsive:true, maintainAspectRatio:false, interaction: { mode: 'index', intersect: false }, scales:{ x:{display:false}, y:{type:'linear', display:true, position:'left', grid:{color:'#334155'}} } }
         });
     }, 150);
 }
-
 function addW() {
     const v = parseFloat(document.getElementById('w-input').value);
     if(v) { appData.weights.push({d:getK(new Date()), w:v}); save(); openReportMode(); init(); }
@@ -443,29 +572,19 @@ function openTools() {
     `;
     document.getElementById('modal').style.display = 'flex';
 }
-
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
-
 function genShop() {
-    const k=getK(vDate), day=appData.days[k];
-    if(!day) return alert('ריק');
-    let t = `*רשימת קניות ${k}*\n`;
-    Object.values(day).forEach(v => { if(typeof v==='string') t+=`- [ ] ${v}\n` });
+    const k=getK(vDate), day=appData.days[k]; if(!day) return alert('ריק');
+    let t = `*רשימת קניות ${k}*\n`; Object.values(day).forEach(v => { if(typeof v==='string') t+=`- [ ] ${v}\n` });
     window.open(`https://wa.me/?text=${encodeURIComponent(t)}`);
 }
-
 function expData() {
     const s = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
     const a = document.createElement('a'); a.href = s; a.download = "backup.json"; a.click();
 }
-
 function impData() {
     const i = document.createElement('input'); i.type = 'file';
-    i.onchange = e => {
-        const r = new FileReader();
-        r.onload = ev => { appData = JSON.parse(ev.target.result); save(); init(); closeModal(); alert('בוצע'); };
-        r.readAsText(e.target.files[0]);
-    };
+    i.onchange = e => { const r = new FileReader(); r.onload = ev => { appData = JSON.parse(ev.target.result); save(); init(); closeModal(); alert('בוצע'); }; r.readAsText(e.target.files[0]); };
     i.click();
 }
 
