@@ -6,7 +6,7 @@
     <title>Heli 1200 Pro - Yosef</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --p: #2563eb; --bg: #f8fafc; --txt: #1e293b; --success: #10b981; }
+        :root { --p: #2563eb; --bg: #f8fafc; --txt: #1e293b; --success: #10b981; --err: #ef4444; }
         body { font-family: -apple-system, system-ui; background: var(--bg); color: var(--txt); margin: 0; padding: 12px; padding-bottom: 40px; }
         .motivation-bar { background: linear-gradient(135deg, var(--p), #1e40af); color: white; padding: 12px; border-radius: 12px; text-align: center; font-weight: bold; margin-bottom: 12px; font-size: 0.9rem; }
         .card { background: white; border-radius: 16px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
@@ -15,7 +15,8 @@
         .btn-nav { display: flex; gap: 5px; margin-bottom: 10px; }
         button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; background: var(--p); color: white; }
         select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 1rem; margin-top: 8px; background: #fff; color: var(--txt); }
-        .weight-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
+        .weight-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
+        .del-btn { background: none; color: var(--err); font-size: 1.1rem; padding: 0 10px; flex: 0; }
     </style>
 </head>
 <body>
@@ -50,14 +51,14 @@
         <button onclick="addW()" style="background:var(--success)">עדכן</button>
     </div>
     <canvas id="wChart" style="max-height:160px;"></canvas>
-    <div id="w-history" style="margin-top:15px; max-height:120px; overflow-y:auto;"></div>
+    <div id="w-history" style="margin-top:15px; max-height:150px; overflow-y:auto;"></div>
 </div>
 
 <div id="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
     <div style="background:white; width:85%; border-radius:20px; padding:20px; max-height:80%; overflow-y:auto;">
         <h3 id="modal-date"></h3>
         <div id="modal-body"></div>
-        <button onclick="closeReport()" style="width:100%; background:#ef4444; margin-top:15px;">סגור</button>
+        <button onclick="closeReport()" style="width:100%; background:var(--err); margin-top:15px;">סגור</button>
     </div>
 </div>
 
@@ -80,7 +81,7 @@ const config = [
 ];
 
 let vDate = new Date();
-let data = JSON.parse(localStorage.getItem('heli_yosef_pro')) || { days:{}, weights:[] };
+let data = JSON.parse(localStorage.getItem('heli_yosef_pro_v5')) || { days:{}, weights:[] };
 
 function getK(d){ return d.toLocaleDateString('he-IL').replace(/\./g,'-'); }
 
@@ -104,26 +105,45 @@ function init() {
 }
 
 function updM(k,i,v){ if(!data.days[k])data.days[k]={}; data.days[k][i]=v; save(); updateStats(data.days[k]); }
+
 function addW(){ 
     const v = document.getElementById('w-in').value; if(!v)return;
-    data.weights.unshift({d:getK(new Date()), w:parseFloat(v)});
+    data.weights.unshift({id: Date.now(), d:getK(new Date()), w:parseFloat(v)});
     save(); document.getElementById('w-in').value=''; init();
 }
+
+function delW(id){
+    if(confirm("למחוק שקילה זו?")){
+        data.weights = data.weights.filter(w => w.id !== id);
+        save(); init();
+    }
+}
+
 function updateStats(day){
     let t=0; Object.keys(day).forEach(i=> {if(day[i]) t+=config[i].c;});
     document.getElementById('cal-count').innerText = t;
     if(data.weights.length>0) {
         document.getElementById('last-weight').innerText = data.weights[0].w;
         draw();
+    } else {
+        document.getElementById('last-weight').innerText = "--";
+        if(window.ch) window.ch.destroy();
     }
 }
+
 function renderW(){
     document.getElementById('w-history').innerHTML = data.weights.map(e => `
-        <div class="weight-item"><span>${e.d}</span><b>${e.w} ק״ג</b></div>
+        <div class="weight-item">
+            <span>${e.d}</span>
+            <b>${e.w} ק״ג</b>
+            <button class="del-btn" onclick="delW(${e.id})">🗑️</button>
+        </div>
     `).join('');
 }
+
 function changeDate(n){ vDate.setDate(vDate.getDate()+n); init(); }
-function save(){ localStorage.setItem('heli_yosef_pro', JSON.stringify(data)); }
+function save(){ localStorage.setItem('heli_yosef_pro_v5', JSON.stringify(data)); }
+
 function openReport(){
     const k=getK(vDate); document.getElementById('modal-date').innerText = "דוח ל-"+k;
     const day = data.days[k] || {};
@@ -132,13 +152,16 @@ function openReport(){
     `).join('');
     document.getElementById('modal').style.display='flex';
 }
+
 function closeReport(){ document.getElementById('modal').style.display='none'; }
+
 function draw(){
     const ctx = document.getElementById('wChart').getContext('2d');
     if(window.ch) window.ch.destroy();
     const d = [...data.weights].reverse().slice(-7);
-    window.ch = new Chart(ctx, {type:'line', data:{labels:d.map(x=>x.d), datasets:[{label:'משקל', data:d.map(x=>x.w), borderColor:'#2563eb', tension:0.3}]}, options:{plugins:{legend:{display:false}}}});
+    window.ch = new Chart(ctx, {type:'line', data:{labels:d.map(x=>x.d), datasets:[{label:'משקל', data:d.map(x=>x.w), borderColor:'#2563eb', tension:0.3, fill:false}]}, options:{plugins:{legend:{display:false}}, scales:{y:{beginAtZero:false}}}});
 }
+
 init();
 </script>
 </body>
