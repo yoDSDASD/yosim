@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Heli 1200 PRO Analytics</title>
+    <title>Heli 1200 PRO - V5 Fixed</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -16,7 +16,7 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { font-family: 'Rubik', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 12px; padding-bottom: 90px; }
+        body { font-family: 'Rubik', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 12px; padding-bottom: 100px; }
         
         /* Header */
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -24,31 +24,42 @@
         
         /* Stats Grid */
         .header-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-card { background: var(--card); padding: 12px; border-radius: var(--radius); text-align: center; border: 1px solid var(--border); }
-        .stat-val { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
-        .stat-label { font-size: 0.7rem; color: var(--text-muted); }
+        .stat-card { background: var(--card); padding: 12px; border-radius: var(--radius); text-align: center; border: 1px solid var(--border); position: relative; overflow: hidden; }
+        .stat-val { font-size: 1.3rem; font-weight: 700; color: var(--accent); position: relative; z-index: 2; }
+        .stat-label { font-size: 0.7rem; color: var(--text-muted); position: relative; z-index: 2; }
+        .danger-glow { box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.2); border-color: var(--danger); }
 
-        /* Report Cards (New) */
+        /* Report Cards */
         .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .report-box { background: #263346; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid var(--border); }
-        .report-title { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; }
         .report-value { font-size: 1.4rem; font-weight: bold; color: white; }
-        .trend-up { color: var(--danger); font-size: 0.8rem; }
-        .trend-down { color: var(--success); font-size: 0.8rem; }
 
-        /* Meal & Water Cards */
+        /* Cheat Meal Section (New Design) */
+        .cheat-meal-container { background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.3); padding: 15px; border-radius: 12px; margin-bottom: 20px; transition: all 0.3s; }
+        .cheat-header { display: flex; justify-content: space-between; align-items: center; }
+        .cheat-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .cheat-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--warning); }
+        input:checked + .slider:before { transform: translateX(24px); }
+        
+        #cheat-details { margin-top: 15px; border-top: 1px solid rgba(245, 158, 11, 0.2); padding-top: 10px; display: none; animation: fadeIn 0.3s; }
+        .cheat-input-row { display: flex; gap: 10px; margin-top: 5px; }
+
+        /* Meal & Water */
         .water-card { background: linear-gradient(135deg, #172554 0%, #1e40af 100%); padding: 16px; border-radius: var(--radius); margin-bottom: 20px; color: white; box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3); }
         .progress-bg { background: rgba(255,255,255,0.15); height: 12px; border-radius: 10px; overflow: hidden; margin: 10px 0; }
         .progress-fill { height: 100%; background: #60a5fa; width: 0%; transition: width 0.5s; }
         
-        .meal-card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); position: relative; }
+        .meal-card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); }
         .meal-card.completed { border-color: var(--success); }
         .meal-header { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
 
         /* Inputs */
         select, input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: #0f172a; color: white; font-size: 16px; margin-bottom: 10px; appearance: none; }
         
-        /* Navigation */
+        /* Nav */
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.98); padding: 10px 10px 25px 10px; display: flex; justify-content: space-around; border-top: 1px solid var(--border); z-index: 1000; }
         .nav-btn { background: none; border: none; color: var(--text-muted); font-size: 0.7rem; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 60px; }
         .nav-btn.active { color: var(--accent); }
@@ -56,13 +67,11 @@
 
         /* Modals */
         #modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; align-items: flex-end; }
-        .modal-content { background: var(--card); width: 100%; max-height: 90vh; border-radius: 24px 24px 0 0; padding: 25px; overflow-y: auto; animation: slideUp 0.3s; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-        /* Hidden Date Input for Picker */
+        .modal-content { background: var(--card); width: 100%; max-height: 90vh; border-radius: 24px 24px 0 0; padding: 25px; overflow-y: auto; }
         #hidden-date { position: absolute; opacity: 0; top: -1000px; }
-        
         .btn-primary { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; margin-top: 10px; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -82,13 +91,13 @@
 <input type="date" id="hidden-date" onchange="onDatePicked(this.value)">
 
 <div class="header-grid">
-    <div class="stat-card">
+    <div class="stat-card" id="cal-card">
         <div id="cal-val" class="stat-val">0</div>
-        <div class="stat-label">קלוריות</div>
+        <div class="stat-label">סה״כ קלוריות</div>
     </div>
     <div class="stat-card" onclick="openReportMode()">
         <div id="weight-val" class="stat-val" style="color:var(--success);">--</div>
-        <div class="stat-label">משקל (לחץ לדוח)</div>
+        <div class="stat-label">משקל אחרון</div>
     </div>
     <div class="stat-card">
         <div id="left-val" class="stat-val">1200</div>
@@ -109,31 +118,49 @@
         </div>
     </div>
 
+    <div class="cheat-meal-container">
+        <div class="cheat-header">
+            <div>
+                <div style="font-weight:bold; color:var(--warning); font-size:1rem;">🍔 מנה מותרת</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">פעם בשבוע (600 קל')</div>
+            </div>
+            <label class="cheat-switch">
+                <input type="checkbox" id="cheat-toggle" onchange="toggleCheat()">
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div id="cheat-details">
+            <label>מה אכלת?</label>
+            <input type="text" id="cheat-desc" placeholder="לדוגמה: המבורגר וצ'יפס..." onchange="saveCheat()" style="border-color:var(--warning);">
+            <div class="cheat-input-row">
+                <div style="flex:1">
+                    <label>קלוריות (מוערך)</label>
+                    <input type="number" id="cheat-cal" value="600" onchange="saveCheat()" style="margin:0;">
+                </div>
+            </div>
+            <div id="cheat-warning" style="font-size:0.75rem; color:var(--danger); margin-top:8px; display:none;">⚠️ שים לב: כבר סומנה מנה מותרת השבוע!</div>
+        </div>
+    </div>
+
     <div id="meals-container"></div>
 </div>
 
-<div style="height:60px;"></div>
-
 <div class="nav-bar">
     <button class="nav-btn" onclick="changeDate(-1)">
-        <span class="nav-icon">◀</span>
-        <span>אתמול</span>
+        <span class="nav-icon">◀</span><span>אתמול</span>
     </button>
     <button class="nav-btn active" onclick="triggerDatePicker()">
-        <span class="nav-icon">📅</span>
-        <span>יומן</span>
+        <span class="nav-icon">📅</span><span>יומן</span>
     </button>
     <button class="nav-btn" onclick="openReportMode()">
-        <span class="nav-icon">📊</span>
-        <span>דוחות</span>
+        <span class="nav-icon">📊</span><span>דוחות</span>
     </button>
     <button class="nav-btn" onclick="openTools()">
-        <span class="nav-icon">⚙️</span>
-        <span>כלים</span>
+        <span class="nav-icon">⚙️</span><span>כלים</span>
     </button>
     <button class="nav-btn" onclick="changeDate(1)">
-        <span class="nav-icon">▶</span>
-        <span>מחר</span>
+        <span class="nav-icon">▶</span><span>מחר</span>
     </button>
 </div>
 
@@ -146,7 +173,7 @@
 </div>
 
 <script>
-// --- FULL DATABASE ---
+// Database & Config
 const DB = {
     carbs: ["1 פיתה קלה", "2 פרוסות לחם קל", "1 פרוסת לחם רגיל", "3 כפות אורז/פסטה (אחרי בישול)", "1 תפוח אדמה", "1/2 בטטה", "2 פירכיות", "1/2 כוס קטניות", "1 חטיף אנרגיה (עד 100 קל')", "3 כפות שיבולת שועל"],
     cheese: ["2 כפות גבינה 5%", "1 פרוסת צהובה 9%", "60 גרם בולגרית 5%", "1 ביצה", "1/2 קופסת טונה במים", "1 מעדן 0%", "1 אצבע מוצרלה", "60 גרם טופו"],
@@ -155,7 +182,6 @@ const DB = {
     fruit: ["תפוח", "בננה קטנה", "אגס", "2 שזיפים", "1 כוס ענבים", "1 תמר מג'הול", "1 אפרסק", "1 כוס אבטיח"],
     half_cheese: ["פרוסת צהובה 5%", "כף גבינה 5%", "30 גרם בולגרית", "חצי ביצה", "2 פרוסות פסטרמה"]
 };
-
 const mealsConfig = [
     { n: "בוקר", t: 9, c: 200, p: [{l: "פחמימה", d: DB.carbs}, {l: "חלבון גבינה", d: DB.cheese}] },
     { n: "ביניים", t: 11, c: 150, p: [{l: "פרי", d: DB.fruit}, {l: "שומן", d: DB.fat}] },
@@ -166,30 +192,25 @@ const mealsConfig = [
 ];
 
 let vDate = new Date();
-let appData = JSON.parse(localStorage.getItem('heli_analytics_v4')) || { days: {}, weights: [] };
+let appData = JSON.parse(localStorage.getItem('heli_pro_v5')) || { days: {}, weights: [] };
 
-// Helpers
 const getK = d => d.toLocaleDateString('he-IL').replace(/\./g, '-');
 const getISO = d => { const offset = d.getTimezoneOffset() * 60000; return new Date(d.getTime() - offset).toISOString().split('T')[0]; }
-const save = () => localStorage.setItem('heli_analytics_v4', JSON.stringify(appData));
+const save = () => localStorage.setItem('heli_pro_v5', JSON.stringify(appData));
 
 function init() {
     const k = getK(vDate);
     const day = appData.days[k] || {};
     const todayK = getK(new Date());
 
-    // Update Date Display
     document.getElementById('cur-date-display').innerText = (k === todayK) ? "היום" : k;
-    
-    // Update Hidden Date Input Value (for picker sync)
     document.getElementById('hidden-date').value = getISO(vDate);
 
-    // Render Meals
+    // Meals
     let html = '';
     mealsConfig.forEach((m, i) => {
         let isComplete = true;
         m.p.forEach((_, pi) => { if (!day[`${i}_${pi}`]) isComplete = false; });
-        
         html += `
         <div class="meal-card ${isComplete ? 'completed' : ''}">
             <div class="meal-header">
@@ -215,6 +236,20 @@ function init() {
     document.getElementById('water-bar').style.width = `${Math.min((w/12)*100, 100)}%`;
     if(w>=12) document.getElementById('water-bar').style.background = '#10b981';
 
+    // Cheat Meal Logic
+    const isCheat = day.isCheatMeal || false;
+    document.getElementById('cheat-toggle').checked = isCheat;
+    const details = document.getElementById('cheat-details');
+    
+    if(isCheat) {
+        details.style.display = 'block';
+        document.getElementById('cheat-desc').value = day.cheatDesc || '';
+        document.getElementById('cheat-cal').value = day.cheatCal || 600;
+        checkCheatHistory(k);
+    } else {
+        details.style.display = 'none';
+    }
+
     updateStats(day);
     calculateStreak();
 }
@@ -236,6 +271,46 @@ function addWater(n) {
     init();
 }
 
+// Cheat Meal Functions
+function toggleCheat() {
+    const k = getK(vDate);
+    if(!appData.days[k]) appData.days[k]={};
+    
+    const isOn = document.getElementById('cheat-toggle').checked;
+    appData.days[k].isCheatMeal = isOn;
+    
+    if(isOn) {
+        // Default values
+        if(!appData.days[k].cheatCal) appData.days[k].cheatCal = 600;
+    } else {
+        // Reset if turned off? Optional. Let's keep data but not count it.
+        // Or clear it? Let's just hide it.
+    }
+    save();
+    init();
+}
+
+function saveCheat() {
+    const k = getK(vDate);
+    if(!appData.days[k]) appData.days[k]={};
+    appData.days[k].cheatDesc = document.getElementById('cheat-desc').value;
+    appData.days[k].cheatCal = parseInt(document.getElementById('cheat-cal').value) || 0;
+    save();
+    updateStats(appData.days[k]);
+}
+
+function checkCheatHistory(currentK) {
+    let found = false;
+    let d = new Date(vDate);
+    for(let i=1; i<=6; i++) {
+        d.setDate(d.getDate() - 1);
+        let k = getK(d);
+        if (appData.days[k] && appData.days[k].isCheatMeal) found = true;
+    }
+    const warn = document.getElementById('cheat-warning');
+    if (found) { warn.style.display = 'block'; } else { warn.style.display = 'none'; }
+}
+
 function updateStats(day) {
     let t = 0;
     mealsConfig.forEach((m, i) => {
@@ -243,24 +318,35 @@ function updateStats(day) {
         m.p.forEach((_, pi) => { if(day[`${i}_${pi}`]) act=true; });
         if(act) t += m.c;
     });
+
+    // Add Cheat Meal Calories
+    if(day.isCheatMeal) {
+        t += (day.cheatCal || 0);
+    }
+
     document.getElementById('cal-val').innerText = t;
-    document.getElementById('left-val').innerText = Math.max(0, 1200-t);
+    const left = 1200 - t;
+    const leftEl = document.getElementById('left-val');
+    const calCard = document.getElementById('cal-card');
+
+    leftEl.innerText = left;
+    
+    // Visual Feedback for Overdraft
+    if(left < 0) {
+        leftEl.style.color = '#ef4444'; // Red
+        calCard.classList.add('danger-glow');
+    } else {
+        leftEl.style.color = 'white';
+        calCard.classList.remove('danger-glow');
+    }
+
     const lw = appData.weights.length ? appData.weights[appData.weights.length-1].w : '--';
     document.getElementById('weight-val').innerText = lw;
 }
 
-// --- NEW: Calendar & Reports Logic ---
-
-function triggerDatePicker() {
-    document.getElementById('hidden-date').showPicker();
-}
-
-function onDatePicked(isoDate) {
-    if(!isoDate) return;
-    vDate = new Date(isoDate);
-    init();
-}
-
+// Nav & Utils
+function triggerDatePicker() { document.getElementById('hidden-date').showPicker(); }
+function onDatePicked(v) { if(v){ vDate = new Date(v); init(); } }
 function changeDate(n) { vDate.setDate(vDate.getDate()+n); init(); }
 
 function calculateStreak() {
@@ -280,8 +366,7 @@ function openReportMode() {
     const totalLost = (startW && currentW) ? (startW - currentW).toFixed(1) : 0;
     
     // Weekly Calc
-    let weekCalSum = 0;
-    let daysCount = 0;
+    let weekCalSum = 0, daysCount = 0;
     let d = new Date();
     for(let i=0; i<7; i++) {
         const k = getK(d);
@@ -292,42 +377,34 @@ function openReportMode() {
                 m.p.forEach((_,pi) => { if(appData.days[k][`${idx}_${pi}`]) act=true; });
                 if(act) dailyC += m.c;
             });
+            if(appData.days[k].isCheatMeal) dailyC += (appData.days[k].cheatCal || 0);
+            
             if(dailyC > 0) { weekCalSum += dailyC; daysCount++; }
         }
         d.setDate(d.getDate()-1);
     }
     const avgCal = daysCount ? Math.round(weekCalSum / daysCount) : 0;
 
-    document.getElementById('modal-title').innerText = "דוח סיכום והתקדמות";
+    document.getElementById('modal-title').innerText = "דוח סיכום";
     document.getElementById('modal-body').innerHTML = `
         <div class="report-grid">
             <div class="report-box">
-                <div class="report-title">סה״כ ירידה</div>
-                <div class="report-value" style="color:${totalLost>0?'#10b981':'white'}">${totalLost} ק״ג</div>
-                <div class="trend-down">מהשקילה הראשונה</div>
+                <div style="font-size:0.8rem; color:#aaa">ירידה</div>
+                <div class="report-value" style="color:${totalLost>0?'#10b981':'white'}">${totalLost}</div>
             </div>
             <div class="report-box">
-                <div class="report-title">משקל נוכחי</div>
+                <div style="font-size:0.8rem; color:#aaa">נוכחי</div>
                 <div class="report-value">${currentW || '--'}</div>
-                <div style="font-size:0.8rem; color:#aaa;">קילוגרם</div>
             </div>
             <div class="report-box">
-                <div class="report-title">ממוצע קלוריות</div>
+                <div style="font-size:0.8rem; color:#aaa">ממוצע קלוריות</div>
                 <div class="report-value">${avgCal}</div>
-                <div style="font-size:0.8rem; color:${avgCal>1250?'#ef4444':'#10b981'}">7 ימים אחרונים</div>
-            </div>
-             <div class="report-box">
-                <div class="report-title">ימים פעילים</div>
-                <div class="report-value">${Object.keys(appData.days).length}</div>
-                <div style="font-size:0.8rem; color:#aaa;">סה"כ ביומן</div>
             </div>
         </div>
-
         <h4 style="margin-bottom:10px;">גרף משקל</h4>
         <div style="background:#1e293b; padding:10px; border-radius:12px; height:200px;">
             <canvas id="reportChart"></canvas>
         </div>
-
         <div style="margin-top:20px; display:flex; gap:10px;">
             <input type="number" id="new-w-input" placeholder="עדכן משקל..." step="0.1">
             <button onclick="addWeight()" class="btn-primary" style="margin:0; width:auto; padding:0 20px;">שמור</button>
@@ -343,17 +420,9 @@ function openReportMode() {
             type: 'line',
             data: {
                 labels: labels,
-                datasets: [{ 
-                    label: 'משקל', data: data, 
-                    borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', 
-                    fill: true, tension: 0.3 
-                }]
+                datasets: [{ label: 'משקל', data: data, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.3 }]
             },
-            options: { 
-                responsive: true, maintainAspectRatio: false,
-                scales: { y: { grid: { color: '#334155' } }, x: { display: false } },
-                plugins: { legend: { display: false } }
-            }
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: '#334155' } }, x: { display: false } }, plugins: { legend: { display: false } } }
         });
     }, 100);
 }
@@ -363,28 +432,27 @@ function addWeight() {
     if(v) {
         appData.weights.push({d: getK(new Date()), w: v});
         save();
-        openReportMode(); // Refresh report
-        init(); // Refresh header
+        openReportMode();
+        init();
     }
 }
 
 function openTools() {
     document.getElementById('modal-title').innerText = "כלים";
     document.getElementById('modal-body').innerHTML = `
-        <button class="btn-primary" onclick="generateShoppingList()" style="background:#475569; margin-bottom:10px;">🛒 צור רשימת קניות בוואטסאפ</button>
+        <button class="btn-primary" onclick="generateShoppingList()" style="background:#475569; margin-bottom:10px;">🛒 צור רשימת קניות</button>
         <button class="btn-primary" onclick="exportData()" style="background:#475569; margin-bottom:10px;">💾 גיבוי נתונים</button>
         <button class="btn-primary" onclick="importData()" style="background:#475569;">📂 שחזור נתונים</button>
     `;
     document.getElementById('modal').style.display = 'flex';
 }
-
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
 function generateShoppingList() {
-    const k = getK(vDate);
-    const day = appData.days[k];
+    const k = getK(vDate); const day = appData.days[k];
     if(!day) return alert('אין פריטים ביום זה');
     let txt = `*רשימת קניות (${k}):*\n`;
     Object.values(day).forEach(v => { if(typeof v === 'string') txt += `- [ ] ${v}\n`; });
+    if(day.isCheatMeal) txt += `- [ ] מצרכים למנה מותרת: ${day.cheatDesc}\n`;
     window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`);
 }
 function exportData() {
