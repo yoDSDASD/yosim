@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Heli 1200 PRO V9 - Motivation</title>
+    <title>Heli 1200 PRO V10</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
@@ -18,30 +18,46 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; touch-action: manipulation; }
         body { font-family: 'Rubik', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 12px; padding-bottom: 100px; overflow-x: hidden; }
         
-        .date-trigger-wrapper { position: relative; display: flex; align-items: center; gap: 8px; background: var(--card); padding: 6px 12px; border-radius: 12px; border: 1px solid var(--border); min-width: fit-content; }
+        /* Header Grid System */
+        .header-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        
+        .top-row { display: flex; justify-content: space-between; align-items: center; }
+        
+        .date-trigger-wrapper { position: relative; display: flex; align-items: center; gap: 8px; background: var(--card); padding: 6px 12px; border-radius: 12px; border: 1px solid var(--border); }
         .native-date-input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 10; cursor: pointer; }
 
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
-        .streak-badge { background: rgba(245, 158, 11, 0.2); color: var(--warning); padding: 6px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; min-width: fit-content; }
+        .streak-badge { background: rgba(245, 158, 11, 0.2); color: var(--warning); padding: 6px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; }
 
-        /* New Motivation Ticker Style */
-        .motivation-box {
-            flex: 1;
+        /* CURRENT MEAL INDICATOR (NEW) */
+        .current-meal-bar {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid var(--accent);
+            color: #60a5fa;
+            padding: 10px;
+            border-radius: 12px;
             text-align: center;
-            font-size: 0.85rem;
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
+
+        /* MOTIVATION BOX FIXED FOR IPHONE */
+        .motivation-box {
+            width: 100%;
+            text-align: center;
+            font-size: 0.9rem;
+            line-height: 1.4;
             color: #cbd5e1;
             font-style: italic;
-            padding: 5px 10px;
+            padding: 10px;
             background: rgba(255,255,255,0.03);
             border-radius: 10px;
             border: 1px dashed var(--border);
-            animation: fadeIn 1.5s ease;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
+            white-space: normal; /* Allow wrapping */
+            word-wrap: break-word; /* Prevent overflow */
         }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .header-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .stat-card { background: var(--card); padding: 15px 5px; border-radius: var(--radius); text-align: center; border: 1px solid var(--border); }
@@ -74,7 +90,8 @@
         .water-btns { display: flex; gap: 12px; }
         .water-btn { flex: 1; background: rgba(255,255,255,0.25); border: none; color: white; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer; }
         
-        .meal-card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); }
+        .meal-card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); transition: 0.3s; }
+        .meal-card.active-now { border: 2px solid var(--accent); box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); transform: scale(1.02); }
         .meal-card.completed { border-color: var(--success); background: rgba(16, 185, 129, 0.05); }
         
         select, input[type="text"], input[type="number"] { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid var(--border); background: #0f172a; color: white; font-size: 16px; margin-bottom: 12px; appearance: none; }
@@ -93,16 +110,21 @@
 </head>
 <body>
 
-<div class="header-top">
-    <div class="streak-badge">🔥 <span id="streak-count">0</span></div>
-    
-    <div id="daily-quote" class="motivation-box">טוען משפט השראה...</div>
-
-    <div class="date-trigger-wrapper">
-        <input type="date" id="header-date-input" class="native-date-input" onchange="onDatePicked(this.value)">
-        <span style="font-size:1.3rem;">📅</span>
-        <div id="cur-date-display" style="font-weight:bold; font-size:0.9rem;">היום</div>
+<div class="header-container">
+    <div class="top-row">
+        <div class="date-trigger-wrapper">
+            <input type="date" id="header-date-input" class="native-date-input" onchange="onDatePicked(this.value)">
+            <span style="font-size:1.3rem;">📅</span>
+            <div id="cur-date-display" style="font-weight:bold; font-size:0.9rem;">היום</div>
+        </div>
+        <div class="streak-badge">🔥 <span id="streak-count">0</span></div>
     </div>
+
+    <div id="current-meal-display" class="current-meal-bar">
+        טוען זמן...
+    </div>
+
+    <div id="daily-quote" class="motivation-box">טוען משפט השראה...</div>
 </div>
 
 <div class="header-grid">
@@ -193,108 +215,8 @@
 </div>
 
 <script>
-// --- MOTIVATION QUOTES (100+) ---
-const quotes = [
-    "המסע של אלף קילומטרים מתחיל בצעד אחד קטן.",
-    "אל תוותר על מה שאתה רוצה ביותר בשביל מה שאתה רוצה עכשיו.",
-    "הצלחה היא סכום של מאמצים קטנים שנעשים יום אחר יום.",
-    "כוס מים לפני כל ארוחה - זה סוד ההצלחה!",
-    "לא ניתן לפצל או לדלג על ארוחות - הסדר הוא המפתח.",
-    "הירקות הם החברים הכי טובים שלך - תאכל אותם בשפע.",
-    "תאמין שאתה יכול, ואתה כבר בחצי הדרך.",
-    "הגוף שלך הוא המקדש שלך, שמור עליו.",
-    "התקדמות איטית היא עדיין התקדמות.",
-    "מנה מותרת פעם בשבוע היא פרס, לא עונש.",
-    "שתו לפחות 12 כוסות מים ביום - זה דלק לגוף.",
-    "אל תסתכל על כל המדרגות, תתמקד במדרגה הבאה.",
-    "הכאב של היום הוא הכוח של מחר.",
-    "תכנון מוקדם מונע ביצועים כושלים.",
-    "אם תעשה מה שתמיד עשית, תקבל מה שתמיד קיבלת.",
-    "השליטה בידיים שלך, בכל ביס מחדש.",
-    "לאכול לאט, ללעוס היטב, ליהנות מהטעם.",
-    "ההצלחה מחכה לך מחוץ לאזור הנוחות.",
-    "כל יום הוא דף נקי, תכתוב אותו נכון.",
-    "נפילה היא לא כישלון, היא חלק מהלמידה.",
-    "השינוי מתחיל בראש, הגוף יצטרף אחר כך.",
-    "וותר על התירוצים, אמץ את התוצאות.",
-    "משמעת עצמית היא הגשר בין מטרות להישגים.",
-    "האוכל הוא דלק, לא פיצוי רגשי.",
-    "תאהב את הגוף שלך מספיק כדי להזין אותו בבריאות.",
-    "אין קיצורי דרך למקום ששווה להגיע אליו.",
-    "היום הוא הזמן המושלם להתחיל.",
-    "זכור: מרווח של 3 שעות בין ארוחות שומר על איזון.",
-    "פעילות גופנית היא מתנה לגוף, לא עונש.",
-    "תהיה הגרסה הכי טובה של עצמך.",
-    "התוצאות יגיעו כשתפסיק לוותר לעצמך.",
-    "כל ירידה במשקל מתחילה בהחלטה אחת אמיצה.",
-    "אל תחכה למוטיבציה, צור אותה בעצמך.",
-    "ההתמדה היא המפתח להצלחה ארוכת טווח.",
-    "כוס חלב ביום לקפה - פינוק קטן ומותר.",
-    "תגוון בתחליפים, אל תשתעמם מהאוכל.",
-    "הצלחה בדיאטה היא 80% תזונה ו-20% ספורט.",
-    "תחגוג כל ניצחון קטן בדרך.",
-    "המשקל הוא רק מספר, ההרגשה היא העיקר.",
-    "אתה חזק יותר ממה שאתה חושב.",
-    "אל תיתן למעידה אחת להרוס לך את כל השבוע.",
-    "תכנן את הארוחות שלך מראש למניעת הפתעות.",
-    "השקילה היא כלי בקרה, לא מבחן אישיות.",
-    "תחליף 'אני לא יכול' ב'אני עדיין לא מצליח'.",
-    "הבריאות שלך היא ההשקעה הכי טובה שיש.",
-    "תרגיש את השינוי בבגדים, לא רק במשקל.",
-    "מים, מים ועוד מים - הנוסחה המנצחת.",
-    "היה סבלני עם עצמך, שינוי לוקח זמן.",
-    "אל תשווה את עצמך לאחרים, זה המסע שלך.",
-    "תתמקד בהרגלים, המשקל יסתדר מעצמו.",
-    "כל יום שעובר מקרב אותך למטרה.",
-    "תאכל בשביל לחיות, אל תחיה בשביל לאכול.",
-    "תמצא הנאה באוכל בריא וטרי.",
-    "ירקות חיים, מבושלים או מאודים - הכל הולך!",
-    "הגוף שלך מודה לך על כל בחירה בריאה.",
-    "תחלום בגדול, תעבוד קשה, תישאר צנוע.",
-    "הקושי הוא זמני, הגאווה היא נצחית.",
-    "אל תפחד מכישלון, תפחד לא לנסות.",
-    "הכוח לשנות נמצא בידיים שלך.",
-    "תקשיב לגוף שלך, הוא יודע מה הוא צריך.",
-    "ההצלחה היא לא יעד, היא דרך חיים.",
-    "תמיד יש מחר חדש לתיקון.",
-    "תאמין בתהליך, גם כשלא רואים תוצאות מיד.",
-    "המשמעת היא שריר, תאמן אותה כל יום.",
-    "תקיף את עצמך באנשים שתומכים בך.",
-    "תזכור למה התחלת.",
-    "הוויתור הוא האויב הגדול ביותר.",
-    "כל ארוחה בריאה היא ניצחון.",
-    "אל תיתן לרעב רגשי לנהל אותך.",
-    "תשתה כוס מים לפני כל ארוחה.",
-    "תקפיד על כמויות מדויקות - הדיוק משתלם.",
-    "מנה מותרת - תיהנה ממנה בלי ייסורי מצפון.",
-    "תזוזה היא חיים - תעלה במדרגות.",
-    "שנת לילה טובה עוזרת לירידה במשקל.",
-    "תכין קופסאות אוכל מראש.",
-    "אל תגיע לארוחה מורעב.",
-    "תלעס לאט, השובע מגיע אחרי 20 דקות.",
-    "תחליף שתייה מתוקה במים או סודה.",
-    "תבלינים הם הדרך להפוך בריא לטעים.",
-    "אל תאכל מול הטלוויזיה או המחשב.",
-    "תתרכז באוכל, תהנה מהרגע.",
-    "תלמד להגיד 'לא' לפיתויים.",
-    "הגוף שלך הוא המכונה הכי יקרה שיש לך.",
-    "תחזק את עצמך במילים טובות.",
-    "אל תעניש את עצמך על טעויות.",
-    "תמצא ספורט שאתה אוהב ומתמיד בו.",
-    "ההצלחה שלך תלויה רק בך.",
-    "תהיה גאה בכל גרם שירד.",
-    "תשמור על אופטימיות, זה מדבק.",
-    "הדרך ארוכה, אבל הנוף שווה את זה.",
-    "אין כמו ההרגשה של גוף קליל ובריא.",
-    "תאתגר את עצמך כל יום מחדש.",
-    "התמדה מנצחת כישרון.",
-    "תזונה נכונה היא אהבה עצמית.",
-    "אל תדחה למחר את מה שאפשר לאכול בריא היום.",
-    "הצלחה היא בחירה יומיומית.",
-    "תסמוך על השיטה, היא עובדת.",
-    "הגוף שלך יחזיר לך אהבה.",
-    "אתה בדרך הנכונה, תמשיך לצעוד!"
-];
+// --- QUOTES ---
+const quotes = ["המסע של אלף קילומטרים מתחיל בצעד אחד קטן.","אל תוותר על מה שאתה רוצה ביותר בשביל מה שאתה רוצה עכשיו.","הצלחה היא סכום של מאמצים קטנים שנעשים יום אחר יום.","כוס מים לפני כל ארוחה - זה סוד ההצלחה!","לא ניתן לפצל או לדלג על ארוחות - הסדר הוא המפתח.","הירקות הם החברים הכי טובים שלך - תאכל אותם בשפע.","תאמין שאתה יכול, ואתה כבר בחצי הדרך.","הגוף שלך הוא המקדש שלך, שמור עליו.","התקדמות איטית היא עדיין התקדמות.","מנה מותרת פעם בשבוע היא פרס, לא עונש.","שתו לפחות 12 כוסות מים ביום - זה דלק לגוף.","אל תסתכל על כל המדרגות, תתמקד במדרגה הבאה.","הכאב של היום הוא הכוח של מחר.","תכנון מוקדם מונע ביצועים כושלים.","אם תעשה מה שתמיד עשית, תקבל מה שתמיד קיבלת.","השליטה בידיים שלך, בכל ביס מחדש.","לאכול לאט, ללעוס היטב, ליהנות מהטעם.","ההצלחה מחכה לך מחוץ לאזור הנוחות.","כל יום הוא דף נקי, תכתוב אותו נכון.","נפילה היא לא כישלון, היא חלק מהלמידה.","השינוי מתחיל בראש, הגוף יצטרף אחר כך.","וותר על התירוצים, אמץ את התוצאות.","משמעת עצמית היא הגשר בין מטרות להישגים.","האוכל הוא דלק, לא פיצוי רגשי.","תאהב את הגוף שלך מספיק כדי להזין אותו בבריאות.","אין קיצורי דרך למקום ששווה להגיע אליו.","היום הוא הזמן המושלם להתחיל.","זכור: מרווח של 3 שעות בין ארוחות שומר על איזון.","פעילות גופנית היא מתנה לגוף, לא עונש.","תהיה הגרסה הכי טובה של עצמך.","התוצאות יגיעו כשתפסיק לוותר לעצמך.","כל ירידה במשקל מתחילה בהחלטה אחת אמיצה.","אל תחכה למוטיבציה, צור אותה בעצמך.","ההתמדה היא המפתח להצלחה ארוכת טווח.","כוס חלב ביום לקפה - פינוק קטן ומותר.","תגוון בתחליפים, אל תשתעמם מהאוכל.","הצלחה בדיאטה היא 80% תזונה ו-20% ספורט.","תחגוג כל ניצחון קטן בדרך.","המשקל הוא רק מספר, ההרגשה היא העיקר.","אתה חזק יותר ממה שאתה חושב.","אל תיתן למעידה אחת להרוס לך את כל השבוע.","תכנן את הארוחות שלך מראש למניעת הפתעות.","השקילה היא כלי בקרה, לא מבחן אישיות.","תחליף 'אני לא יכול' ב'אני עדיין לא מצליח'.","הבריאות שלך היא ההשקעה הכי טובה שיש.","תרגיש את השינוי בבגדים, לא רק במשקל.","מים, מים ועוד מים - הנוסחה המנצחת.","היה סבלני עם עצמך, שינוי לוקח זמן.","אל תשווה את עצמך לאחרים, זה המסע שלך.","תתמקד בהרגלים, המשקל יסתדר מעצמו.","כל יום שעובר מקרב אותך למטרה.","תאכל בשביל לחיות, אל תחיה בשביל לאכול.","תמצא הנאה באוכל בריא וטרי.","ירקות חיים, מבושלים או מאודים - הכל הולך!","הגוף שלך מודה לך על כל בחירה בריאה.","תחלום בגדול, תעבוד קשה, תישאר צנוע.","הקושי הוא זמני, הגאווה היא נצחית.","אל תפחד מכישלון, תפחד לא לנסות.","הכוח לשנות נמצא בידיים שלך.","תקשיב לגוף שלך, הוא יודע מה הוא צריך.","ההצלחה היא לא יעד, היא דרך חיים.","תמיד יש מחר חדש לתיקון.","תאמין בתהליך, גם כשלא רואים תוצאות מיד.","המשמעת היא שריר, תאמן אותה כל יום.","תקיף את עצמך באנשים שתומכים בך.","תזכור למה התחלת.","הוויתור הוא האויב הגדול ביותר.","כל ארוחה בריאה היא ניצחון.","אל תיתן לרעב רגשי לנהל אותך.","תשתה כוס מים לפני כל ארוחה.","תקפיד על כמויות מדויקות - הדיוק משתלם.","מנה מותרת - תיהנה ממנה בלי ייסורי מצפון.","תזוזה היא חיים - תעלה במדרגות.","שנת לילה טובה עוזרת לירידה במשקל.","תכין קופסאות אוכל מראש.","אל תגיע לארוחה מורעב.","תלעס לאט, השובע מגיע אחרי 20 דקות.","תחליף שתייה מתוקה במים או סודה.","תבלינים הם הדרך להפוך בריא לטעים.","אל תאכל מול הטלוויזיה או המחשב.","תתרכז באוכל, תהנה מהרגע.","תלמד להגיד 'לא' לפיתויים.","הגוף שלך הוא המכונה הכי יקרה שיש לך.","תחזק את עצמך במילים טובות.","אל תעניש את עצמך על טעויות.","תמצא ספורט שאתה אוהב ומתמיד בו.","ההצלחה שלך תלויה רק בך.","תהיה גאה בכל גרם שירד.","תשמור על אופטימיות, זה מדבק.","הדרך ארוכה, אבל הנוף שווה את זה.","אין כמו ההרגשה של גוף קליל ובריא.","תאתגר את עצמך כל יום מחדש.","התמדה מנצחת כישרון.","תזונה נכונה היא אהבה עצמית.","אל תדחה למחר את מה שאפשר לאכול בריא היום.","הצלחה היא בחירה יומיומית.","תסמוך על השיטה, היא עובדת.","הגוף שלך יחזיר לך אהבה.","אתה בדרך הנכונה, תמשיך לצעוד!"];
 
 // --- FULL DATABASE ---
 const DB = {
@@ -307,20 +229,20 @@ const DB = {
 };
 
 const mealsConfig = [
-    { n: "בוקר", t: 9, c: 200, p: [{l: "פחמימה", d: DB.carbs}, {l: "חלבון גבינה", d: DB.cheese}] },
-    { n: "ביניים", t: 11, c: 150, p: [{l: "פרי", d: DB.fruit}, {l: "שומן", d: DB.fat}] },
-    { n: "צהריים", t: 13, c: 350, p: [{l: "חלבון בשר", d: DB.meat}, {l: "פחמימה", d: DB.carbs}, {l: "שומן", d: DB.fat}] },
-    { n: "ביניים", t: 16, c: 150, p: [{l: "פחמימה", d: DB.carbs}, {l: "פרי", d: DB.fruit}, {l: "שומן", d: DB.fat}] },
-    { n: "ערב", t: 19, c: 250, p: [{l: "פחמימה", d: DB.carbs}, {l: "חלבון גבינה", d: DB.cheese}, {l: "חצי חלבון", d: DB.half_cheese}, {l: "שומן", d: DB.fat}] },
-    { n: "לילה", t: 22, c: 100, p: [{l: "חלבון גבינה", d: DB.cheese}, {l: "פרי", d: DB.fruit}] }
+    { n: "ארוחת בוקר", t: 9, c: 200, p: [{l: "פחמימה", d: DB.carbs}, {l: "חלבון גבינה", d: DB.cheese}] },
+    { n: "ביניים בוקר", t: 11, c: 150, p: [{l: "פרי", d: DB.fruit}, {l: "שומן", d: DB.fat}] },
+    { n: "ארוחת צהריים", t: 13, c: 350, p: [{l: "חלבון בשר", d: DB.meat}, {l: "פחמימה", d: DB.carbs}, {l: "שומן", d: DB.fat}] },
+    { n: "ביניים אחה״צ", t: 16, c: 150, p: [{l: "פחמימה", d: DB.carbs}, {l: "פרי", d: DB.fruit}, {l: "שומן", d: DB.fat}] },
+    { n: "ארוחת ערב", t: 19, c: 250, p: [{l: "פחמימה", d: DB.carbs}, {l: "חלבון גבינה", d: DB.cheese}, {l: "חצי חלבון", d: DB.half_cheese}, {l: "שומן", d: DB.fat}] },
+    { n: "ארוחת לילה", t: 22, c: 100, p: [{l: "חלבון גבינה", d: DB.cheese}, {l: "פרי", d: DB.fruit}] }
 ];
 
 let vDate = new Date();
-let appData = JSON.parse(localStorage.getItem('heli_pro_v9')) || { days: {}, weights: [] };
+let appData = JSON.parse(localStorage.getItem('heli_pro_v10')) || { days: {}, weights: [] };
 
 const getK = d => d.toLocaleDateString('he-IL').replace(/\./g, '-');
 const getISO = d => { const offset = d.getTimezoneOffset() * 60000; return new Date(d.getTime() - offset).toISOString().split('T')[0]; }
-const save = () => localStorage.setItem('heli_pro_v9', JSON.stringify(appData));
+const save = () => localStorage.setItem('heli_pro_v10', JSON.stringify(appData));
 
 function init() {
     const k = getK(vDate);
@@ -331,16 +253,29 @@ function init() {
     const iso = getISO(vDate);
     document.getElementById('header-date-input').value = iso;
 
-    // Set Random Quote
-    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-    document.getElementById('daily-quote').innerText = randomQuote;
+    // Set Quote if empty
+    if(!document.getElementById('daily-quote').innerText.includes("...")) {
+         // Already set
+    } else {
+        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        document.getElementById('daily-quote').innerText = randomQuote;
+    }
+    
+    // UPDATE CURRENT MEAL INDICATOR
+    updateCurrentMealIndicator();
 
     let html = '';
+    const currentHour = new Date().getHours();
+    
     mealsConfig.forEach((m, i) => {
         let isComplete = true;
         m.p.forEach((_, pi) => { if (!day[`${i}_${pi}`]) isComplete = false; });
+        
+        // Highlight logic
+        let isNow = (k === todayK && currentHour >= m.t - 1 && currentHour < m.t + 2);
+        
         html += `
-        <div class="meal-card ${isComplete ? 'completed' : ''}">
+        <div class="meal-card ${isComplete ? 'completed' : ''} ${isNow ? 'active-now' : ''}">
             <div class="meal-header">
                 <div><strong>${m.n}</strong> <span style="font-size:0.8rem; opacity:0.7">${m.t}:00</span></div>
                 <div>${m.c} קל'</div>
@@ -397,6 +332,19 @@ function init() {
 
     updateStats(day);
     calculateStreak();
+}
+
+function updateCurrentMealIndicator() {
+    const h = new Date().getHours();
+    let txt = "";
+    if (h < 10) txt = "ארוחת בוקר (9:00)";
+    else if (h < 12) txt = "ביניים בוקר (11:00)";
+    else if (h < 15) txt = "ארוחת צהריים (13:00)";
+    else if (h < 18) txt = "ביניים אחה״צ (16:00)";
+    else if (h < 21) txt = "ארוחת ערב (19:00)";
+    else txt = "ארוחת לילה (22:00)";
+    
+    document.getElementById('current-meal-display').innerText = "עכשיו: " + txt;
 }
 
 function upd(k, id, val) {
