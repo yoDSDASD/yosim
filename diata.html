@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Heli 1200 PRO V10</title>
+    <title>Heli 1200 PRO V11 - Health Tips</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
@@ -18,9 +18,7 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; touch-action: manipulation; }
         body { font-family: 'Rubik', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 12px; padding-bottom: 100px; overflow-x: hidden; }
         
-        /* Header Grid System */
         .header-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
-        
         .top-row { display: flex; justify-content: space-between; align-items: center; }
         
         .date-trigger-wrapper { position: relative; display: flex; align-items: center; gap: 8px; background: var(--card); padding: 6px 12px; border-radius: 12px; border: 1px solid var(--border); }
@@ -28,7 +26,6 @@
 
         .streak-badge { background: rgba(245, 158, 11, 0.2); color: var(--warning); padding: 6px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; }
 
-        /* CURRENT MEAL INDICATOR (NEW) */
         .current-meal-bar {
             background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.05) 100%);
             border: 1px solid var(--accent);
@@ -43,20 +40,10 @@
         }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
 
-        /* MOTIVATION BOX FIXED FOR IPHONE */
         .motivation-box {
-            width: 100%;
-            text-align: center;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            color: #cbd5e1;
-            font-style: italic;
-            padding: 10px;
-            background: rgba(255,255,255,0.03);
-            border-radius: 10px;
-            border: 1px dashed var(--border);
-            white-space: normal; /* Allow wrapping */
-            word-wrap: break-word; /* Prevent overflow */
+            width: 100%; text-align: center; font-size: 0.9rem; line-height: 1.4; color: #cbd5e1; font-style: italic;
+            padding: 10px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px dashed var(--border);
+            white-space: normal; word-wrap: break-word;
         }
 
         .header-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
@@ -69,6 +56,13 @@
         .report-box { background: #263346; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid var(--border); }
         .report-value { font-size: 1.3rem; font-weight: bold; color: white; }
         .report-sub { font-size: 0.8rem; color: #aaa; margin-top: 2px; }
+
+        /* TIPS CARDS */
+        .tips-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .tip-card { background: #1e293b; border: 1px solid var(--border); border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 15px; }
+        .tip-icon { font-size: 2rem; background: rgba(255,255,255,0.05); width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .tip-content h4 { margin: 0 0 5px 0; color: var(--text); }
+        .tip-content p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
 
         .workout-card { background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); padding: 16px; border-radius: 12px; margin-bottom: 20px; }
         .workout-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -120,9 +114,7 @@
         <div class="streak-badge">🔥 <span id="streak-count">0</span></div>
     </div>
 
-    <div id="current-meal-display" class="current-meal-bar">
-        טוען זמן...
-    </div>
+    <div id="current-meal-display" class="current-meal-bar">טוען זמן...</div>
 
     <div id="daily-quote" class="motivation-box">טוען משפט השראה...</div>
 </div>
@@ -238,11 +230,11 @@ const mealsConfig = [
 ];
 
 let vDate = new Date();
-let appData = JSON.parse(localStorage.getItem('heli_pro_v10')) || { days: {}, weights: [] };
+let appData = JSON.parse(localStorage.getItem('heli_pro_v11')) || { days: {}, weights: [] };
 
 const getK = d => d.toLocaleDateString('he-IL').replace(/\./g, '-');
 const getISO = d => { const offset = d.getTimezoneOffset() * 60000; return new Date(d.getTime() - offset).toISOString().split('T')[0]; }
-const save = () => localStorage.setItem('heli_pro_v10', JSON.stringify(appData));
+const save = () => localStorage.setItem('heli_pro_v11', JSON.stringify(appData));
 
 function init() {
     const k = getK(vDate);
@@ -253,7 +245,6 @@ function init() {
     const iso = getISO(vDate);
     document.getElementById('header-date-input').value = iso;
 
-    // Set Quote if empty
     if(!document.getElementById('daily-quote').innerText.includes("...")) {
          // Already set
     } else {
@@ -261,7 +252,6 @@ function init() {
         document.getElementById('daily-quote').innerText = randomQuote;
     }
     
-    // UPDATE CURRENT MEAL INDICATOR
     updateCurrentMealIndicator();
 
     let html = '';
@@ -270,8 +260,6 @@ function init() {
     mealsConfig.forEach((m, i) => {
         let isComplete = true;
         m.p.forEach((_, pi) => { if (!day[`${i}_${pi}`]) isComplete = false; });
-        
-        // Highlight logic
         let isNow = (k === todayK && currentHour >= m.t - 1 && currentHour < m.t + 2);
         
         html += `
@@ -511,9 +499,40 @@ function addW() {
     if(v) { appData.weights.push({d:getK(new Date()), w:v}); save(); openReportMode(); init(); }
 }
 
+// --- NEW FUNCTION: Natural Detox Tips ---
+function openNaturalDetox() {
+    const tips = [
+        { organ: "ריאות", icon: "🫁", foods: "אננס, ג'ינג'ר, שום", color: "#fca5a5" },
+        { organ: "כבד", icon: "🤢", foods: "סלק, לימון, כורכום", color: "#fcd34d" },
+        { organ: "כליות", icon: "🫘", foods: "חמוציות, סלרי, מלפפון", color: "#f9a8d4" },
+        { organ: "מעיים", icon: "🌀", foods: "אלוורה, מלפפון, תפוח ירוק", color: "#86efac" },
+        { organ: "עיניים", icon: "👁️", foods: "גזר, קייל, בטטה", color: "#fdba74" },
+        { organ: "מוח", icon: "🧠", foods: "פירות יער, אגוזי מלך, כורכום", color: "#c4b5fd" },
+        { organ: "דם", icon: "🩸", foods: "רימון, סלק, שום", color: "#f87171" }
+    ];
+
+    let html = '<div class="tips-grid">';
+    tips.forEach(tip => {
+        html += `
+        <div class="tip-card" style="border-left: 4px solid ${tip.color}">
+            <div class="tip-icon" style="color: ${tip.color}">${tip.icon}</div>
+            <div class="tip-content">
+                <h4 style="color:${tip.color}">${tip.organ}</h4>
+                <p>מזונות מומלצים לניקוי: <strong style="color:white">${tip.foods}</strong></p>
+            </div>
+        </div>`;
+    });
+    html += '</div>';
+
+    document.getElementById('modal-title').innerText = "אוכל הוא תרופה: ניקוי רעלים";
+    document.getElementById('modal-body').innerHTML = html;
+    document.getElementById('modal').style.display = 'flex';
+}
+
 function openTools() {
     document.getElementById('modal-title').innerText = "כלים";
     document.getElementById('modal-body').innerHTML = `
+        <button class="btn-primary" onclick="openNaturalDetox()" style="background:#10b981; margin-bottom:12px;">🍏 המלצות: אוכל הוא תרופה</button>
         <button class="btn-primary" onclick="genShop()" style="background:#475569; margin-bottom:12px;">🛒 רשימת קניות</button>
         <button class="btn-primary" onclick="expData()" style="background:#475569; margin-bottom:12px;">💾 גיבוי נתונים</button>
         <button class="btn-primary" onclick="impData()" style="background:#475569;">📂 שחזור נתונים</button>
