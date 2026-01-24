@@ -3,168 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Heli 1200 PRO Ultra</title>
+    <title>Heli 1200 PRO Analytics</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <style>
-        /* הגדרת משתנים ועיצוב בסיסי - Dark Mode */
         :root { 
-            --bg: #0f172a; 
-            --card: #1e293b; 
-            --text: #f8fafc; 
-            --text-muted: #94a3b8;
-            --accent: #3b82f6; 
-            --accent-glow: rgba(59, 130, 246, 0.4);
-            --success: #10b981; 
-            --danger: #ef4444; 
-            --warning: #f59e0b;
-            --border: #334155; 
-            --radius: 16px;
+            --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --text-muted: #94a3b8;
+            --accent: #3b82f6; --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+            --border: #334155; --radius: 16px;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { font-family: 'Rubik', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 12px; padding-bottom: 90px; -webkit-font-smoothing: antialiased; }
+        body { font-family: 'Rubik', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 12px; padding-bottom: 90px; }
         
-        /* כותרות וסטטיסטיקה */
+        /* Header */
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .date-title { font-size: 1.2rem; font-weight: 700; margin: 0; }
-        .streak-badge { background: rgba(245, 158, 11, 0.2); color: var(--warning); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; gap: 5px; border: 1px solid rgba(245, 158, 11, 0.3); }
-
+        .date-picker-trigger { background: var(--card); border: 1px solid var(--border); padding: 8px 15px; border-radius: 12px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        
+        /* Stats Grid */
         .header-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-card { background: var(--card); padding: 12px; border-radius: var(--radius); text-align: center; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); }
-        .stat-val { font-size: 1.4rem; font-weight: 700; color: var(--accent); line-height: 1.2; }
-        .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+        .stat-card { background: var(--card); padding: 12px; border-radius: var(--radius); text-align: center; border: 1px solid var(--border); }
+        .stat-val { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+        .stat-label { font-size: 0.7rem; color: var(--text-muted); }
 
-        /* כרטיס מים */
-        .water-card { background: linear-gradient(135deg, #172554 0%, #1e40af 100%); padding: 16px; border-radius: var(--radius); margin-bottom: 20px; color: white; border: 1px solid #1e3a8a; box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3); }
-        .water-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .progress-bg { background: rgba(255,255,255,0.15); height: 12px; border-radius: 10px; overflow: hidden; margin-bottom: 15px; }
-        .progress-fill { height: 100%; background: #60a5fa; width: 0%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px rgba(96, 165, 250, 0.6); }
-        .water-btns { display: flex; gap: 10px; }
-        .water-btn { flex: 1; background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: background 0.2s; font-size: 0.9rem; }
-        .water-btn:active { background: rgba(255,255,255,0.4); transform: scale(0.98); }
+        /* Report Cards (New) */
+        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .report-box { background: #263346; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid var(--border); }
+        .report-title { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; }
+        .report-value { font-size: 1.4rem; font-weight: bold; color: white; }
+        .trend-up { color: var(--danger); font-size: 0.8rem; }
+        .trend-down { color: var(--success); font-size: 0.8rem; }
 
-        /* כרטיס ארוחה */
-        .meal-card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); transition: all 0.3s ease; position: relative; }
-        .meal-card.active-now { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 15px var(--accent-glow); }
-        .meal-card.completed { border-color: var(--success); background: rgba(16, 185, 129, 0.05); }
+        /* Meal & Water Cards */
+        .water-card { background: linear-gradient(135deg, #172554 0%, #1e40af 100%); padding: 16px; border-radius: var(--radius); margin-bottom: 20px; color: white; box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3); }
+        .progress-bg { background: rgba(255,255,255,0.15); height: 12px; border-radius: 10px; overflow: hidden; margin: 10px 0; }
+        .progress-fill { height: 100%; background: #60a5fa; width: 0%; transition: width 0.5s; }
         
-        .meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
-        .meal-title-wrap { display: flex; align-items: center; gap: 8px; }
-        .meal-title { font-weight: 700; font-size: 1.1rem; color: #fff; }
-        .meal-time { font-size: 0.8rem; background: #334155; padding: 3px 8px; border-radius: 6px; color: #cbd5e1; font-family: monospace; letter-spacing: 0.5px; }
-        .meal-cal { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+        .meal-card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); position: relative; }
+        .meal-card.completed { border-color: var(--success); }
+        .meal-header { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+
+        /* Inputs */
+        select, input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: #0f172a; color: white; font-size: 16px; margin-bottom: 10px; appearance: none; }
         
-        /* Inputs & Selects - מותאם למובייל */
-        select, input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: #0f172a; color: white; font-size: 16px; /* מונע זום באייפון */ margin-bottom: 10px; appearance: none; transition: border-color 0.2s; }
-        select:focus, input:focus { border-color: var(--accent); }
-        label { font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 5px; margin-right: 2px; }
-
-        /* מנה מותרת */
-        .cheat-meal-container { display: flex; align-items: center; justify-content: space-between; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; }
-        .cheat-switch { position: relative; display: inline-block; width: 52px; height: 28px; }
-        .cheat-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        input:checked + .slider { background-color: var(--warning); }
-        input:checked + .slider:before { transform: translateX(24px); }
-
-        /* ניווט תחתון */
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); padding: 10px 20px; display: flex; justify-content: space-between; border-top: 1px solid var(--border); backdrop-filter: blur(12px); z-index: 1000; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
-        .nav-btn { background: none; border: none; color: var(--text-muted); font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 5px 10px; cursor: pointer; transition: color 0.2s; }
+        /* Navigation */
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.98); padding: 10px 10px 25px 10px; display: flex; justify-content: space-around; border-top: 1px solid var(--border); z-index: 1000; }
+        .nav-btn { background: none; border: none; color: var(--text-muted); font-size: 0.7rem; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 60px; }
         .nav-btn.active { color: var(--accent); }
-        .nav-icon { font-size: 1.5rem; margin-bottom: 2px; }
+        .nav-icon { font-size: 1.4rem; margin-bottom: 2px; }
 
-        /* מודאלים */
-        #modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; align-items: flex-end; animation: fadeIn 0.2s; }
-        .modal-content { background: var(--card); width: 100%; max-height: 85vh; border-radius: 24px 24px 0 0; padding: 25px; overflow-y: auto; border-top: 1px solid var(--border); animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.5); }
-        
+        /* Modals */
+        #modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; align-items: flex-end; }
+        .modal-content { background: var(--card); width: 100%; max-height: 90vh; border-radius: 24px 24px 0 0; padding: 25px; overflow-y: auto; animation: slideUp 0.3s; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* רשת כלים */
-        .tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
-        .tool-btn { background: #263346; border: 1px solid var(--border); color: #e2e8f0; padding: 16px; border-radius: 14px; font-size: 0.95rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: transform 0.1s, background 0.2s; }
-        .tool-btn:active { transform: scale(0.98); background: #334155; }
+        /* Hidden Date Input for Picker */
+        #hidden-date { position: absolute; opacity: 0; top: -1000px; }
         
-        /* כפתור ראשי */
-        .btn-primary { background: var(--accent); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; width: 100%; font-size: 1rem; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); cursor: pointer; }
-        .btn-close { width:100%; padding:15px; margin-top:20px; background:transparent; border:1px solid var(--border); color:var(--text-muted); border-radius:12px; font-weight:600; cursor:pointer; }
-
-        /* ספינר לגרף */
-        .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 15px; }
+        .btn-primary { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="header-top">
-    <div>
-        <div style="font-size:0.85rem; color:var(--text-muted);">שלום יוסף</div>
-        <h1 id="cur-date-display" class="date-title">--/--/----</h1>
+    <div onclick="triggerDatePicker()" class="date-picker-trigger">
+        <span style="font-size:1.2rem;">📅</span>
+        <div>
+            <div style="font-size:0.7rem; color:var(--text-muted);">לחץ לשינוי תאריך</div>
+            <div id="cur-date-display" style="font-weight:bold;">היום</div>
+        </div>
     </div>
-    <div id="streak-badge" class="streak-badge">
-        <span>🔥</span> <span id="streak-count">0</span> ימים
+    <div id="streak-badge" style="background:rgba(245, 158, 11, 0.2); color:var(--warning); padding:6px 12px; border-radius:20px; font-size:0.8rem; font-weight:bold;">
+        🔥 <span id="streak-count">0</span>
     </div>
 </div>
+<input type="date" id="hidden-date" onchange="onDatePicked(this.value)">
 
 <div class="header-grid">
     <div class="stat-card">
         <div id="cal-val" class="stat-val">0</div>
-        <div class="stat-label">קלוריות (מתוך 1200)</div>
+        <div class="stat-label">קלוריות</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card" onclick="openReportMode()">
         <div id="weight-val" class="stat-val" style="color:var(--success);">--</div>
-        <div class="stat-label">משקל אחרון</div>
+        <div class="stat-label">משקל (לחץ לדוח)</div>
     </div>
     <div class="stat-card">
         <div id="left-val" class="stat-val">1200</div>
-        <div class="stat-label">נותר להיום</div>
+        <div class="stat-label">נותר</div>
     </div>
 </div>
 
-<div class="water-card">
-    <div class="water-header">
-        <span style="font-weight:700; font-size:1.1rem;">💧 מאזן נוזלים</span>
-        <span id="water-count" style="font-family:monospace; font-size:1.1rem;">0 / 12</span>
+<div id="app-view">
+    <div class="water-card">
+        <div style="display:flex; justify-content:space-between;">
+            <strong>💧 מים</strong>
+            <span id="water-count">0 / 12</span>
+        </div>
+        <div class="progress-bg"><div id="water-bar" class="progress-fill"></div></div>
+        <div style="display:flex; gap:10px;">
+            <button onclick="addWater(-1)" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:8px; border-radius:8px; flex:1;">-</button>
+            <button onclick="addWater(1)" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:8px; border-radius:8px; flex:1;">+ כוס</button>
+        </div>
     </div>
-    <div class="progress-bg">
-        <div id="water-bar" class="progress-fill"></div>
-    </div>
-    <div class="water-btns">
-        <button class="water-btn" onclick="addWater(-1)">- הפחת</button>
-        <button class="water-btn" onclick="addWater(1)">+ כוס מים</button>
-    </div>
+
+    <div id="meals-container"></div>
 </div>
 
-<div class="cheat-meal-container">
-    <div>
-        <div style="font-weight:bold; color:var(--warning); font-size:1rem;">🍔 מנה מותרת</div>
-        <div style="font-size:0.8rem; color:var(--text-muted);">פעם בשבוע בלבד!</div>
-        <div id="cheat-warning" style="font-size:0.75rem; color:var(--danger); display:none; margin-top:4px; font-weight:bold;">⚠️ נוצלה כבר השבוע</div>
-    </div>
-    <label class="cheat-switch">
-        <input type="checkbox" id="cheat-toggle" onchange="toggleCheat()">
-        <span class="slider"></span>
-    </label>
-</div>
-
-<div id="app"></div>
-
-<div style="height:40px;"></div>
+<div style="height:60px;"></div>
 
 <div class="nav-bar">
     <button class="nav-btn" onclick="changeDate(-1)">
         <span class="nav-icon">◀</span>
         <span>אתמול</span>
     </button>
-    <button class="nav-btn active" onclick="scrollToTop()">
+    <button class="nav-btn active" onclick="triggerDatePicker()">
         <span class="nav-icon">📅</span>
-        <span>היום</span>
+        <span>יומן</span>
+    </button>
+    <button class="nav-btn" onclick="openReportMode()">
+        <span class="nav-icon">📊</span>
+        <span>דוחות</span>
     </button>
     <button class="nav-btn" onclick="openTools()">
-        <span class="nav-icon">⚡</span>
+        <span class="nav-icon">⚙️</span>
         <span>כלים</span>
     </button>
     <button class="nav-btn" onclick="changeDate(1)">
@@ -175,473 +139,266 @@
 
 <div id="modal" onclick="if(event.target===this)closeModal()">
     <div class="modal-content">
-        <h2 id="modal-title" style="margin-top:0; border-bottom:1px solid var(--border); padding-bottom:15px; color:var(--accent);"></h2>
+        <h2 id="modal-title" style="margin-top:0; border-bottom:1px solid var(--border); padding-bottom:15px;"></h2>
         <div id="modal-body"></div>
-        <button onclick="closeModal()" class="btn-close">סגור חלונית</button>
+        <button onclick="closeModal()" style="width:100%; padding:15px; margin-top:20px; background:transparent; border:1px solid var(--border); color:var(--text-muted); border-radius:12px;">סגור</button>
     </div>
 </div>
 
 <script>
-// --- מאגר נתונים מלא (חולץ ב-100% מהקובץ) ---
+// --- FULL DATABASE ---
 const DB = {
-    carbs: [
-        "1 פיתה קלה (עד 80 קל')", "1 פרוסת לחם רגיל", "2 פרוסות לחם קל", "1/3 פיתה רגילה", 
-        "1 לחמנייה קלה", "30 גרם לחמנייה", "1/2 מצה", "1 מצה קלה", "3 פתית", "3 קרקרים דגנית", 
-        "2 פירכיות שיבולת שוער/אורז", "2 לחמית/קרקר זהב", "10 פירכיות ביס", "6 טוסטעים", 
-        "1/2 טורטיה גדולה", "1 עלה סיגר", "5 דפי אורז", "1 כף שקדי מרק", "2 כפות קמח שטוחות", 
-        "2 כפות סולת", "2 כפות פירורי לחם", "חצי דלורית קטנה", "1/2 כוס אפונה ירוקה", 
-        "1 סלק בינוני", "1 כוס נבטוטים", "1.5 כוס תרמילי אדממה", "100 גרם ארטישוק ירושלמי",
-        "--- מתוקים (אחד ביום) ---",
-        "2 פתי בר", "2 עוגיות ללא סוכר", "1 חטיף אנרגיה (עד 100 קל')", "3/4 כוס קורנפלקס ללא סוכר", 
-        "2 כפות גרנולה ללא סוכר",
-        "--- מבושלים (1/2 כוס אחרי בישול) ---",
-        "אורז", "בורגול", "כוסמת", "קוסקוס", "פתיתים", "פסטה", "קינואה", "תירס", 
-        "קטניות (חומוס, עדשים, פול)", "1 תפוח אדמה בינוני", "1/2 בטטה קטנה", "1 קלח תירס קטן", 
-        "3/4 כוס תירס קל", "5 מקלות צ'יפס רגיל", "3 עלי גפן", "7 ערמונים", "1/2 כוס פירה",
-        "--- חטיפים (עד 3 בשבוע) ---",
-        "1 שקית במבה קטנה (15 גרם)", "שקית פופקורן (100 קל')", "2 כוסות פופקורן ביתי", 
-        "10 יח' בייגלה קטן", "1 שקית צ'יפס קידס"
-    ],
-    cheese: [
-        "--- גבינות ---",
-        "2 כפות גבינה 3%-5%", "2 משולשי מון בלאן", "60 גרם בולגרית/צפתית 5%", "2 כפות ממרח טופו", 
-        "1 אצבע מוצרלה", "1 פרוסת צהובה 9%", "2 פרוסות צהובה 9% דק-דק", "1 פרוסת צהובה 22% (אחת ביום)",
-        "--- מעדנים ונוזלים ---",
-        "1 גביע מעדן/יוגורט 0%", "1 יוגורט טבעי 1.5%", "משקה בוקר 0%", "כוס שוקו 0%", 
-        "אקטימל 3%", "3/4 כוס רוויון", "כוס גלידה דיאט 2%-5%", "1 שלגון חלבי (עד 80 קל')", 
-        "1 כוס חלב 1%", "1 כוס חלב סויה טבעי",
-        "--- חלבון בשרי/צמחי ---",
-        "1 ביצה", "חצי קופסא טונה במים", "1.5 כף טונה בשמן", "50 גרם ממרח טונה", "3 כדורי פלאפל אפויים", 
-        "80 גרם דג מבושל", "60 גרם טופו", "1/2 כוס פולי סויה", "1/2 קופסת סרדינים",
-        "--- תחליפים (פעמיים בשבוע) ---",
-        "1/2 כוס חלב 3%", "100 מ\"ל שמנת אלפרו 5%", "1 כוס חלב שקדים", "1 מעדן סויה אלפרו"
-    ],
-    meat: [
-        "--- בשר ועוף (150 ג' לפני בישול) ---",
-        "חזה עוף", "בקר רזה (עגל/פילה)", "1/4 עוף (בלי עור)", "3 שוקי עוף", "שווארמה הודו (150 גרם)", 
-        "3 קציצות בקר", "2 שיפודי עוף/פרגית", "3 כדורי בשר רזה",
-        "--- דגים (200 ג' לפני בישול) ---",
-        "דג אפוי/מבושל (אמנון, דניס, סלמון, טונה)", "1.5 קופסאות טונה במים", "1 קופסת טונה בשמן מסוננת", 
-        "1 קופסת סרדינים מסוננים",
-        "--- צמחי/אחר ---",
-        "6 כדורי פלאפל אפויים", "1.5 כוסות קטניות מבושלות", "3 כפות חומוס", "150 גרם טופו",
-        "--- מוגבלים (פעמיים בשבוע) ---",
-        "200 גרם פסטרמה לייט", "2 שניצל טבעול (עד 99 קל')", "1 המבורגר בתנור (פעם בשבוע)", 
-        "3 נקניקיות (פעם בשבוע)", "3 כבדי עוף"
-    ],
-    fat: [
-        "1 כפית שמן", "6 זיתים קטנים", "2 זיתים גדולים", "1 כף טחינה מוכנה", "1 כפית טחינה גולמית", 
-        "1 כף אבוקדו", "1 כפית חומוס", "1 כף זרעי פשתן/צ'יה", "1 כף קוקוס", "2 כפות שמנת חמוצה 15%", 
-        "1 כפית חמאה", "5 כפות שמנת אלפרו 5%", "7 שקדים", "3 אגוזי מלך/פקאן", "10 בוטנים/פיסטוקים", 
-        "1 כפית מיונז", "1 כף כמויונז", "1 כף ממרח שומשום", "10 גרם חלווה", "3 כפות רוטב לייט"
-    ],
-    fruit: [
-        "תפוח עץ", "אגס", "בננה קטנה", "1 כוס אבטיח/מלון", "2 שזיפים", "1 אפרסק", "1 נקטרינה", 
-        "1 אפרסמון קטן", "1/2 אשכולית", "1/2 מנגו", "1 כוס ענבים/דובדבנים", "2 תמרים יבשים", 
-        "1 תמר מג'הול", "2 קיווי", "2 קלמנטינות", "3 משמשים", "1 חבוש", "1/3 פומלה", "1 כוס תותים"
-    ],
-    half_cheese: [
-        "פרוסת גבינה צהובה 5%", "כף גבינה 5%", "חצי פרוסה צהובה 9%", "30 גרם בולגרית", 
-        "כפית חומוס", "חצי כוס חלב 1%", "1/4 קופסת טונה במים", "חצי ביצה", "2 פרוסות פסטרמה", "1.5 פלאפל אפוי"
-    ]
+    carbs: ["1 פיתה קלה", "2 פרוסות לחם קל", "1 פרוסת לחם רגיל", "3 כפות אורז/פסטה (אחרי בישול)", "1 תפוח אדמה", "1/2 בטטה", "2 פירכיות", "1/2 כוס קטניות", "1 חטיף אנרגיה (עד 100 קל')", "3 כפות שיבולת שועל"],
+    cheese: ["2 כפות גבינה 5%", "1 פרוסת צהובה 9%", "60 גרם בולגרית 5%", "1 ביצה", "1/2 קופסת טונה במים", "1 מעדן 0%", "1 אצבע מוצרלה", "60 גרם טופו"],
+    meat: ["150 גרם חזה עוף (חי)", "100 גרם בקר רזה (מבושל)", "200 גרם דג (חי)", "1.5 קופסאות טונה במים", "3 קציצות", "מנה צמחונית טבעול"],
+    fat: ["1 כפית שמן", "1 כף טחינה מוכנה", "1 כף אבוקדו", "6 זיתים", "7 שקדים", "3 אגוזי מלך", "1 כפית מיונז", "1 כף כמויונז"],
+    fruit: ["תפוח", "בננה קטנה", "אגס", "2 שזיפים", "1 כוס ענבים", "1 תמר מג'הול", "1 אפרסק", "1 כוס אבטיח"],
+    half_cheese: ["פרוסת צהובה 5%", "כף גבינה 5%", "30 גרם בולגרית", "חצי ביצה", "2 פרוסות פסטרמה"]
 };
 
-// הגדרות ארוחות (שעות וקלוריות)
 const mealsConfig = [
-    { n: "ארוחת בוקר", t: 9, c: 200, p: [{l: "פחמימה", d: DB.carbs}, {l: "חלבון גבינה", d: DB.cheese}] },
-    { n: "ביניים בוקר", t: 11, c: 150, p: [{l: "פרי", d: DB.fruit}, {l: "שומן", d: DB.fat}] },
-    { n: "ארוחת צהריים", t: 13, c: 350, p: [{l: "חלבון בשר", d: DB.meat}, {l: "פחמימה", d: DB.carbs}, {l: "שומן", d: DB.fat}] },
-    { n: "ביניים אחה״צ", t: 16, c: 150, p: [{l: "פחמימה", d: DB.carbs}, {l: "פרי", d: DB.fruit}, {l: "שומן", d: DB.fat}] },
-    { n: "ארוחת ערב", t: 19, c: 250, p: [{l: "פחמימה", d: DB.carbs}, {l: "חלבון גבינה", d: DB.cheese}, {l: "חצי חלבון", d: DB.half_cheese}, {l: "שומן", d: DB.fat}] },
-    { n: "ארוחת לילה", t: 22, c: 100, p: [{l: "חלבון גבינה", d: DB.cheese}, {l: "פרי", d: DB.fruit}] }
+    { n: "בוקר", t: 9, c: 200, p: [{l: "פחמימה", d: DB.carbs}, {l: "חלבון גבינה", d: DB.cheese}] },
+    { n: "ביניים", t: 11, c: 150, p: [{l: "פרי", d: DB.fruit}, {l: "שומן", d: DB.fat}] },
+    { n: "צהריים", t: 13, c: 350, p: [{l: "חלבון בשר", d: DB.meat}, {l: "פחמימה", d: DB.carbs}, {l: "שומן", d: DB.fat}] },
+    { n: "ביניים", t: 16, c: 150, p: [{l: "פחמימה", d: DB.carbs}, {l: "פרי", d: DB.fruit}, {l: "שומן", d: DB.fat}] },
+    { n: "ערב", t: 19, c: 250, p: [{l: "פחמימה", d: DB.carbs}, {l: "חלבון גבינה", d: DB.cheese}, {l: "חצי חלבון", d: DB.half_cheese}, {l: "שומן", d: DB.fat}] },
+    { n: "לילה", t: 22, c: 100, p: [{l: "חלבון גבינה", d: DB.cheese}, {l: "פרי", d: DB.fruit}] }
 ];
 
-// ניהול מצב האפליקציה (State)
 let vDate = new Date();
-let appData = JSON.parse(localStorage.getItem('heli_pro_v3')) || { days: {}, weights: [] };
+let appData = JSON.parse(localStorage.getItem('heli_analytics_v4')) || { days: {}, weights: [] };
 
-// פונקציות עזר
+// Helpers
 const getK = d => d.toLocaleDateString('he-IL').replace(/\./g, '-');
-const save = () => localStorage.setItem('heli_pro_v3', JSON.stringify(appData));
-const scrollToTop = () => { vDate = new Date(); init(); window.scrollTo({top:0, behavior:'smooth'}); };
+const getISO = d => { const offset = d.getTimezoneOffset() * 60000; return new Date(d.getTime() - offset).toISOString().split('T')[0]; }
+const save = () => localStorage.setItem('heli_analytics_v4', JSON.stringify(appData));
 
-// אתחול האפליקציה
 function init() {
     const k = getK(vDate);
     const day = appData.days[k] || {};
     const todayK = getK(new Date());
-    
-    // עדכון כותרת ותאריך
-    document.getElementById('cur-date-display').innerText = (k === todayK) ? "היום, " + k : k;
-    document.getElementById('cur-date-display').style.color = (k === todayK) ? 'var(--accent)' : 'var(--text)';
-    
-    // חישוב רצף
-    calculateStreak();
 
-    // בניית הארוחות (Render)
-    const currentHour = new Date().getHours();
-    let html = '';
+    // Update Date Display
+    document.getElementById('cur-date-display').innerText = (k === todayK) ? "היום" : k;
     
+    // Update Hidden Date Input Value (for picker sync)
+    document.getElementById('hidden-date').value = getISO(vDate);
+
+    // Render Meals
+    let html = '';
     mealsConfig.forEach((m, i) => {
-        // בדיקת השלמה
         let isComplete = true;
         m.p.forEach((_, pi) => { if (!day[`${i}_${pi}`]) isComplete = false; });
         
-        // בדיקת זמן נוכחי (להדגשה)
-        const isNow = (k === todayK && currentHour >= m.t - 1 && currentHour < m.t + 2);
-        
         html += `
-        <div class="meal-card ${isComplete ? 'completed' : ''} ${isNow ? 'active-now' : ''}">
+        <div class="meal-card ${isComplete ? 'completed' : ''}">
             <div class="meal-header">
-                <div class="meal-title-wrap">
-                    <span class="meal-time">${String(m.t).padStart(2, '0')}:00</span>
-                    <span class="meal-title">${m.n}</span>
-                    ${isComplete ? '<span style="color:var(--success);">✓</span>' : ''}
-                </div>
-                <span class="meal-cal">${m.c} קל'</span>
+                <div><strong>${m.n}</strong> <span style="font-size:0.8rem; opacity:0.7">${m.t}:00</span></div>
+                <div style="font-size:0.8rem">${m.c} קל'</div>
             </div>
             ${m.p.map((part, pi) => `
-                <div>
+                <div style="margin-bottom:8px">
                     <label>${part.l}</label>
-                    <select onchange="updateMeal('${k}', '${i}_${pi}', this.value)">
+                    <select onchange="upd('${k}', '${i}_${pi}', this.value)" style="margin:0">
                         <option value="">בחר...</option>
-                        ${part.d.map(x => {
-                            const isHeader = x.startsWith('---');
-                            return `<option value="${isHeader?'':x}" ${isHeader?'disabled style="color:var(--accent); font-weight:bold; background:#1e293b;"':''} ${day[`${i}_${pi}`]===x ? 'selected' : ''}>${x.replace(/---/g,'').trim()}</option>`;
-                        }).join('')}
+                        ${part.d.map(x => `<option value="${x}" ${day[`${i}_${pi}`]===x?'selected':''}>${x}</option>`).join('')}
                     </select>
                 </div>
             `).join('')}
         </div>`;
     });
+    document.getElementById('meals-container').innerHTML = html;
     
-    document.getElementById('app').innerHTML = html;
-    
-    // עדכון מים
-    const water = day.water || 0;
-    document.getElementById('water-count').innerText = `${water} / 12`;
-    document.getElementById('water-bar').style.width = `${Math.min((water/12)*100, 100)}%`;
-    if(water >= 12) document.getElementById('water-bar').style.background = '#10b981';
-    else document.getElementById('water-bar').style.background = '#60a5fa';
-
-    // עדכון מנה מותרת
-    const isCheat = day.isCheatMeal || false;
-    document.getElementById('cheat-toggle').checked = isCheat;
-    checkCheatHistory(k);
+    // Water
+    const w = day.water || 0;
+    document.getElementById('water-count').innerText = `${w} / 12`;
+    document.getElementById('water-bar').style.width = `${Math.min((w/12)*100, 100)}%`;
+    if(w>=12) document.getElementById('water-bar').style.background = '#10b981';
 
     updateStats(day);
+    calculateStreak();
 }
 
-// עדכון בחירת מזון
-function updateMeal(k, id, val) {
-    if (!appData.days[k]) appData.days[k] = {};
+function upd(k, id, val) {
+    if(!appData.days[k]) appData.days[k]={};
     appData.days[k][id] = val;
     save();
-    init(); // רענון לתצוגה ויזואלית (V ירוק)
+    init();
 }
 
-// הוספת מים
-function addWater(amount) {
+function addWater(n) {
     const k = getK(vDate);
-    if (!appData.days[k]) appData.days[k] = {};
-    const cur = appData.days[k].water || 0;
-    const newVal = Math.max(0, cur + amount);
-    appData.days[k].water = newVal;
-    
-    // קונפטי בסיום יעד
-    if (newVal === 12 && amount > 0 && typeof confetti === 'function') {
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-    }
-    
+    if(!appData.days[k]) appData.days[k]={};
+    const w = Math.max(0, (appData.days[k].water || 0) + n);
+    appData.days[k].water = w;
+    if(w===12 && n>0) confetti({particleCount:100, spread:70, origin:{y:0.6}});
     save();
     init();
 }
 
-// טוגל מנה מותרת
-function toggleCheat() {
-    const k = getK(vDate);
-    if (!appData.days[k]) appData.days[k] = {};
-    appData.days[k].isCheatMeal = document.getElementById('cheat-toggle').checked;
-    save();
-    init();
-}
-
-// בדיקה אם נלקחה מנה מותרת השבוע
-function checkCheatHistory(currentK) {
-    let found = false;
-    let d = new Date(vDate);
-    // בדיקה 6 ימים אחורה
-    for(let i=1; i<=6; i++) {
-        d.setDate(d.getDate() - 1);
-        let k = getK(d);
-        if (appData.days[k] && appData.days[k].isCheatMeal) found = true;
-    }
-    const warn = document.getElementById('cheat-warning');
-    if (found) { warn.style.display = 'block'; }
-    else { warn.style.display = 'none'; }
-}
-
-// עדכון סטטיסטיקה עליונה
 function updateStats(day) {
     let t = 0;
     mealsConfig.forEach((m, i) => {
-        let active = false;
-        m.p.forEach((_, pi) => { if(day[`${i}_${pi}`]) active = true; });
-        if(active) t += m.c;
+        let act = false;
+        m.p.forEach((_, pi) => { if(day[`${i}_${pi}`]) act=true; });
+        if(act) t += m.c;
     });
-    
-    const calEl = document.getElementById('cal-val');
-    calEl.innerText = t;
-    document.getElementById('left-val').innerText = Math.max(0, 1200 - t);
-    
-    if (t > 1200) calEl.style.color = '#ef4444';
-    else calEl.style.color = '#3b82f6';
-
-    const lastW = appData.weights.length ? appData.weights[appData.weights.length-1].w : '--';
-    document.getElementById('weight-val').innerText = lastW;
+    document.getElementById('cal-val').innerText = t;
+    document.getElementById('left-val').innerText = Math.max(0, 1200-t);
+    const lw = appData.weights.length ? appData.weights[appData.weights.length-1].w : '--';
+    document.getElementById('weight-val').innerText = lw;
 }
 
-// חישוב ימי רצף
-function calculateStreak() {
-    let streak = 0;
-    let d = new Date();
-    // לולאה אחורה בזמן
-    while(true) {
-        let k = getK(d);
-        let day = appData.days[k];
-        // הנחה: יום נחשב "פעיל" אם סומנו לפחות 3 פריטים
-        if (day && Object.keys(day).filter(key => key.includes('_')).length >= 3) {
-            streak++;
-            d.setDate(d.getDate() - 1);
-        } else {
-            // אם היום הנוכחי עדיין ריק, לא שוברים רצף, רק מדלגים בבדיקה
-            if (k === getK(new Date()) && streak === 0) {
-                 d.setDate(d.getDate() - 1);
-                 continue;
-            }
-            break;
-        }
-    }
-    document.getElementById('streak-count').innerText = streak;
+// --- NEW: Calendar & Reports Logic ---
+
+function triggerDatePicker() {
+    document.getElementById('hidden-date').showPicker();
 }
 
-function changeDate(n) {
-    vDate.setDate(vDate.getDate() + n);
+function onDatePicked(isoDate) {
+    if(!isoDate) return;
+    vDate = new Date(isoDate);
     init();
 }
 
-// --- כלים ומודאלים ---
+function changeDate(n) { vDate.setDate(vDate.getDate()+n); init(); }
+
+function calculateStreak() {
+    let s=0, d=new Date();
+    while(true) {
+        let k=getK(d), day=appData.days[k];
+        if(day && Object.keys(day).length > 3) { s++; d.setDate(d.getDate()-1); }
+        else { if(k===getK(new Date()) && s===0) d.setDate(d.getDate()-1); else break; }
+    }
+    document.getElementById('streak-count').innerText = s;
+}
+
+function openReportMode() {
+    const weights = appData.weights;
+    const currentW = weights.length ? weights[weights.length-1].w : 0;
+    const startW = weights.length ? weights[0].w : 0;
+    const totalLost = (startW && currentW) ? (startW - currentW).toFixed(1) : 0;
+    
+    // Weekly Calc
+    let weekCalSum = 0;
+    let daysCount = 0;
+    let d = new Date();
+    for(let i=0; i<7; i++) {
+        const k = getK(d);
+        if(appData.days[k]) {
+            let dailyC = 0;
+            mealsConfig.forEach((m,idx) => {
+                let act = false;
+                m.p.forEach((_,pi) => { if(appData.days[k][`${idx}_${pi}`]) act=true; });
+                if(act) dailyC += m.c;
+            });
+            if(dailyC > 0) { weekCalSum += dailyC; daysCount++; }
+        }
+        d.setDate(d.getDate()-1);
+    }
+    const avgCal = daysCount ? Math.round(weekCalSum / daysCount) : 0;
+
+    document.getElementById('modal-title').innerText = "דוח סיכום והתקדמות";
+    document.getElementById('modal-body').innerHTML = `
+        <div class="report-grid">
+            <div class="report-box">
+                <div class="report-title">סה״כ ירידה</div>
+                <div class="report-value" style="color:${totalLost>0?'#10b981':'white'}">${totalLost} ק״ג</div>
+                <div class="trend-down">מהשקילה הראשונה</div>
+            </div>
+            <div class="report-box">
+                <div class="report-title">משקל נוכחי</div>
+                <div class="report-value">${currentW || '--'}</div>
+                <div style="font-size:0.8rem; color:#aaa;">קילוגרם</div>
+            </div>
+            <div class="report-box">
+                <div class="report-title">ממוצע קלוריות</div>
+                <div class="report-value">${avgCal}</div>
+                <div style="font-size:0.8rem; color:${avgCal>1250?'#ef4444':'#10b981'}">7 ימים אחרונים</div>
+            </div>
+             <div class="report-box">
+                <div class="report-title">ימים פעילים</div>
+                <div class="report-value">${Object.keys(appData.days).length}</div>
+                <div style="font-size:0.8rem; color:#aaa;">סה"כ ביומן</div>
+            </div>
+        </div>
+
+        <h4 style="margin-bottom:10px;">גרף משקל</h4>
+        <div style="background:#1e293b; padding:10px; border-radius:12px; height:200px;">
+            <canvas id="reportChart"></canvas>
+        </div>
+
+        <div style="margin-top:20px; display:flex; gap:10px;">
+            <input type="number" id="new-w-input" placeholder="עדכן משקל..." step="0.1">
+            <button onclick="addWeight()" class="btn-primary" style="margin:0; width:auto; padding:0 20px;">שמור</button>
+        </div>
+    `;
+    document.getElementById('modal').style.display = 'flex';
+
+    setTimeout(() => {
+        const ctx = document.getElementById('reportChart').getContext('2d');
+        const labels = weights.slice(-10).map(x=>x.d);
+        const data = weights.slice(-10).map(x=>x.w);
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{ 
+                    label: 'משקל', data: data, 
+                    borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', 
+                    fill: true, tension: 0.3 
+                }]
+            },
+            options: { 
+                responsive: true, maintainAspectRatio: false,
+                scales: { y: { grid: { color: '#334155' } }, x: { display: false } },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }, 100);
+}
+
+function addWeight() {
+    const v = parseFloat(document.getElementById('new-w-input').value);
+    if(v) {
+        appData.weights.push({d: getK(new Date()), w: v});
+        save();
+        openReportMode(); // Refresh report
+        init(); // Refresh header
+    }
+}
 
 function openTools() {
-    document.getElementById('modal-title').innerText = "ארגז כלים";
+    document.getElementById('modal-title').innerText = "כלים";
     document.getElementById('modal-body').innerHTML = `
-        <div class="tools-grid">
-            <button class="tool-btn" onclick="copyYesterday()">
-                <span style="font-size:1.8rem">📋</span>
-                <span>העתק מאתמול</span>
-            </button>
-            <button class="tool-btn" onclick="shareDay()">
-                <span style="font-size:1.8rem">💬</span>
-                <span>שתף בוואטסאפ</span>
-            </button>
-            <button class="tool-btn" onclick="generateShopList()">
-                <span style="font-size:1.8rem">🛒</span>
-                <span>רשימת קניות</span>
-            </button>
-            <button class="tool-btn" onclick="openWeightModal()">
-                <span style="font-size:1.8rem">⚖️</span>
-                <span>מעקב משקל</span>
-            </button>
-            <button class="tool-btn" onclick="exportData()">
-                <span style="font-size:1.8rem">💾</span>
-                <span>גיבוי נתונים</span>
-            </button>
-             <button class="tool-btn" onclick="importData()">
-                <span style="font-size:1.8rem">📂</span>
-                <span>שחזור מגיבוי</span>
-            </button>
-        </div>
-        <div style="margin-top:25px; border-top:1px solid #334155; pt-3;">
-            <h4 style="color:var(--accent); margin-bottom:10px;">דגשים חשובים:</h4>
-            <ul style="font-size:0.85rem; color:#cbd5e1; padding-right:20px; line-height:1.6;">
-                <li>לא לדלג על ארוחות.</li>
-                <li>מרווח של 1.5-3 שעות בין ארוחות.</li>
-                <li>12 כוסות מים חובה ביום.</li>
-                <li>ירקות חופשי - בשפיות.</li>
-            </ul>
-        </div>
+        <button class="btn-primary" onclick="generateShoppingList()" style="background:#475569; margin-bottom:10px;">🛒 צור רשימת קניות בוואטסאפ</button>
+        <button class="btn-primary" onclick="exportData()" style="background:#475569; margin-bottom:10px;">💾 גיבוי נתונים</button>
+        <button class="btn-primary" onclick="importData()" style="background:#475569;">📂 שחזור נתונים</button>
     `;
     document.getElementById('modal').style.display = 'flex';
 }
 
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
-
-// כלי: העתקה מאתמול
-function copyYesterday() {
-    const todayK = getK(vDate);
-    const yDate = new Date(vDate);
-    yDate.setDate(yDate.getDate() - 1);
-    const yK = getK(yDate);
-    
-    if (appData.days[yK] && Object.keys(appData.days[yK]).length > 0) {
-        if(!confirm('האם לדרוס את הנתונים של היום ולהעתיק מאתמול?')) return;
-        
-        const copy = {...appData.days[yK]};
-        delete copy.isCheatMeal; // לא מעתיקים מנה מותרת
-        delete copy.water;       // לא מעתיקים מים
-        
-        appData.days[todayK] = { ...appData.days[todayK], ...copy };
-        save();
-        init();
-        closeModal();
-    } else {
-        alert('לא נמצאו נתונים מאתמול להעתקה.');
-    }
-}
-
-// כלי: שיתוף
-function shareDay() {
-    const k = getK(vDate);
-    const day = appData.days[k] || {};
-    let text = `*יומן אכילה - ${k}*\n`;
-    let totalC = 0;
-    
-    mealsConfig.forEach((m, i) => {
-        let mealTxt = ``;
-        let hasItems = false;
-        m.p.forEach((_, pi) => {
-            const val = day[`${i}_${pi}`];
-            if (val) {
-                mealTxt += `• ${val}\n`;
-                hasItems = true;
-            }
-        });
-        if(hasItems) {
-            text += `\n*${m.n}:*\n${mealTxt}`;
-            totalC += m.c;
-        }
-    });
-    
-    text += `\n💧 מים: ${day.water || 0} כוסות`;
-    if(day.isCheatMeal) text += `\n🍔 *בוצעה מנה מותרת*`;
-    text += `\nסה"כ קלוריות: ${totalC}`;
-    
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
-}
-
-// כלי: רשימת קניות
-function generateShopList() {
+function generateShoppingList() {
     const k = getK(vDate);
     const day = appData.days[k];
-    if(!day || Object.keys(day).length < 2) return alert('היום ריק, מלא אותו כדי ליצור רשימה.');
-    
-    let items = [];
-    Object.keys(day).forEach(key => {
-        if(key !== 'water' && key !== 'isCheatMeal') items.push(day[key]);
-    });
-    
-    let text = `*רשימת קניות ל-${k}:*\n` + items.map(i => `- [ ] ${i}`).join('\n');
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+    if(!day) return alert('אין פריטים ביום זה');
+    let txt = `*רשימת קניות (${k}):*\n`;
+    Object.values(day).forEach(v => { if(typeof v === 'string') txt += `- [ ] ${v}\n`; });
+    window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`);
 }
-
-// כלי: גרף משקל
-function openWeightModal() {
-    closeModal();
-    document.getElementById('modal-title').innerText = "מעקב משקל";
-    
-    // חישוב מגמה (ממוצע נע)
-    const weights = appData.weights;
-    const labels = weights.map(w => w.d);
-    const rawData = weights.map(w => w.w);
-    
-    // ממוצע נע של 3 מדידות אחרונות להחלקת הגרף
-    const trendData = rawData.map((val, idx, arr) => {
-        if (idx < 2) return val;
-        return ((arr[idx] + arr[idx-1] + arr[idx-2]) / 3).toFixed(1);
-    });
-
-    document.getElementById('modal-body').innerHTML = `
-        <div class="chart-container">
-            <canvas id="wChartPro"></canvas>
-        </div>
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <input type="number" id="new-weight" placeholder="הכנס משקל (ק״ג)..." step="0.1" style="margin:0;">
-            <button class="btn-primary" onclick="addWeight()" style="width:auto; padding:0 20px;">שמור</button>
-        </div>
-        <h4 style="margin-bottom:5px; margin-top:15px; color:var(--text-muted);">היסטוריה:</h4>
-        <ul style="font-size:0.9rem; color:#cbd5e1; max-height:120px; overflow-y:auto; padding-right:20px; list-style:none;">
-            ${weights.slice().reverse().map(w => `<li style="border-bottom:1px solid #334155; padding:8px 0; display:flex; justify-content:space-between;"><span>${w.d}</span> <strong>${w.w} ק"ג</strong></li>`).join('')}
-        </ul>
-    `;
-    document.getElementById('modal').style.display = 'flex';
-
-    // השהייה קלה לטעינת הגרף כדי לוודא שקנבס נטען
-    setTimeout(() => {
-        const ctx = document.getElementById('wChartPro').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels.slice(-10), 
-                datasets: [
-                    { label: 'משקל', data: rawData.slice(-10), borderColor: '#3b82f6', tension: 0.3, pointRadius: 4, borderWidth: 2 },
-                    { label: 'מגמה', data: trendData.slice(-10), borderColor: '#f59e0b', borderDash: [5,5], pointRadius:0, borderWidth: 1 }
-                ]
-            },
-            options: { 
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: true, labels: { color: '#94a3b8' } } },
-                scales: { 
-                    y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }, 
-                    x: { display:false } 
-                } 
-            }
-        });
-    }, 150);
-}
-
-function addWeight() {
-    const val = parseFloat(document.getElementById('new-weight').value);
-    if(val) {
-        appData.weights.push({d: getK(new Date()), w: val});
-        save();
-        init();
-        openWeightModal();
-    }
-}
-
-// כלי: גיבוי ושחזור
 function exportData() {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
-    const a = document.createElement('a');
-    a.href = dataStr;
-    a.download = "heli_backup_" + getK(new Date()) + ".json";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    const s = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
+    const a = document.createElement('a'); a.href = s; a.download = "backup.json"; a.click();
 }
-
 function importData() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.onchange = e => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.readAsText(file,'UTF-8');
-        reader.onload = readerEvent => {
-            try {
-                const content = JSON.parse(readerEvent.target.result);
-                if(content.days && content.weights) {
-                    appData = content;
-                    save();
-                    init();
-                    alert('הנתונים שוחזרו בהצלחה!');
-                    closeModal();
-                } else { alert('קובץ לא תקין'); }
-            } catch(e) { alert('שגיאה בקריאת הקובץ'); }
-        }
-    }
-    input.click();
+    const i = document.createElement('input'); i.type = 'file';
+    i.onchange = e => {
+        const r = new FileReader();
+        r.onload = ev => { appData = JSON.parse(ev.target.result); save(); init(); closeModal(); alert('שוחזר!'); };
+        r.readAsText(e.target.files[0]);
+    };
+    i.click();
 }
 
 init();
