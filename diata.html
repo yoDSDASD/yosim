@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Heli 1200 Dark - Fixed Calculation</title>
+    <title>Heli 1200 Dark - Fixed & Restored</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { 
@@ -15,37 +15,30 @@
             --danger: #ff5252;
             --border: #333;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 12px; padding-bottom: 100px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; padding-bottom: 90px; }
         
-        /* Header */
-        .motivation-bar { background: linear-gradient(90deg, #1565c0, #0d47a1); color: #fff; padding: 15px; border-radius: 12px; text-align: center; font-weight: bold; margin-bottom: 15px; border: 1px solid #333; box-shadow: 0 4px 15px rgba(0,0,0,0.6); }
-        
-        /* Stats Grid */
-        .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; position: sticky; top: 10px; z-index: 900; }
-        .stat-box { background: rgba(30, 30, 30, 0.95); padding: 10px; border-radius: 12px; text-align: center; border: 1px solid var(--border); backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        /* Stats Bar */
+        .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; position: sticky; top: 5px; z-index: 900; }
+        .stat-box { background: rgba(30, 30, 30, 0.95); padding: 8px; border-radius: 12px; text-align: center; border: 1px solid var(--border); backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         .stat-label { font-size: 0.7rem; color: #aaa; margin-bottom: 2px; }
-        .stat-val { font-size: 1.3rem; font-weight: bold; }
+        .stat-val { font-size: 1.2rem; font-weight: bold; }
         
-        /* Meal Cards */
+        /* General Styles */
+        h3 { color: var(--accent); margin: 0 0 10px 0; font-size: 1.1rem; border-bottom: 1px solid #333; padding-bottom: 8px; }
         .card { background: var(--card); border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); }
-        .meal-header { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; align-items: center; }
-        h3 { color: var(--accent); margin: 0; font-size: 1.1rem; }
         
-        /* Inputs & Selects */
+        /* Forms */
         label { font-size: 0.8rem; color: #888; display: block; margin-bottom: 4px; }
-        select, input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--border); background: #2c2c2c; color: #fff; font-size: 0.95rem; margin-bottom: 12px; appearance: none; }
+        select, input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #2c2c2c; color: #fff; font-size: 0.95rem; margin-bottom: 12px; appearance: none; }
         select:focus, input:focus { border-color: var(--accent); outline: none; }
         
-        /* Update Button */
-        .update-btn { width: 100%; padding: 15px; border-radius: 12px; background: var(--accent); color: #000; font-weight: bold; font-size: 1.1rem; border: none; cursor: pointer; margin-bottom: 20px; box-shadow: 0 0 15px rgba(77, 171, 247, 0.3); }
-        .update-btn:active { transform: scale(0.98); }
-
-        /* Weight Section */
-        #weight-section { border: 1px solid var(--accent); box-shadow: 0 0 15px rgba(77, 171, 247, 0.1); }
-        .weight-history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #333; font-size: 0.9rem; }
-        .del-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; }
+        /* Archive Table */
+        .archive-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
+        .archive-table th { text-align: right; color: #777; padding: 5px; border-bottom: 1px solid #444; }
+        .archive-table td { padding: 8px 5px; border-bottom: 1px solid #333; }
+        .del-btn { background: none; border: none; font-size: 1rem; cursor: pointer; padding: 5px; }
         
-        /* Bottom Nav */
+        /* Nav */
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; padding: 12px; display: flex; gap: 10px; border-top: 1px solid #333; z-index: 1000; box-shadow: 0 -5px 20px rgba(0,0,0,0.7); }
         .nav-btn { flex: 1; background: #333; color: var(--text); padding: 12px; border-radius: 8px; border: none; font-weight: bold; font-size: 0.9rem; }
         
@@ -56,11 +49,9 @@
 </head>
 <body>
 
-<div id="quote" class="motivation-bar">יוסף, תפריט מדויק = תוצאות מדויקות!</div>
-
 <div class="stats-row">
     <div class="stat-box">
-        <div class="stat-label">קלוריות היום</div>
+        <div class="stat-label">קלוריות</div>
         <div id="cal-count" class="stat-val" style="color: var(--accent);">0</div>
     </div>
     <div class="stat-box">
@@ -75,38 +66,32 @@
 
 <div id="app"></div>
 
-<button class="update-btn" onclick="forceUpdate()">🔄 עדכן חישוב קלוריות</button>
-
-<div class="card" id="weight-section">
-    <div class="meal-header">
-        <h3>📉 מעקב ירידה במשקל</h3>
-    </div>
-    
+<div class="card">
+    <h3>📉 ארכיון משקל</h3>
     <div style="display:flex; gap:10px; margin-bottom:15px;">
-        <input type="number" id="w-in" step="0.1" placeholder="הזן משקל עדכני..." style="flex:1; margin:0;">
-        <button onclick="addW()" style="background:var(--success); color:#000; border:none; border-radius:10px; padding:0 20px; font-weight:bold;">שמור</button>
+        <input type="number" id="w-in" step="0.1" placeholder="הזן משקל..." style="flex:1; margin:0;">
+        <button onclick="addW()" style="background:var(--success); color:#000; border:none; border-radius:8px; padding:0 20px; font-weight:bold;">שמור</button>
     </div>
-    
-    <canvas id="wChart" style="max-height:200px; width:100%;"></canvas>
-    
-    <div style="margin-top:20px; max-height:200px; overflow-y:auto;">
-        <div style="font-size:0.8rem; color:#888; margin-bottom:5px;">היסטוריה (לחץ על הפח למחיקה):</div>
-        <div id="w-history"></div>
+    <canvas id="wChart" style="max-height:180px; width:100%; margin-bottom:10px;"></canvas>
+    <div style="max-height:200px; overflow-y:auto;">
+        <table class="archive-table">
+            <thead><tr><th>תאריך</th><th>משקל</th><th>שינוי</th><th></th></tr></thead>
+            <tbody id="w-history-body"></tbody>
+        </table>
     </div>
 </div>
 
 <div class="nav-bar">
-    <button class="nav-btn" onclick="changeDate(-1)">◄ אתמול</button>
+    <button class="nav-btn" onclick="changeDate(-1)">◄ יום קודם</button>
     <button class="nav-btn" onclick="openReport()">📄 סיכום</button>
-    <button class="nav-btn" onclick="openInfo()">ℹ️ דגשים</button>
-    <button class="nav-btn" onclick="changeDate(1)">מחר ►</button>
+    <button class="nav-btn" onclick="changeDate(1)">יום הבא ►</button>
 </div>
 
 <div id="modal">
     <div class="modal-content">
-        <h2 id="modal-title" style="text-align:center; border-bottom:1px solid #333; padding-bottom:10px; color:var(--accent);"></h2>
+        <h2 id="modal-title" style="text-align:center; color:var(--accent);"></h2>
         <div id="modal-body" style="line-height:1.6; color:#ccc;"></div>
-        <button onclick="closeModal()" style="width:100%; margin-top:20px; background:var(--danger); color:white; padding:12px; border:none; border-radius:10px; font-weight:bold;">סגור</button>
+        <button onclick="document.getElementById('modal').style.display='none'" style="width:100%; margin-top:20px; background:var(--danger); color:white; padding:12px; border:none; border-radius:8px;">סגור</button>
     </div>
 </div>
 
@@ -172,35 +157,17 @@ const mealsConfig = [
     { n: "ארוחת לילה", c: 100, p: [{l: "חלבון גבינה", d: DB.cheese}, {l: "פרי", d: DB.fruit}] }
 ];
 
-const guidelinesText = `
-<ul>
-<li>מומלץ לאכול ארוחה ראשונה עד שעה מהיקיצה.</li>
-<li>מרווח בין ארוחות: 1.5 עד 3 שעות.</li>
-<li>חובה לשתות לפחות 12 כוסות מים ביום.</li>
-<li>כוס חלב אחת ביום לקפה (בנוסף לתפריט).</li>
-<li>ירקות חופשיים מומלצים בכל ארוחה.</li>
-<li>מותרת "מנה מותרת" אחת לשבוע בנוסף לתפריט.</li>
-<li>יש להקפיד על מדידה מדויקת של הכמויות.</li>
-<li>אין לדלג על ארוחות ולא לאחד אותן.</li>
-</ul>
-`;
-
 let vDate = new Date();
-let data = JSON.parse(localStorage.getItem('heli_fixed_final')) || { days:{}, weights:[] };
+// RESTORE KEY: heli_dark_archive
+let data = JSON.parse(localStorage.getItem('heli_dark_archive')) || { days:{}, weights:[] };
 
 function getK(d){ return d.toLocaleDateString('he-IL').replace(/\./g,'-'); }
 
 function init() {
     const k = getK(vDate);
-    document.getElementById('cur-date').innerText = k === getK(new Date()) ? "היום" : k;
-    const day = data.days[k] || {};
-    
     document.getElementById('app').innerHTML = mealsConfig.map((m, i) => `
         <div class="card">
-            <div class="meal-header">
-                <h3>${m.n}</h3>
-                <span style="font-size:0.8rem; color:#888;">${m.c} קל'</span>
-            </div>
+            <h3>${m.n} <span style="font-size:0.8rem; color:#888; float:left;">${m.c} קל'</span></h3>
             ${m.p.map((part, pi) => `
                 <div style="margin-bottom:10px;">
                     <label>${part.l}</label>
@@ -208,33 +175,22 @@ function init() {
                         <option value="">בחר...</option>
                         ${part.d.map(x => {
                             const isH = x.startsWith('---');
-                            return `<option value="${isH?'':x}" ${isH?'disabled style="color:var(--accent); font-weight:bold;"':''} ${day[i+'_'+pi]===x?'selected':''}>${x}</option>`;
+                            return `<option value="${isH?'':x}" ${isH?'disabled style="color:var(--accent); font-weight:bold;"':''} ${(data.days[k] && data.days[k][i+'_'+pi]===x)?'selected':''}>${x}</option>`;
                         }).join('')}
                     </select>
                 </div>
             `).join('')}
         </div>
     `).join('');
-    updateStats(day);
+    updateStats();
     renderW();
 }
 
 function updM(k, id, v){ 
-    // FIXED: Allow clearing (removed if(!v) check)
     if(!data.days[k]) data.days[k]={}; 
     data.days[k][id]=v; 
     save(); 
-    updateStats(data.days[k]); 
-}
-
-function forceUpdate() {
-    const k = getK(vDate);
-    if(data.days[k]) {
-        updateStats(data.days[k]);
-        alert('החישוב עודכן בהצלחה! ✅');
-    } else {
-        alert('אין נתונים לעדכון ביום זה.');
-    }
+    updateStats(); 
 }
 
 function addW(){ 
@@ -244,13 +200,15 @@ function addW(){
 }
 
 function delW(id){
-    if(confirm("למחוק שקילה זו?")){
+    if(confirm("למחוק שקילה?")){
         data.weights = data.weights.filter(w => w.id !== id);
         save(); renderW();
     }
 }
 
-function updateStats(day){
+function updateStats(){
+    const k = getK(vDate);
+    const day = data.days[k] || {};
     let t = 0;
     mealsConfig.forEach((m, i) => {
         let active = false;
@@ -258,90 +216,66 @@ function updateStats(day){
         if(active) t += m.c;
     });
     document.getElementById('cal-count').innerText = t;
-    
-    // Weight Stats
-    if(data.weights.length > 0) {
-        const current = data.weights[data.weights.length-1].w;
-        const first = data.weights[0].w;
-        document.getElementById('last-weight').innerText = current;
-        const diff = (first - current).toFixed(1);
-        document.getElementById('total-lost').innerText = diff > 0 ? "-" + diff : "0";
-    }
 }
 
 function renderW(){
-    // Draw Chart
+    const sorted = [...data.weights].sort((a,b) => a.id - b.id);
+    
+    // Total Lost
+    if(sorted.length > 0) {
+        const cur = sorted[sorted.length-1].w;
+        const first = sorted[0].w;
+        document.getElementById('last-weight').innerText = cur;
+        const diff = (first - cur).toFixed(1);
+        const el = document.getElementById('total-lost');
+        el.innerText = diff > 0 ? "-"+diff : (diff<0 ? "+"+Math.abs(diff) : "0");
+        el.style.color = diff >= 0 ? "var(--success)" : "var(--danger)";
+    }
+
+    // Chart
     const ctx = document.getElementById('wChart').getContext('2d');
     if(window.myChart) window.myChart.destroy();
-    
-    // Sort for chart but keep raw for list
-    const sortedW = [...data.weights].sort((a,b) => a.id - b.id);
-    const d = sortedW.slice(-10); // Show last 10 points
-    
     window.myChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: d.map(x=>x.d),
-            datasets: [{ 
-                label:'משקל', 
-                data:d.map(x=>x.w), 
-                borderColor:'#4dabf7', 
-                backgroundColor:'rgba(77,171,247,0.1)', 
-                fill:true, 
-                tension:0.4,
-                pointBackgroundColor: '#fff',
-                pointRadius: 4
-            }]
+            labels: sorted.slice(-10).map(x=>x.d),
+            datasets: [{ label:'משקל', data:sorted.slice(-10).map(x=>x.w), borderColor:'#4dabf7', backgroundColor:'rgba(77,171,247,0.1)', fill:true, tension:0.4 }]
         },
-        options: {
-            plugins: { legend: {display:false} },
-            scales: { 
-                x: { display:false }, 
-                y: { grid: {color:'#333', borderDash:[5,5]} } 
-            }
-        }
+        options: { plugins: { legend: {display:false} }, scales: { x: {display:false}, y: {grid:{color:'#333'}} } }
     });
 
-    // Render History List (Reverse Order)
-    const listHtml = [...data.weights].reverse().map(e => `
-        <div class="weight-history-item">
-            <span style="color:#aaa;">${e.d}</span>
-            <strong style="color:var(--text); font-size:1.1rem;">${e.w} ק״ג</strong>
-            <button class="del-btn" onclick="delW(${e.id})">🗑️</button>
-        </div>
-    `).join('');
-    document.getElementById('w-history').innerHTML = listHtml;
-    
-    updateStats(data.days[getK(vDate)] || {});
+    // Archive Table
+    let html = '';
+    [...sorted].reverse().forEach((e, i, arr) => {
+        let diffHtml = '-';
+        if(i < arr.length-1) {
+            let prev = arr[i+1].w;
+            let ch = (e.w - prev).toFixed(1);
+            if(ch < 0) diffHtml = `<span style="color:var(--success)">▼${Math.abs(ch)}</span>`;
+            else if(ch > 0) diffHtml = `<span style="color:var(--danger)">▲${ch}</span>`;
+            else diffHtml = `<span style="color:#777">0</span>`;
+        }
+        html += `<tr><td>${e.d}</td><td style="color:white; font-weight:bold;">${e.w}</td><td>${diffHtml}</td><td><button class="del-btn" onclick="delW(${e.id})">🗑️</button></td></tr>`;
+    });
+    document.getElementById('w-history-body').innerHTML = html || '<tr><td colspan="4" style="text-align:center; padding:10px; color:#666">אין נתונים</td></tr>';
 }
 
-function save(){ localStorage.setItem('heli_fixed_final', JSON.stringify(data)); }
+function save(){ localStorage.setItem('heli_dark_archive', JSON.stringify(data)); }
 function changeDate(n){ vDate.setDate(vDate.getDate()+n); init(); }
-
-function openInfo() {
-    document.getElementById('modal-title').innerText = "דגשים להצלחה";
-    document.getElementById('modal-body').innerHTML = guidelinesText;
-    document.getElementById('modal').style.display = 'flex';
-}
 
 function openReport() {
     const k = getK(vDate);
     const day = data.days[k] || {};
     let html = '';
     mealsConfig.forEach((m, i) => {
-        html += `<div style="margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
-            <strong style="color:var(--accent)">${m.n}</strong><br>`;
-        m.p.forEach((p, pi) => {
-            if(day[i+'_'+pi]) html += `<div style="font-size:0.9rem;">• ${p.l}: ${day[i+'_'+pi]}</div>`;
-        });
+        html += `<div style="margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:5px;"><strong style="color:var(--accent)">${m.n}</strong><br>`;
+        m.p.forEach((p, pi) => { if(day[i+'_'+pi]) html += `<span style="font-size:0.9rem; color:#ccc;">• ${p.l}: ${day[i+'_'+pi]}</span><br>`; });
         html += `</div>`;
     });
-    document.getElementById('modal-title').innerText = "סיכום יומי: " + k;
-    document.getElementById('modal-body').innerHTML = html || "לא נרשמו ארוחות ליום זה.";
+    document.getElementById('modal-title').innerText = "סיכום: " + k;
+    document.getElementById('modal-body').innerHTML = html || "לא נרשמו ארוחות";
     document.getElementById('modal').style.display = 'flex';
 }
-
-function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
 init();
 </script>
