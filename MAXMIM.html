@@ -2,143 +2,335 @@
 <html lang="he" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>מחשבון מדידות (מתוקן)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>CMM PRO Calculator</title>
   <style>
-    :root{ --bg:#0b0f14; --card:#1e293b; --text:#f1f5f9; --muted:#94a3b8; --accent:#3b82f6; --green:#22c55e; --red:#ef4444; --font:system-ui,sans-serif; }
-    *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-    body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font); padding:10px; }
-    .wrap{ max-width:600px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
-    
-    .card{ background:var(--card); padding:16px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); }
-    
-    /* תוצאות */
-    .results{ display:grid; grid-template-columns:1fr 1fr; gap:10px; text-align:center; }
-    .res-box{ background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; }
-    .label{ font-size:12px; color:var(--muted); display:block; margin-bottom:4px; }
-    .val{ font-size:26px; font-weight:800; font-family:monospace; direction:ltr; }
-    .min{ color:var(--green); } .max{ color:var(--red); }
-    
-    /* סטטוס */
-    .status{ display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.05); }
-    
-    /* קלט */
-    textarea{ width:100%; height:100px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:10px; border-radius:8px; font-size:16px; font-family:monospace; margin:10px 0; outline:none; }
-    textarea:focus{ border-color:var(--accent); }
-    
-    .controls{ display:flex; gap:10px; margin-bottom:10px; }
-    input{ background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:8px; border-radius:6px; text-align:center; width:100%; }
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #3b82f6;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --border: rgba(255,255,255,0.1);
+    }
 
-    button{ width:100%; padding:14px; background:var(--accent); border:none; color:white; font-weight:bold; border-radius:8px; font-size:16px; cursor:pointer; }
-    button:active{ opacity:0.9; transform:scale(0.98); }
-    .clear{ background:rgba(255,255,255,0.1); margin-top:10px; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      margin: 0;
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      padding: 12px;
+      padding-bottom: 40px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* כותרת */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
+    .badge { background: var(--accent); font-size: 10px; padding: 3px 6px; border-radius: 4px; font-weight: bold; }
+
+    /* כרטיסים כלליים */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    /* אזור התוצאות הראשי */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    
+    /* במחשב - 4 בשורה */
+    @media (min-width: 600px) {
+      .stats-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .stat-box {
+      background: rgba(255,255,255,0.03);
+      padding: 12px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    
+    .stat-box.highlight-min { border-color: var(--success); background: rgba(34, 197, 94, 0.1); }
+    .stat-box.highlight-max { border-color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+
+    .stat-label { font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px; }
+    .stat-val { font-size: 24px; font-weight: 800; font-family: 'Courier New', monospace; letter-spacing: -1px; direction: ltr; display: block; }
+    
+    .text-green { color: var(--success); }
+    .text-red { color: var(--danger); }
+    .text-blue { color: var(--accent); }
+    .text-orange { color: var(--warning); }
+
+    /* אזור קלט */
+    .input-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .control-group { flex: 1; }
+    .control-group label { font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px; }
+    
+    input[type="number"], input[type="text"] {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
+      color: white;
+      padding: 8px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 16px; /* מונע זום באייפון */
+    }
+
+    textarea {
+      width: 100%;
+      height: 140px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 12px;
+      border-radius: 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      resize: vertical;
+      outline: none;
+    }
+    textarea:focus { border-color: var(--accent); }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    
+    button {
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    button:active { transform: scale(0.97); }
+    
+    .btn-primary { background: var(--accent); color: white; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+    .btn-secondary { background: rgba(255,255,255,0.08); color: var(--text-muted); }
 
     /* טבלה */
-    .table-con{ max-height:250px; overflow-y:auto; margin-top:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.05); }
-    table{ width:100%; border-collapse:collapse; font-size:14px; }
-    td{ padding:8px; border-bottom:1px solid rgba(255,255,255,0.05); text-align:left; }
-    td.num{ font-family:monospace; direction:ltr; text-align:right; }
-    tr.is-min td{ color:var(--green); font-weight:bold; }
-    tr.is-max td{ color:var(--red); font-weight:bold; }
+    .table-container {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
+    
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { position: sticky; top: 0; background: var(--card-bg); text-align: right; padding: 10px; font-size: 11px; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px; border-bottom: 1px solid var(--border); }
+    
+    .row-val { font-family: 'Courier New', monospace; direction: ltr; font-weight: 600; }
+    .idx { color: var(--text-muted); font-size: 11px; width: 30px; }
+    
+    /* תגיות בטבלה */
+    .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+    .tag-min { background: var(--success); color: #000; }
+    .tag-max { background: var(--danger); color: #fff; }
+    
   </style>
 </head>
 <body>
 
-<div class="wrap">
-  <div class="card">
-    <div class="results">
-      <div class="res-box">
-        <span class="label">MIN (נמוך)</span>
-        <span class="val min" id="minVal">-</span>
-      </div>
-      <div class="res-box">
-        <span class="label">MAX (גבוה)</span>
-        <span class="val max" id="maxVal">-</span>
-      </div>
+<div class="container">
+  <header>
+    <h1>CMM ANALYZER</h1>
+    <span class="badge">PRO v2.0</span>
+  </header>
+
+  <div class="stats-grid">
+    <div class="stat-box highlight-min">
+      <span class="stat-label">מינימום (Min)</span>
+      <span class="stat-val text-green" id="valMin">-</span>
     </div>
-    <div class="status">
-      <span>כמות: <strong id="count">0</strong></span>
-      <span>דלתא: <strong id="delta">-</strong></span>
+    <div class="stat-box highlight-max">
+      <span class="stat-label">מקסימום (Max)</span>
+      <span class="stat-val text-red" id="valMax">-</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">טווח (Range)</span>
+      <span class="stat-val text-orange" id="valRange">-</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">ממוצע (Avg)</span>
+      <span class="stat-val text-blue" id="valAvg">-</span>
     </div>
   </div>
 
   <div class="card">
-    <div class="controls">
-      <div><span class="label">דיוק</span><input type="number" id="dec" value="3"></div>
-      <div><span class="label">יחידות</span><input type="text" id="unit" value='מ"מ'></div>
+    <div class="input-controls">
+      <div class="control-group">
+        <label>דיוק (ספרות)</label>
+        <input type="number" id="inpDec" value="3" inputmode="numeric">
+      </div>
+      <div class="control-group">
+        <label>יחידות</label>
+        <input type="text" id="inpUnit" value='מ"מ'>
+      </div>
     </div>
-    <span class="label">הדבק נתונים (תומך במינוס בסוף 0.050-)</span>
-    <textarea id="input" placeholder="5.043 5.025 0.050-"></textarea>
-    <button onclick="calc()">חשב</button>
-    <button class="clear" onclick="cls()">נקה</button>
+
+    <label style="font-size:12px; color:#94a3b8; margin-bottom:5px; display:block;">הדבק נתונים (תומך בכל פורמט CMM):</label>
+    <textarea id="inpText" placeholder="לדוגמה:
+Dia1  5.025
+Dia2  5.030
+Pos   0.050-"></textarea>
+
+    <div class="actions">
+      <button class="btn-primary" onclick="processData()">נתח נתונים ⚡</button>
+      <button class="btn-secondary" onclick="resetApp()">נקה</button>
+    </div>
   </div>
 
-  <div class="card">
-    <span class="label">פירוט מדידות:</span>
-    <div class="table-con">
-      <table id="tbl"></table>
+  <div class="card" id="detailsCard" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <span style="font-size:14px; color:#fff;">רשימת מדידות (<span id="countVal">0</span>)</span>
+      <button onclick="copyTable()" style="padding:5px 10px; font-size:12px; background:rgba(255,255,255,0.1); color:white;">העתק רשימה</button>
+    </div>
+    <div class="table-container">
+      <table id="resTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th style="text-align:left;">ערך מדוד</th>
+            <th>סטטוס</th>
+          </tr>
+        </thead>
+        <tbody id="tblBody"></tbody>
+      </table>
     </div>
   </div>
 </div>
 
 <script>
-const el = i => document.getElementById(i);
-
-function calc() {
-  let raw = el('input').value;
+  // רכיבי DOM
+  const el = (id) => document.getElementById(id);
   
-  // 1. תיקון מינוס בסוף (למשל 0.050- הופך ל -0.050)
-  // מחליף כל מספר שמסתיים במינוס להיות עם מינוס בהתחלה
-  raw = raw.replace(/(\d+(\.\d+)?)-/g, "-$1");
+  function processData() {
+    let raw = el('inpText').value;
+    if (!raw.trim()) return;
 
-  // 2. פירוק לפי כל רווח או ירידת שורה
-  // הביטוי הרגולרי מחפש מספרים (חיוביים או שליליים)
-  let matches = raw.match(/-?\d+(\.\d+)?/g);
+    // 1. תיקון קריטי: הפיכת 0.050- ל -0.050
+    // מחפש מספר שמסתיים במינוס ומעביר את המינוס להתחלה
+    raw = raw.replace(/(\d+(?:\.\d+)?)-/g, "-$1");
 
-  if (!matches) return cls(true);
+    // 2. חילוץ מספרים נקי
+    // ה-Regex הזה תופס מספרים חיוביים ושליליים, ומתעלם מטקסט
+    const matches = raw.match(/-?\d+(\.\d+)?/g);
 
-  // המרה למספרים אמיתיים
-  let nums = matches.map(Number);
-  
-  let min = Math.min(...nums);
-  let max = Math.max(...nums);
-  let dec = parseInt(el('dec').value) || 3;
-  let unit = el('unit').value;
+    if (!matches || matches.length === 0) {
+      alert("לא זוהו מספרים! אנא בדוק את הקלט.");
+      return;
+    }
 
-  // הצגת תוצאות
-  el('minVal').innerText = min.toFixed(dec);
-  el('maxVal').innerText = max.toFixed(dec);
-  el('count').innerText = nums.length;
-  el('delta').innerText = (max - min).toFixed(dec);
+    // המרה למספרים
+    const nums = matches.map(Number);
+    const decimals = parseInt(el('inpDec').value) || 3;
+    const unit = el('inpUnit').value;
 
-  // בניית טבלה
-  let html = '';
-  nums.forEach((n, i) => {
-    let cls = '';
-    let mark = '';
-    if (n === min) { cls = 'is-min'; mark = 'MIN'; }
-    if (n === max) { cls = 'is-max'; mark = 'MAX'; }
+    // חישובים
+    const min = Math.min(...nums);
+    const max = Math.max(...nums);
+    const range = max - min;
+    const sum = nums.reduce((a, b) => a + b, 0);
+    const avg = sum / nums.length;
+
+    // עדכון תצוגה עליונה
+    el('valMin').innerText = min.toFixed(decimals);
+    el('valMax').innerText = max.toFixed(decimals);
+    el('valRange').innerText = range.toFixed(decimals);
+    el('valAvg').innerText = avg.toFixed(decimals);
     
-    html += `<tr class="${cls}">
-      <td style="width:30px; color:#666;">${i+1}</td>
-      <td class="num">${n.toFixed(dec)} ${unit}</td>
-      <td style="font-size:11px;">${mark}</td>
-    </tr>`;
-  });
-  el('tbl').innerHTML = html;
-  
-  // סידור מחדש של הקלט שיראה יפה
-  el('input').value = nums.join('  '); 
-}
+    // הצגת כרטיס הטבלה
+    el('detailsCard').style.display = 'block';
+    el('countVal').innerText = nums.length;
 
-function cls(keepText = false) {
-  if(!keepText) el('input').value = '';
-  el('minVal').innerText = '-';
-  el('maxVal').innerText = '-';
-  el('count').innerText = '0';
-  el('delta').innerText = '-';
-  el('tbl').innerHTML = '';
-}
+    // בניית טבלה
+    let html = '';
+    nums.forEach((n, i) => {
+      let tag = '';
+      let rowStyle = '';
+      let valColor = '#fff';
+
+      if (n === min) { 
+        tag = '<span class="tag tag-min">MIN</span>'; 
+        valColor = 'var(--success)';
+        rowStyle = 'background:rgba(34, 197, 94, 0.05);';
+      }
+      else if (n === max) { 
+        tag = '<span class="tag tag-max">MAX</span>'; 
+        valColor = 'var(--danger)';
+        rowStyle = 'background:rgba(239, 68, 68, 0.05);';
+      }
+
+      html += `
+        <tr style="${rowStyle}">
+          <td class="idx">${i + 1}</td>
+          <td class="row-val" style="color:${valColor}; text-align:left;">${n.toFixed(decimals)} ${unit}</td>
+          <td>${tag}</td>
+        </tr>
+      `;
+    });
+
+    el('tblBody').innerHTML = html;
+    
+    // עדכון תיבת הקלט שתהיה מסודרת
+    // משאיר את הקלט המקורי כדי לא להרוס למשתמש אם הוא רוצה לתקן, 
+    // אבל אפשר גם להחליף. כרגע נשאיר אותו.
+  }
+
+  function resetApp() {
+    el('inpText').value = '';
+    el('valMin').innerText = '-';
+    el('valMax').innerText = '-';
+    el('valRange').innerText = '-';
+    el('valAvg').innerText = '-';
+    el('detailsCard').style.display = 'none';
+    el('inpText').focus();
+  }
+
+  function copyTable() {
+    const raw = el('inpText').value;
+    // מעתיק את הטקסט הגולמי או המעובד? נלך על פשוט
+    navigator.clipboard.writeText(raw).then(() => {
+      alert("הנתונים הועתקו ללוח");
+    });
+  }
 </script>
+
 </body>
 </html>
